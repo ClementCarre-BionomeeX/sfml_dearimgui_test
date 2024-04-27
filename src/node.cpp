@@ -5,11 +5,15 @@
 #include <limits>
 #include <string>
 
-Node::Node(int x, int y, int w, int h) : rect{x, y, w, h}, radius{2} {}
+Node::Node(int x, int y, int w, int h, SDL_Color color, SDL_Color hoverColor)
+    : rect{x, y, w, h}, radius{2}, isHovered(false), color(color), hoverColor(hoverColor) {}
 
 void Node::render(SDL_Renderer* renderer) {
+    SDL_Color currentColor = isHovered ? hoverColor : color;
+
     // draw the background
-    SDL_SetRenderDrawColor(renderer, 0, 200, 200, 255);
+    SDL_SetRenderDrawColor(
+        renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
     SDL_Rect middleRect = {rect.x + radius, rect.y, rect.w - 2 * radius, rect.h};
     SDL_RenderFillRect(renderer, &middleRect);
     // Top and bottom strips (to fill the gaps in the rounded corners)
@@ -24,7 +28,12 @@ void Node::render(SDL_Renderer* renderer) {
 }
 
 bool Node::handleEvent(SDL_Event& event) {
-    return false;
+    if (event.type == SDL_MOUSEMOTION) {
+        int mouseX = event.motion.x;
+        int mouseY = event.motion.y;
+        isHovered  = (mouseX >= rect.x) && (mouseX <= rect.x + rect.w) && (mouseY >= rect.y) &&
+                    (mouseY <= rect.y + rect.h);
+    }
 }
 
 void Node::update() {}

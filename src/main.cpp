@@ -14,8 +14,12 @@ int main(/*int argc, char* argv[]*/) {
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
 
-    SDL_Window* window = SDL_CreateWindow(
-        "Text Input Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
+    SDL_Window*   window   = SDL_CreateWindow("Text Input Example",
+                                          SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
+                                          1920,
+                                          1080,
+                                          SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     TTF_Font* font = TTF_OpenFont("data/FiraCode-Medium.ttf", 24);
@@ -36,7 +40,7 @@ int main(/*int argc, char* argv[]*/) {
                       {255, 200, 200, 255},
                       2);    // Red button, lighter red on hover
 
-    Node testnode = Node(50, 300, 100, 100);
+    Node testnode = Node(50, 300, 100, 200, {0, 200, 230, 255}, {20, 220, 250, 255});
 
     SDL_Event event;
     bool      running = true;
