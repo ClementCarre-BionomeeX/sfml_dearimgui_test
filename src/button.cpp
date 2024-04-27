@@ -2,9 +2,11 @@
 #include "../incl/button.h"
 #include "../incl/draw_utils.h"    // Include this if `fillCircle` is defined here
 
+// MARK: Button
 Button::Button(int x, int y, int w, int h, SDL_Color col, SDL_Color hoverCol, int rad)
     : rect{x, y, w, h}, color(col), hoverColor(hoverCol), isHovered(false), radius(rad) {}
 
+// MARK: render
 void Button::render(SDL_Renderer* renderer) {
     SDL_Color currentColor = isHovered ? hoverColor : color;
     SDL_SetRenderDrawColor(
@@ -25,6 +27,7 @@ void Button::render(SDL_Renderer* renderer) {
     fillCircle(renderer, rect.x + rect.w - radius - 1, rect.y + rect.h - radius - 1, radius);
 }
 
+// MARK: handleEvent
 bool Button::handleEvent(SDL_Event& e) {
     if (e.type == SDL_MOUSEMOTION) {
         int mouseX = e.motion.x;
@@ -32,11 +35,11 @@ bool Button::handleEvent(SDL_Event& e) {
         isHovered  = (mouseX >= rect.x) && (mouseX <= rect.x + rect.w) && (mouseY >= rect.y) &&
                     (mouseY <= rect.y + rect.h);
     } else if (e.type == SDL_MOUSEBUTTONUP) {
-        int mouseX = e.button.x;
-        int mouseY = e.button.y;
         if (isHovered && e.button.button == SDL_BUTTON_LEFT) {
             return true;    // Return true if the button was clicked
         }
     }
     return false;    // Return false if the button was not clicked
 }
+
+void Button::update() {}

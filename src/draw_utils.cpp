@@ -1,6 +1,6 @@
 #include "../incl/draw_utils.h"
 
-// Define the function
+// MARK: fillCircle
 void fillCircle(SDL_Renderer* renderer, int cx, int cy, int radius) {
     for (int w = 0; w < radius * 2; w++) {
         for (int h = 0; h < radius * 2; h++) {
