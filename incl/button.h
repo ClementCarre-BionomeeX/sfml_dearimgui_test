@@ -1,14 +1,20 @@
 // Button.h
 #pragma once
 
+#include "../incl/iwidget.h"
+#include "../incl/signal.h"
 #include <SDL2/SDL.h>
 
-class Button {
+class Button : public IWidget {
   public:
     Button(int x, int y, int w, int h, SDL_Color col, SDL_Color hoverCol, int rad);
     void render(SDL_Renderer* renderer);
-    bool handleEvent(SDL_Event& e);
+    bool handleEvent(SDL_Event& event);
     void update();
+
+    Signal<> onClick;
+
+    void click();
 
   private:
     SDL_Rect  rect;          // Position and size of the button

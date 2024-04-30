@@ -1,11 +1,14 @@
 #include "../incl/button.h"
+#include "../incl/link.h"
 #include "../incl/node.h"
 #include "../incl/textbox.h"
+#include "../incl/widgetmanager.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cctype>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -22,64 +25,47 @@ int main(/*int argc, char* argv[]*/) {
                                           SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    TTF_Font* font = TTF_OpenFont("data/FiraCode-Medium.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("data/FiraCode-Medium.ttf", 16);
     if (!font) {
         SDL_Log("[ERROR] Failed to load font: %s", TTF_GetError());
         return -1;
     }
 
-    std::vector<TextBox> textBoxes;
-    textBoxes.emplace_back(100, 100, SDL_Color{70, 70, 70, 255}, font, 100);
-    textBoxes.emplace_back(100, 150, SDL_Color{0, 200, 200, 255}, font, 150);
-
-    Button quitButton(10,
-                      10,
-                      50,
-                      25,
-                      {255, 0, 0, 255},
-                      {255, 200, 200, 255},
-                      2);    // Red button, lighter red on hover
-
-    Node testnode = Node(50, 300, 100, 200, {0, 200, 230, 255}, {20, 220, 250, 255});
-
     SDL_Event event;
     bool      running = true;
     SDL_StartTextInput();
 
+    WidgetManager manager;
+    manager.addWidget<TextBox>(100, 100, SDL_Color{70, 70, 70, 255}, font, 100);
+    manager.addWidget<TextBox>(100, 150, SDL_Color{0, 200, 200, 255}, font, 150);
+
+    auto* quitButton = manager.addWidget<Button>(
+        10, 10, 50, 25, SDL_Color{255, 0, 0, 255}, SDL_Color{255, 200, 200, 255}, 2);
+    quitButton->onClick.connect([&running]() { running = false; });
+
+    auto* tn1 = manager.addWidget<Node>(
+        50, 300, 100, 200, SDL_Color{0, 200, 230, 255}, SDL_Color{20, 220, 250, 255});
+    auto* tn2 = manager.addWidget<Node>(
+        200, 300, 100, 200, SDL_Color{0, 150, 180, 255}, SDL_Color{20, 170, 200, 255});
+
+    manager.addWidget<Link>(
+        tn1, tn2, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 11);
+
     while (running) {
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
-            for (auto& box : textBoxes) {
-                if (box.handleEvent(event)) {
-                    continue;
-                }
-            }
-            if (quitButton.handleEvent(event)) {
-                running = false;    // Quit if the button is clicked
-            }
-            if (testnode.handleEvent(event)) {
-                // ??
-            }
+            manager.handleEvents(event);
         }
 
-        for (auto& box : textBoxes) {
-            box.update();
-        }
-        quitButton.update();
-        testnode.update();
+        manager.updateWidgets();
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        for (auto& box : textBoxes) {
-            box.render(renderer);
-        }
-
-        quitButton.render(renderer);    // Render the button
-
-        testnode.render(renderer);
+        manager.renderWidgets(renderer);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);

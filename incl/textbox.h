@@ -1,10 +1,11 @@
 #pragma once
 
+#include "../incl/iwidget.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
 
-class TextBox {
+class TextBox : public IWidget {
 
   public:
     TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextWidth);

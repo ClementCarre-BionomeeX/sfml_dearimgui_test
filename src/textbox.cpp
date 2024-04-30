@@ -139,7 +139,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
         text.insert(cursorPosition, event.text.text);
         cursorPosition += strlen(event.text.text);
     }
-    return false;
+    return isSelected;
 }
 
 // MARK: setCursorByClick

@@ -28,18 +28,22 @@ void Button::render(SDL_Renderer* renderer) {
 }
 
 // MARK: handleEvent
-bool Button::handleEvent(SDL_Event& e) {
-    if (e.type == SDL_MOUSEMOTION) {
-        int mouseX = e.motion.x;
-        int mouseY = e.motion.y;
+bool Button::handleEvent(SDL_Event& event) {
+    if (event.type == SDL_MOUSEMOTION) {
+        int mouseX = event.motion.x;
+        int mouseY = event.motion.y;
         isHovered  = (mouseX >= rect.x) && (mouseX <= rect.x + rect.w) && (mouseY >= rect.y) &&
                     (mouseY <= rect.y + rect.h);
-    } else if (e.type == SDL_MOUSEBUTTONUP) {
-        if (isHovered && e.button.button == SDL_BUTTON_LEFT) {
-            return true;    // Return true if the button was clicked
+    } else if (event.type == SDL_MOUSEBUTTONUP) {
+        if (isHovered && event.button.button == SDL_BUTTON_LEFT) {
+            click();
         }
     }
     return false;    // Return false if the button was not clicked
 }
 
 void Button::update() {}
+
+void Button::click() {
+    onClick.emit();
+}
