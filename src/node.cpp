@@ -7,7 +7,10 @@
 
 Node::Node(int x, int y, int w, int h, SDL_Color color, SDL_Color hoverColor)
     : rect{x, y, w, h}, radius{2}, isHovered(false), color(color), hoverColor(hoverColor),
-      isSelected(false), startmoveX(0), startmoveY(0) {}
+      isSelected(false), startmoveX(0), startmoveY(0),
+      button(x + 10, y + 10, w - 20, 30, {0, 150, 0, 255}, {0, 250, 100, 255}, 2) {
+    button.onClick.connect([&]() { onTopButtonClick.emit(); });
+}
 
 void Node::render(SDL_Renderer* renderer) {
     SDL_Color currentColor = isHovered ? hoverColor : color;
@@ -28,11 +31,17 @@ void Node::render(SDL_Renderer* renderer) {
             renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
         roundCornerRectangle(renderer, rect, radius);
     }
+
+    button.render(renderer);
 }
 
 bool Node::handleEvent(SDL_Event& event) {
     int mouseX = event.motion.x;
     int mouseY = event.motion.y;
+
+    if (button.handleEvent(event)) {
+        return true;
+    }
 
     // Check if the mouse is over the rectangle
     isHovered = (mouseX >= rect.x) && (mouseX <= rect.x + rect.w) && (mouseY >= rect.y) &&
@@ -64,7 +73,9 @@ bool Node::handleEvent(SDL_Event& event) {
     return isSelected;    // return true if an event is being processed
 }
 
-void Node::update() {}
+void Node::update() {
+    button.move(rect.x + 10, rect.y + 10);
+}
 
 std::pair<int, int> Node::anchor() const noexcept {
     return std::pair<int, int>(rect.x + rect.w / 2, rect.y + rect.h / 2);

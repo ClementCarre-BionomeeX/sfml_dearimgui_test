@@ -240,3 +240,7 @@ void TextBox::moveCursorRightByWord() {
 
     cursorPosition = pos;
 }
+
+std::pair<int, int> TextBox::anchor() const noexcept {
+    return std::pair<int, int>(rect.x + rect.w / 2, rect.y + rect.h / 2);
+}

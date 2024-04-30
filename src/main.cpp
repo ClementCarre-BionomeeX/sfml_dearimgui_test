@@ -36,8 +36,9 @@ int main(/*int argc, char* argv[]*/) {
     SDL_StartTextInput();
 
     WidgetManager manager;
-    manager.addWidget<TextBox>(100, 100, SDL_Color{70, 70, 70, 255}, font, 100);
-    manager.addWidget<TextBox>(100, 150, SDL_Color{0, 200, 200, 255}, font, 150);
+
+    auto* tb1 = manager.addWidget<TextBox>(100, 100, SDL_Color{70, 70, 70, 255}, font, 100);
+    auto* tb2 = manager.addWidget<TextBox>(100, 150, SDL_Color{0, 200, 200, 255}, font, 150);
 
     auto* quitButton = manager.addWidget<Button>(
         10, 10, 50, 25, SDL_Color{255, 0, 0, 255}, SDL_Color{255, 200, 200, 255}, 2);
@@ -48,8 +49,14 @@ int main(/*int argc, char* argv[]*/) {
     auto* tn2 = manager.addWidget<Node>(
         200, 300, 100, 200, SDL_Color{0, 150, 180, 255}, SDL_Color{20, 170, 200, 255});
 
-    manager.addWidget<Link>(
+    tn1->onTopButtonClick.connect([]() { std::cout << "Node 1 button 1 - clicked" << std::endl; });
+    tn2->onTopButtonClick.connect([]() { std::cout << "Node 2 button 1 - clicked" << std::endl; });
+
+    auto* link = manager.addWidget<Link>(
         tn1, tn2, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 11);
+
+    manager.addWidget<Link>(
+        link, quitButton, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 7);
 
     while (running) {
 

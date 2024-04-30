@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 
-Link::Link(Node* source, Node* target, SDL_Color color, SDL_Color hoverColor, int thickness)
+Link::Link(IWidget* source, IWidget* target, SDL_Color color, SDL_Color hoverColor, int thickness)
     : source(source), target(target), color(color), hoverColor(hoverColor), thickness(thickness),
       isHovered(false) {}
 
@@ -16,8 +16,16 @@ void Link::render(SDL_Renderer* renderer) {
 
     SDL_SetRenderDrawColor(
         renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
-    thickLineRGBA(
-        renderer, a, b, c, d, thickness, currentColor.r, currentColor.g, currentColor.b, 255);
+    thickLineRGBA(renderer,
+                  a,
+                  b,
+                  c,
+                  d,
+                  thickness,
+                  currentColor.r,
+                  currentColor.g,
+                  currentColor.b,
+                  currentColor.a);
     fillCircle(renderer, a, b, thickness / 2);
     fillCircle(renderer, c, d, thickness / 2);
 }
@@ -66,4 +74,11 @@ double Link::pointLineSegmentDistance(int x, int y) {
 
     // Return the distance from the closest point to the point (x, y)
     return dist;
+}
+
+std::pair<int, int> Link::anchor() const noexcept {
+    auto [a, b] = source->anchor();
+    auto [c, d] = target->anchor();
+
+    return {(a + c) / 2, (b + d) / 2};
 }

@@ -9,9 +9,10 @@ class TextBox : public IWidget {
 
   public:
     TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextWidth);
-    void render(SDL_Renderer* renderer);
-    bool handleEvent(SDL_Event& event);
-    void update();
+    void                render(SDL_Renderer* renderer);
+    bool                handleEvent(SDL_Event& event);
+    void                update();
+    std::pair<int, int> anchor() const noexcept;
     ~TextBox();
 
   private:

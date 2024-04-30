@@ -1,6 +1,8 @@
 #pragma once
 
+#include "../incl/button.h"
 #include "../incl/iwidget.h"
+#include "../incl/signal.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <utility>
@@ -13,6 +15,7 @@ class Node : public IWidget {
     void update();
 
     std::pair<int, int> anchor() const noexcept;
+    Signal<>            onTopButtonClick;
 
   private:
     SDL_Rect  rect;
@@ -23,4 +26,5 @@ class Node : public IWidget {
     bool      isSelected;
     int       startmoveX;
     int       startmoveY;
+    Button    button;
 };

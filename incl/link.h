@@ -7,15 +7,16 @@
 
 class Link : public IWidget {
   public:
-    Link(Node* source, Node* target, SDL_Color color, SDL_Color hoverColor, int thickness);
+    Link(IWidget* source, IWidget* target, SDL_Color color, SDL_Color hoverColor, int thickness);
 
-    void render(SDL_Renderer* renderer);
-    bool handleEvent(SDL_Event& event);
-    void update();
+    void                render(SDL_Renderer* renderer);
+    bool                handleEvent(SDL_Event& event);
+    void                update();
+    std::pair<int, int> anchor() const noexcept;
 
   private:
-    Node*     source;
-    Node*     target;
+    IWidget*  source;
+    IWidget*  target;
     SDL_Color color;
     SDL_Color hoverColor;
     int       thickness;

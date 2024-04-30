@@ -29,15 +29,18 @@ void Button::render(SDL_Renderer* renderer) {
 
 // MARK: handleEvent
 bool Button::handleEvent(SDL_Event& event) {
-    if (event.type == SDL_MOUSEMOTION) {
-        int mouseX = event.motion.x;
-        int mouseY = event.motion.y;
-        isHovered  = (mouseX >= rect.x) && (mouseX <= rect.x + rect.w) && (mouseY >= rect.y) &&
-                    (mouseY <= rect.y + rect.h);
-    } else if (event.type == SDL_MOUSEBUTTONUP) {
+    int mouseX = event.motion.x;
+    int mouseY = event.motion.y;
+    isHovered  = (mouseX >= rect.x) && (mouseX <= rect.x + rect.w) && (mouseY >= rect.y) &&
+                (mouseY <= rect.y + rect.h);
+    if (event.type == SDL_MOUSEBUTTONUP) {
         if (isHovered && event.button.button == SDL_BUTTON_LEFT) {
             click();
+            return true;
         }
+    }
+    if (isHovered) {
+        return true;
     }
     return false;    // Return false if the button was not clicked
 }
@@ -46,4 +49,17 @@ void Button::update() {}
 
 void Button::click() {
     onClick.emit();
+}
+
+void Button::move(int x, int y) noexcept {
+    rect.x = x;
+    rect.y = y;
+}
+void Button::resize(int w, int h) noexcept {
+    rect.w = w;
+    rect.h = h;
+}
+
+std::pair<int, int> Button::anchor() const noexcept {
+    return {rect.x + rect.w / 2, rect.y + rect.h / 2};
 }
