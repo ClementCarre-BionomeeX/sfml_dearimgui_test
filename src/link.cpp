@@ -1,5 +1,6 @@
 #include "../incl/link.h"
 #include "../incl/draw_utils.h"
+#include "../incl/utils.h"
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <cmath>
 #include <iostream>
@@ -13,6 +14,14 @@ void Link::render(SDL_Renderer* renderer) {
     SDL_Color currentColor = isHovered ? hoverColor : color;
     auto [a, b]            = source->anchor();
     auto [c, d]            = target->anchor();
+
+    auto inter_source = find_intersection(source->getRect(), {a, b}, {c, d});
+    auto inter_target = find_intersection(target->getRect(), {a, b}, {c, d});
+
+    if (inter_source && inter_target) {
+        std::tie(a, b) = inter_source.value();
+        std::tie(c, d) = inter_target.value();
+    }
 
     SDL_SetRenderDrawColor(
         renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);

@@ -1,12 +1,13 @@
 #include "../incl/textbox.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <iostream>
 #include <limits>
 #include <string>
 
 // MARK: TextBox
 TextBox::TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextWidth)
-    : rect{x, y, 0, 0}, isSelected(false), color(color), texture(nullptr), cursorPosition(0),
+    : IWidget{x, y, 0, 0}, isSelected(false), color(color), texture(nullptr), cursorPosition(0),
       lastCursorBlink(SDL_GetTicks()), cursorVisible(true), minTextWidth(minimumTextWidth),
       font(font) {
     text = "";
@@ -22,18 +23,21 @@ TextBox::~TextBox() {
 // MARK: prepareTextTexture
 int TextBox::prepareTextTexture(SDL_Renderer* renderer) {
     const char* renderText = text.empty() ? " " : text.c_str();
-    // SDL_Surface* surface    = TTF_RenderText_Solid(font, renderText, color);
+
+    // Create a surface from the text
     SDL_Surface* surface = TTF_RenderUTF8_Solid(font, renderText, color);
     texture              = SDL_CreateTextureFromSurface(renderer, surface);
-    int initialw         = surface->w;
-    // Adjust the width of the rectangle to accommodate padding and minimum width
-    rect.w = surface->w + 10;    // Padding for cursor
-    if (rect.w < minTextWidth) {
-        rect.w = minTextWidth;    // Ensure minimum width
-    }
-    rect.h = surface->h;
+
+    // Get the width of the rendered text
+    int textWidth  = surface->w;
+    int textHeight = surface->h;
     SDL_FreeSurface(surface);
-    return initialw;
+
+    // Set the textbox width and height, ensuring minimum width is respected
+    rect.w = std::max(minTextWidth, rect.w);    // Ensure the textbox has at least the minimum width
+    rect.h = textHeight;                        // Set the height based on the text height
+
+    return textWidth;
 }
 
 // MARK: renderBackground
@@ -46,8 +50,15 @@ void TextBox::renderBackground(SDL_Renderer* renderer) {
 
 // MARK: renderText
 void TextBox::renderText(SDL_Renderer* renderer, int w) {
-    SDL_Rect textRect = {rect.x + 5, rect.y, w, rect.h};    // Adjust rect for text display
-    SDL_RenderCopy(renderer, texture, NULL, &textRect);
+    // Clipping width to ensure text does not overflow
+    int displayWidth =
+        std::min(w - textOffset, rect.w - 10);    // Assuming 5 pixels padding on each side
+    if (displayWidth > 0) {
+        SDL_Rect srcRect  = {textOffset, 0, displayWidth, rect.h};
+        SDL_Rect destRect = {
+            rect.x + 5, rect.y, displayWidth, rect.h};    // Adjusted rect for text display
+        SDL_RenderCopy(renderer, texture, &srcRect, &destRect);
+    }
 }
 
 // MARK: render
@@ -62,12 +73,20 @@ void TextBox::render(SDL_Renderer* renderer) {
 
 // MARK: drawCursor
 void TextBox::drawCursor(SDL_Renderer* renderer) const {
-    int cursorX = rect.x + 2;    // Start cursor at the beginning of the box
+    int cursorX = rect.x + 5;    // Start cursor at the beginning of the box with padding
+
     if (cursorPosition > 0 && cursorPosition <= text.length()) {
         std::string  textBeforeCursor = text.substr(0, cursorPosition);
         SDL_Surface* surface          = TTF_RenderText_Solid(font, textBeforeCursor.c_str(), color);
-        cursorX += surface->w;
+        cursorX += surface->w - textOffset;    // Adjust cursor position by textOffset
         SDL_FreeSurface(surface);
+    }
+
+    if (cursorX < rect.x + 5) {    // Ensure cursor does not go out of box on the left
+        cursorX = rect.x + 5;
+    } else if (cursorX >
+               rect.x + rect.w - 5) {    // Ensure cursor does not go out of box on the right
+        cursorX = rect.x + rect.w - 5;
     }
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);    // Black cursor
@@ -94,6 +113,8 @@ bool TextBox::handleEvent(SDL_Event& event) {
             return true;
         } else {
             isSelected = false;
+            textOffset = 0;    // Reset text offset when textbox is deselected
+            return false;
         }
     } else if (event.type == SDL_KEYDOWN && isSelected) {
         SDL_Keymod mod  = SDL_GetModState();
@@ -106,6 +127,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
                 text.erase(cursorPosition - 1, 1);
                 cursorPosition--;
             }
+            updateTextOffsetOnCursorMove();
             break;
         case SDLK_LEFT:
             if (ctrl) {
@@ -113,6 +135,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
             } else if (cursorPosition > 0) {
                 cursorPosition--;
             }
+            updateTextOffsetOnCursorMove();
             break;
         case SDLK_RIGHT:
             if (ctrl) {
@@ -120,6 +143,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
             } else if (cursorPosition < text.length()) {
                 cursorPosition++;
             }
+            updateTextOffsetOnCursorMove();
             break;
         case SDLK_DELETE:
             if (ctrl) {
@@ -127,19 +151,44 @@ bool TextBox::handleEvent(SDL_Event& event) {
             } else if (cursorPosition < text.length()) {
                 text.erase(cursorPosition, 1);
             }
+            updateTextOffsetOnCursorMove();
             break;
         case SDLK_HOME:
             cursorPosition = 0;
+            updateTextOffsetOnCursorMove();
             break;
         case SDLK_END:
             cursorPosition = text.length();
+            updateTextOffsetOnCursorMove();
             break;
         }
     } else if (event.type == SDL_TEXTINPUT && isSelected) {
         text.insert(cursorPosition, event.text.text);
         cursorPosition += strlen(event.text.text);
+        updateTextOffsetOnCursorMove();
     }
     return isSelected;
+}
+
+// MARK: updateTextOffsetOnCursorMove
+void TextBox::updateTextOffsetOnCursorMove() {
+    std::string textBeforeCursor = text.substr(0, cursorPosition);
+    int         cursorTextWidth, textHeight;
+    TTF_SizeText(font, textBeforeCursor.c_str(), &cursorTextWidth, &textHeight);
+
+    int visibleTextWidth = rect.w - 10;    // Assuming 5 pixels padding on each side
+    int bufferZone       = 10;             // 20 pixels buffer for smoother scrolling
+
+    if (cursorTextWidth < textOffset) {
+        // If cursor is left of the current offset, adjust offset to bring the cursor into view
+        textOffset = std::max(0, cursorTextWidth - bufferZone);
+    } else if (cursorTextWidth < textOffset + bufferZone) {
+        // If cursor is within the left buffer zone, reduce offset
+        textOffset = std::max(0, cursorTextWidth - bufferZone);
+    } else if (cursorTextWidth - textOffset > visibleTextWidth - bufferZone) {
+        // If cursor is within the right buffer zone, adjust the offset to the right
+        textOffset = cursorTextWidth - (visibleTextWidth - bufferZone);
+    }
 }
 
 // MARK: setCursorByClick

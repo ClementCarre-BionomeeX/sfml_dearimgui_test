@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../incl/iwidget.h"
+#include "../incl/signal.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
@@ -9,11 +10,15 @@ class TextBox : public IWidget {
 
   public:
     TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextWidth);
-    void                render(SDL_Renderer* renderer);
-    bool                handleEvent(SDL_Event& event);
-    void                update();
-    std::pair<int, int> anchor() const noexcept;
+
+    void                render(SDL_Renderer* renderer) override;
+    bool                handleEvent(SDL_Event& event) override;
+    void                update() override;
+    std::pair<int, int> anchor() const noexcept override;
+
     ~TextBox();
+
+    // Signal<std::string> onTextChanged;
 
   private:
     void drawCursor(SDL_Renderer* renderer) const;
@@ -25,9 +30,10 @@ class TextBox : public IWidget {
     int  prepareTextTexture(SDL_Renderer* renderer);
     void renderBackground(SDL_Renderer* renderer);
     void renderText(SDL_Renderer* renderer, int w);
+    void updateTextOffset(int textWidth);
+    void updateTextOffsetOnCursorMove();
 
   private:
-    SDL_Rect     rect;
     std::string  text;
     bool         isSelected;
     SDL_Color    color;
@@ -37,4 +43,5 @@ class TextBox : public IWidget {
     bool         cursorVisible;
     int          minTextWidth;
     TTF_Font*    font;
+    int          textOffset = 0;
 };

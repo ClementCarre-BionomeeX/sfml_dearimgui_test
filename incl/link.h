@@ -9,10 +9,10 @@ class Link : public IWidget {
   public:
     Link(IWidget* source, IWidget* target, SDL_Color color, SDL_Color hoverColor, int thickness);
 
-    void                render(SDL_Renderer* renderer);
-    bool                handleEvent(SDL_Event& event);
-    void                update();
-    std::pair<int, int> anchor() const noexcept;
+    void                render(SDL_Renderer* renderer) override;
+    bool                handleEvent(SDL_Event& event) override;
+    void                update() override;
+    std::pair<int, int> anchor() const noexcept override;
 
   private:
     IWidget*  source;

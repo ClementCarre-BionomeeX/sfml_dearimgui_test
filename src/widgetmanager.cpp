@@ -18,7 +18,7 @@ void WidgetManager::updateWidgets() {
     }
 }
 
-void WidgetManager::renderWidgets(SDL_Renderer* renderer) {
+void WidgetManager::renderWidgets() {
     for (auto& widget : widgets) {
         widget->render(renderer);
     }

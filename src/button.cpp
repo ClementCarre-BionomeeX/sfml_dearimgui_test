@@ -4,7 +4,7 @@
 
 // MARK: Button
 Button::Button(int x, int y, int w, int h, SDL_Color col, SDL_Color hoverCol, int rad)
-    : rect{x, y, w, h}, color(col), hoverColor(hoverCol), isHovered(false), radius(rad) {}
+    : IWidget{x, y, w, h}, color(col), hoverColor(hoverCol), isHovered(false), radius(rad) {}
 
 // MARK: render
 void Button::render(SDL_Renderer* renderer) {
@@ -49,15 +49,6 @@ void Button::update() {}
 
 void Button::click() {
     onClick.emit();
-}
-
-void Button::move(int x, int y) noexcept {
-    rect.x = x;
-    rect.y = y;
-}
-void Button::resize(int w, int h) noexcept {
-    rect.w = w;
-    rect.h = h;
 }
 
 std::pair<int, int> Button::anchor() const noexcept {
