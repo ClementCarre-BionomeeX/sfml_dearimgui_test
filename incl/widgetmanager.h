@@ -17,6 +17,14 @@ class WidgetManager {
     void handleEvents(SDL_Event& event);
     void updateWidgets();
     void renderWidgets();
+    template <typename T, typename... Args>
+    T* addDraggableWidget(Args&&... args);
+
+  private:
+    // draggable managment
+    IWidget* selection = nullptr;
+    int      startx    = 0;
+    int      starty    = 0;
 };
 
 template <typename T, typename... Args>
@@ -24,6 +32,21 @@ inline T* WidgetManager::addWidget(Args&&... args) {
     auto widget = std::make_unique<T>(std::forward<Args>(args)...);
     T*   ptr    = widget.get();
     widgets.push_back(std::move(widget));
-    // widgets.push_back(std::unique_ptr<IWidget>(widget.release()));
+    return ptr;
+}
+
+template <typename T, typename... Args>
+inline T* WidgetManager::addDraggableWidget(Args&&... args) {
+    auto* ptr = addWidget<T>(std::forward<Args>(args)...);
+    ptr->onHover.connect([ptr]() { ptr->changeToHoverColor(); });
+    ptr->onHoverLost.connect([ptr]() { ptr->changeToBaseColor(); });
+    ptr->onMouseLeftDown.connect([&, ptr](int x, int y) {
+        selection   = ptr;
+        auto [a, b] = selection->position();
+        startx      = x - a;
+        starty      = y - b;
+    });
+    ptr->onMouseLeftUp.connect([&](int x, int y) { selection = nullptr; });
+    ptr->onDragging.connect([&](int x, int y) { selection->moveTo(x - startx, y - starty); });
     return ptr;
 }

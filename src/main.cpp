@@ -1,5 +1,4 @@
 #include "../incl/button.h"
-#include "../incl/draggable.h"
 #include "../incl/link.h"
 #include "../incl/node.h"
 #include "../incl/textbox.h"
@@ -38,16 +37,13 @@ int main(/*int argc, char* argv[]*/) {
 
     WidgetManager manager(renderer);
 
-    // auto* tb1 = manager.addWidget<TextBox>(100, 100, SDL_Color{70, 70, 70, 255}, font, 100);
-    // auto* tb2 = manager.addWidget<TextBox>(100, 150, SDL_Color{0, 200, 200, 255}, font, 150);
-
     auto* quitButton = manager.addWidget<Button>(
         10, 10, 50, 25, SDL_Color{255, 0, 0, 255}, SDL_Color{255, 200, 200, 255}, 2);
     quitButton->onClick.connect([&running]() { running = false; });
 
-    auto* tn1 = manager.addWidget<Node>(
+    auto* tn1 = manager.addDraggableWidget<Node>(
         50, 300, 100, 200, SDL_Color{0, 200, 230, 255}, SDL_Color{20, 220, 250, 255}, font);
-    auto* tn2 = manager.addWidget<Node>(
+    auto* tn2 = manager.addDraggableWidget<Node>(
         200, 300, 180, 200, SDL_Color{0, 150, 180, 255}, SDL_Color{20, 170, 200, 255}, font);
 
     tn1->onTopButtonClick.connect([]() { std::cout << "Node 1 button 1 - clicked" << std::endl; });
@@ -56,29 +52,8 @@ int main(/*int argc, char* argv[]*/) {
     auto* link = manager.addWidget<Link>(
         tn1, tn2, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 5);
 
-    auto* draggable = manager.addWidget<Draggable>(SDL_Color{200, 200, 0, 255});
-
-    Draggable* selection = nullptr;
-    int        startx    = 0;
-    int        starty    = 0;
-
-    draggable->onHover.connect([&]() { draggable->color = SDL_Color{255, 0, 0, 255}; });
-    draggable->onHoverLost.connect([&]() { draggable->color = SDL_Color{200, 200, 0, 255}; });
-    draggable->onMouseLeftDown.connect([&](int x, int y) {
-        selection   = draggable;
-        auto [a, b] = selection->position();
-        startx      = x - a;
-        starty      = y - b;
-    });
-    draggable->onMouseLeftUp.connect([&](int x, int y) { selection = nullptr; });
-    draggable->onMouseRightDown.connect(
-        [](int x, int y) { std::cout << "onMouseRightDown :  " << x << " x " << y << std::endl; });
-    draggable->onMouseRightUp.connect(
-        [](int x, int y) { std::cout << "onMouseRightUp :  " << x << " x " << y << std::endl; });
-    draggable->onDragging.connect([&](int x, int y) { selection->moveTo(x - startx, y - starty); });
-
     // manager.addWidget<Link>(
-    //     link, quitButton, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 7);
+    //     quitButton, link, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 7);
 
     while (running) {
 

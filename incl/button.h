@@ -8,10 +8,9 @@
 class Button : public IWidget {
   public:
     Button(int x, int y, int w, int h, SDL_Color col, SDL_Color hoverCol, int rad);
-    void                render(SDL_Renderer* renderer) override;
-    bool                handleEvent(SDL_Event& event) override;
-    void                update() override;
-    std::pair<int, int> anchor() const noexcept override;
+    void render(SDL_Renderer* renderer) override;
+    bool handleEvent(SDL_Event& event) override;
+    void update() override;
 
     Signal<> onClick;
 

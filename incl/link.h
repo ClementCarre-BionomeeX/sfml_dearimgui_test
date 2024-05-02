@@ -22,7 +22,10 @@ class Link : public IWidget {
     int       thickness;
     bool      isHovered;
 
-    bool   isNear(int x, int y);
-    double pointLineDistance(int x, int y);
-    double pointLineSegmentDistance(int x, int y);
+    bool   isNear(int x, int y) const noexcept;
+    double pointLineSegmentDistance(int x, int y) const noexcept;
+    void   draw_indicator(SDL_Renderer* renderer, SDL_Color color) const noexcept;
+
+    // anchor cache
+    int a, b, c, d;
 };

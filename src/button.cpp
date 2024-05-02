@@ -50,7 +50,3 @@ void Button::update() {}
 void Button::click() {
     onClick.emit();
 }
-
-std::pair<int, int> Button::anchor() const noexcept {
-    return {rect.x + rect.w / 2, rect.y + rect.h / 2};
-}
