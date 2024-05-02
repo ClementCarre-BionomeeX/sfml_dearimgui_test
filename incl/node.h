@@ -7,6 +7,7 @@
 #include "../incl/textbox.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <string>
 #include <utility>
 
 class Node : public IDraggable {
@@ -20,28 +21,11 @@ class Node : public IDraggable {
     Signal<> onTopButtonClick;
     void     topButtonClick();
 
-    // // dragging signals
-    // Signal<>         onHover;
-    // Signal<>         onHoverLost;
-    // Signal<int, int> onMouseLeftDown;
-    // Signal<int, int> onMouseLeftUp;
-    // Signal<int, int> onMouseRightDown;
-    // Signal<int, int> onMouseRightUp;
-    // Signal<int, int> onDragging;
-
-    // inline void changeToBaseColor() noexcept { color = baseColor; }
-    // inline void changeToHoverColor() noexcept { color = hoverColor; }
+    Signal<std::string> onNameChanged;
+    void                changeName(std::string name);
 
   private:
     int radius;
-
-    // SDL_Color color;
-    // SDL_Color hoverColor;
-    // SDL_Color baseColor;
-
-    // bool isSelected;
-    // bool isHover;
-    // bool isDragging;
 
     Button  button;
     TextBox nameTextBox;

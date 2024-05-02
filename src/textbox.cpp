@@ -128,6 +128,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
                 cursorPosition--;
             }
             updateTextOffsetOnCursorMove();
+            onTextChanged.emit(text);
             break;
         case SDLK_LEFT:
             if (ctrl) {
@@ -152,6 +153,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
                 text.erase(cursorPosition, 1);
             }
             updateTextOffsetOnCursorMove();
+            onTextChanged.emit(text);
             break;
         case SDLK_HOME:
             cursorPosition = 0;
@@ -166,6 +168,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
         text.insert(cursorPosition, event.text.text);
         cursorPosition += strlen(event.text.text);
         updateTextOffsetOnCursorMove();
+        onTextChanged.emit(text);
     }
     return isSelected;
 }
@@ -231,6 +234,7 @@ void TextBox::deleteWordLeft() {
 
     text.erase(pos, cursorPosition - pos);
     cursorPosition = pos;    // Move the cursor to the start of the word
+    onTextChanged.emit(text);
 }
 
 // MARK: deleteWordRight
@@ -251,6 +255,7 @@ void TextBox::deleteWordRight() {
     }
 
     text.erase(cursorPosition, pos - cursorPosition);
+    onTextChanged.emit(text);
 }
 
 // MARK: moveCursorLeftByWord
@@ -288,4 +293,9 @@ void TextBox::moveCursorRightByWord() {
         pos++;
 
     cursorPosition = pos;
+}
+
+void TextBox::changeText(std::string str) {
+    text = str;
+    onTextChanged.emit(text);
 }

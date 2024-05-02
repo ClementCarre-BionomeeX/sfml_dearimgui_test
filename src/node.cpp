@@ -10,6 +10,7 @@ Node::Node(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor
       button(x + 10, y + 10, w - 20, 30, {0, 150, 0, 255}, {0, 250, 100, 255}, 2),
       nameTextBox(x + 10, y + 50, {0, 0, 0, 255}, font, w - 20) {
     button.onClick.connect([&]() { topButtonClick(); });
+    nameTextBox.onTextChanged.connect([&](std::string str) { changeName(str); });
 }
 
 void Node::render(SDL_Renderer* renderer) {
@@ -34,9 +35,6 @@ void Node::render(SDL_Renderer* renderer) {
 }
 
 bool Node::handleEvent(SDL_Event& event) {
-    bool handled = false;
-    int  mouseX  = event.motion.x;
-    int  mouseY  = event.motion.y;
 
     if (button.handleEvent(event)) {
         return true;
@@ -46,9 +44,7 @@ bool Node::handleEvent(SDL_Event& event) {
     }
 
     // call default Idraggable::handleEvent(event)
-    handled = IDraggable::handleEvent(event);
-
-    return handled;
+    return IDraggable::handleEvent(event);
 }
 
 void Node::update() {
@@ -58,4 +54,8 @@ void Node::update() {
 
 void Node::topButtonClick() {
     onTopButtonClick.emit();
+}
+
+void Node::changeName(std::string str) {
+    onNameChanged.emit(str);
 }

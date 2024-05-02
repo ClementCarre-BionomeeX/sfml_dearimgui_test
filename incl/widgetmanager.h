@@ -46,7 +46,7 @@ inline T* WidgetManager::addDraggableWidget(Args&&... args) {
         startx      = x - a;
         starty      = y - b;
     });
-    ptr->onMouseLeftUp.connect([&](int x, int y) { selection = nullptr; });
+    ptr->onMouseLeftUp.connect([&](int, int) { selection = nullptr; });
     ptr->onDragging.connect([&](int x, int y) { selection->moveTo(x - startx, y - starty); });
     return ptr;
 }

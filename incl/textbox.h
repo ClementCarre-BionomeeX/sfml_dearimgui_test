@@ -17,6 +17,9 @@ class TextBox : public IWidget {
 
     ~TextBox();
 
+    Signal<std::string> onTextChanged;
+    void                changeText(std::string str);
+
   private:
     void drawCursor(SDL_Renderer* renderer) const;
     void setCursorByClick(int clickX);

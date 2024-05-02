@@ -49,11 +49,8 @@ int main(/*int argc, char* argv[]*/) {
     tn1->onTopButtonClick.connect([]() { std::cout << "Node 1 button 1 - clicked" << std::endl; });
     tn2->onTopButtonClick.connect([]() { std::cout << "Node 2 button 1 - clicked" << std::endl; });
 
-    auto* link = manager.addWidget<Link>(
+    manager.addWidget<Link>(
         tn1, tn2, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 5);
-
-    // manager.addWidget<Link>(
-    //     quitButton, link, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 7);
 
     while (running) {
 
