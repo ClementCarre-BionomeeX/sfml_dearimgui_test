@@ -122,3 +122,13 @@ double Link::pointLineSegmentDistance(int x, int y) const noexcept {
 std::pair<int, int> Link::anchor() const noexcept {
     return {(a + c) / 2, (b + d) / 2};
 }
+
+bool Link::isExtremity(IWidget* w) const noexcept {
+    return (w == source || w == target);
+}
+bool Link::isSource(IWidget* w) const noexcept {
+    return (w == source);
+}
+bool Link::isTarget(IWidget* w) const noexcept {
+    return (w == target);
+}

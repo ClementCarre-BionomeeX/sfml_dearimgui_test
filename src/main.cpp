@@ -1,4 +1,6 @@
 #include "../incl/button.h"
+#include "../incl/canvas.h"
+#include "../incl/gui.h"
 #include "../incl/link.h"
 #include "../incl/node.h"
 #include "../incl/textbox.h"
@@ -35,22 +37,18 @@ int main(/*int argc, char* argv[]*/) {
     bool      running = true;
     SDL_StartTextInput();
 
-    WidgetManager manager(renderer);
+    Canvas canvas{renderer, font};
 
-    auto* quitButton = manager.addWidget<Button>(
-        10, 10, 50, 25, SDL_Color{255, 0, 0, 255}, SDL_Color{255, 200, 200, 255}, 2);
-    quitButton->onClick.connect([&running]() { running = false; });
+    auto* tn1 = canvas.addNode(300, 50);
+    auto* tn2 = canvas.addNode(450, 50);
+    auto* tn3 = canvas.addNode(300, 300);
 
-    auto* tn1 = manager.addDraggableWidget<Node>(
-        50, 300, 100, 200, SDL_Color{0, 200, 230, 255}, SDL_Color{20, 220, 250, 255}, font);
-    auto* tn2 = manager.addDraggableWidget<Node>(
-        200, 300, 180, 200, SDL_Color{0, 150, 180, 255}, SDL_Color{20, 170, 200, 255}, font);
+    canvas.connectNodes(tn1, tn2);
+    canvas.connectNodes(tn3, tn2);
 
-    tn1->onTopButtonClick.connect([]() { std::cout << "Node 1 button 1 - clicked" << std::endl; });
-    tn2->onTopButtonClick.connect([]() { std::cout << "Node 2 button 1 - clicked" << std::endl; });
-
-    manager.addWidget<Link>(
-        tn1, tn2, SDL_Color{255, 200, 200, 255}, SDL_Color{255, 30, 30, 255}, 5);
+    GUI gui{window, 100, font};
+    gui.onQuitClick.connect([&running]() { running = false; });
+    gui.onAddNodeClick.connect([&canvas]() { canvas.addNode(200, 50); });
 
     while (running) {
 
@@ -58,17 +56,31 @@ int main(/*int argc, char* argv[]*/) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
-            manager.handleEvents(event);
+            // first, catch GUI event
+            if (!gui.handleEvent(event)) {
+                // then other events if no GUI
+                canvas.handleEvents(event);
+            }
         }
 
-        manager.updateWidgets();
+        //? updates
+        // first update widgets
+        canvas.updateWidgets();
+        // then GUI
+        gui.update();
 
+        //? rendering
+        // render Background
         SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
         SDL_RenderClear(renderer);
-
-        manager.renderWidgets();
+        // then render widgets
+        canvas.renderWidgets();
+        // render GUI last
+        gui.render(renderer);
 
         SDL_RenderPresent(renderer);
+
+        //? add delay for 60 fps, if necessary
         SDL_Delay(16);
     }
 

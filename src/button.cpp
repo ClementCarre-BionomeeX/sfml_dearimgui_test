@@ -3,14 +3,30 @@
 #include "../incl/draw_utils.h"    // Include this if `fillCircle` is defined here
 
 // MARK: Button
-Button::Button(int x, int y, int w, int h, SDL_Color col, SDL_Color hoverCol, int rad)
-    : IWidget{x, y, w, h}, color(col), hoverColor(hoverCol), isHovered(false), radius(rad) {}
+Button::Button(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor, int rad)
+    : IWidget{x, y, w, h}, baseColor(baseColor), hoverColor(hoverColor), radius(rad) {
+    changeToBaseColor();
+    onHover.connect([this]() {
+        changeToHoverColor();    // Change color on hover
+    });
+
+    onHoverLost.connect([this]() {
+        changeToBaseColor();    // Revert color when not hovering
+        clicking = false;
+    });
+
+    onMouseLeftDown.connect([this](int, int) { clicking = true; });
+    onMouseLeftUp.connect([this](int, int) {
+        if (clicking) {
+            click();
+        }
+        clicking = false;
+    });
+}
 
 // MARK: render
 void Button::render(SDL_Renderer* renderer) {
-    SDL_Color currentColor = isHovered ? hoverColor : color;
-    SDL_SetRenderDrawColor(
-        renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
+    SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 
     // Middle part (adjust the rect to not overwrite the corners)
     SDL_Rect middleRect = {rect.x + radius, rect.y, rect.w - 2 * radius, rect.h};
@@ -25,24 +41,6 @@ void Button::render(SDL_Renderer* renderer) {
     fillCircle(renderer, rect.x + rect.w - radius - 1, rect.y + radius, radius);
     fillCircle(renderer, rect.x + radius, rect.y + rect.h - radius - 1, radius);
     fillCircle(renderer, rect.x + rect.w - radius - 1, rect.y + rect.h - radius - 1, radius);
-}
-
-// MARK: handleEvent
-bool Button::handleEvent(SDL_Event& event) {
-    int mouseX = event.motion.x;
-    int mouseY = event.motion.y;
-    isHovered  = (mouseX >= rect.x) && (mouseX <= rect.x + rect.w) && (mouseY >= rect.y) &&
-                (mouseY <= rect.y + rect.h);
-    if (event.type == SDL_MOUSEBUTTONUP) {
-        if (isHovered && event.button.button == SDL_BUTTON_LEFT) {
-            click();
-            return true;
-        }
-    }
-    if (isHovered) {
-        return true;
-    }
-    return false;    // Return false if the button was not clicked
 }
 
 void Button::update() {}

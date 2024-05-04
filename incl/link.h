@@ -14,6 +14,11 @@ class Link : public IWidget {
     void                update() override;
     std::pair<int, int> anchor() const noexcept override;
 
+    bool isExtremity(IWidget* w) const noexcept;
+
+    bool isSource(IWidget* w) const noexcept;
+    bool isTarget(IWidget* w) const noexcept;
+
   private:
     IWidget*  source;
     IWidget*  target;

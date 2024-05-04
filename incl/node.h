@@ -24,6 +24,9 @@ class Node : public IDraggable {
     Signal<std::string> onNameChanged;
     void                changeName(std::string name);
 
+    Signal<int, int> onGlobalMouseLeftUp;
+    void             globalMouseLeftUp(int x, int y);
+
   private:
     int radius;
 

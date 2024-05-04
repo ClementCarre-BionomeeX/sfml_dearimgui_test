@@ -7,19 +7,21 @@
 
 class Button : public IWidget {
   public:
-    Button(int x, int y, int w, int h, SDL_Color col, SDL_Color hoverCol, int rad);
+    Button(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor, int rad);
+
     void render(SDL_Renderer* renderer) override;
-    bool handleEvent(SDL_Event& event) override;
     void update() override;
 
     Signal<> onClick;
+    void     click();
 
-    void click();
+    inline void changeToBaseColor() noexcept { color = &baseColor; }
+    inline void changeToHoverColor() noexcept { color = &hoverColor; }
 
   private:
-    // SDL_Rect  rect;          // Position and size of the button
-    SDL_Color color;         // Button color
-    SDL_Color hoverColor;    // Button color when hovered
-    bool      isHovered;     // Is the mouse currently hovering over the button
-    int       radius;        // Radius for rounded corners
+    SDL_Color* color;         // Button color
+    SDL_Color  baseColor;     // Button color when not hovered
+    SDL_Color  hoverColor;    // Button color when hovered
+    int        radius;        // Radius for rounded corners
+    bool       clicking = false;
 };

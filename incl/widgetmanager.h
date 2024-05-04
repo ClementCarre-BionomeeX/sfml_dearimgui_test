@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../incl/iwidget.h"
+#include "../incl/node.h"
 #include <SDL2/SDL.h>
 #include <memory>
 #include <vector>
@@ -12,15 +13,22 @@ class WidgetManager {
 
   public:
     WidgetManager(SDL_Renderer* renderer) : widgets{}, renderer{renderer} {}
+
     template <typename T, typename... Args>
-    T*   addWidget(Args&&... args);
-    void handleEvents(SDL_Event& event);
-    void updateWidgets();
-    void renderWidgets();
+    T* addWidget(Args&&... args);
     template <typename T, typename... Args>
     T* addDraggableWidget(Args&&... args);
 
-  private:
+    bool handleEvents(SDL_Event& event);
+    void updateWidgets();
+    void renderWidgets();
+
+    bool removeWidget(IWidget* element);
+
+    template <typename T>
+    std::vector<T*> find_all_by_type() const noexcept;
+
+  protected:
     // draggable managment
     IWidget* selection = nullptr;
     int      startx    = 0;
@@ -49,4 +57,15 @@ inline T* WidgetManager::addDraggableWidget(Args&&... args) {
     ptr->onMouseLeftUp.connect([&](int, int) { selection = nullptr; });
     ptr->onDragging.connect([&](int x, int y) { selection->moveTo(x - startx, y - starty); });
     return ptr;
+}
+
+template <typename T>
+std::vector<T*> WidgetManager::find_all_by_type() const noexcept {
+    std::vector<T*> result;
+    for (auto& w : widgets) {
+        if (T* t = dynamic_cast<T*>(w.get())) {
+            result.push_back(t);
+        }
+    }
+    return result;
 }
