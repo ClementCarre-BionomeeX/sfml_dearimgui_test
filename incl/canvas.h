@@ -1,8 +1,10 @@
 #pragma once
 #include "../incl/iwidget.h"
 #include "../incl/node.h"
+#include "../incl/signal.h"
 #include "../incl/widgetmanager.h"
 #include <SDL2/SDL.h>
+#include <string>
 
 class Canvas : public IWidget, public WidgetManager {
 
@@ -23,6 +25,16 @@ class Canvas : public IWidget, public WidgetManager {
     void                update() override;
     void                render(SDL_Renderer* renderer) override;
     std::pair<int, int> anchor() const noexcept override;
+
+    Signal<Node*> onNodeLeftUp;
+    void          upLeftNode(Node* node) { onNodeLeftUp.emit(node); }
+    Signal<Node*> onNodeLeftDown;
+    void          downLeftNode(Node* node) { onNodeLeftDown.emit(node); }
+
+    Signal<int, int> onBackgroundLeftUp;
+    void             backgroundLeftUp(int x, int y) { onBackgroundLeftUp.emit(x, y); }
+    Signal<int, int> onBackgroundLeftDown;
+    void             backgroundLeftDown(int x, int y) { onBackgroundLeftDown.emit(x, y); }
 
   private:
     // WidgetManager manager;

@@ -1,7 +1,9 @@
 # Compiler and linker configurations
 CXX = g++
-CXXFLAGS = -I/usr/include/SDL2 -Wall -Wextra -std=c++17 -O3
-LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lSDL2 -ldl -lSDL2_ttf -lSDL2_gfx
+
+CXXFLAGS = -I/usr/include/SDL2 -Wall -Wextra -std=c++17 -O3 $(shell pkg-config --cflags gtk+-3.0)
+LDFLAGS = $(shell pkg-config --libs gtk+-3.0) -lSDL2 -ldl -lSDL2_ttf
+
 
 # Source and header files
 CPP_SOURCES = $(shell find src -name '*.cpp')

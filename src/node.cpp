@@ -6,11 +6,31 @@
 #include <string>
 
 Node::Node(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor, TTF_Font* font)
-    : IDraggable{x, y, w, h, baseColor, hoverColor}, radius{2},
-      button(x + 10, y + 10, w - 20, 30, {0, 150, 0, 255}, {0, 250, 100, 255}, 2),
-      nameTextBox(x + 10, y + 50, {0, 0, 0, 255}, font, w - 20) {
-    button.onClick.connect([&]() { topButtonClick(); });
+    : IDraggable{x, y, w, h, baseColor, hoverColor}, radius{2}, topButton(x + margin,
+                                                                          y + margin,
+                                                                          topButtonSize,
+                                                                          topButtonSize,
+                                                                          {0, 150, 0, 255},
+                                                                          {0, 250, 100, 255},
+                                                                          2,
+                                                                          "X",
+                                                                          font),
+      nameTextBox(x + margin,
+                  y + margin * 2 + topButtonSize,
+                  {0, 0, 0, 255},
+                  font,
+                  w - 2 * margin) {
+    topButton.onClick.connect([&]() { topButtonClick(); });
     nameTextBox.onTextChanged.connect([&](std::string str) { changeName(str); });
+
+    // connect all left up and all left down to global
+    onMouseLeftUp.connect([&](int x, int y) { globalMouseLeftUp(x, y); });
+    topButton.onMouseLeftUp.connect([&](int x, int y) { globalMouseLeftUp(x, y); });
+    nameTextBox.onMouseLeftUp.connect([&](int x, int y) { globalMouseLeftUp(x, y); });
+
+    onMouseLeftDown.connect([&](int x, int y) { globalMouseLeftDown(x, y); });
+    topButton.onMouseLeftDown.connect([&](int x, int y) { globalMouseLeftDown(x, y); });
+    nameTextBox.onMouseLeftDown.connect([&](int x, int y) { globalMouseLeftDown(x, y); });
 }
 
 void Node::render(SDL_Renderer* renderer) {
@@ -30,13 +50,13 @@ void Node::render(SDL_Renderer* renderer) {
         roundCornerRectangle(renderer, rect, radius);
     }
 
-    button.render(renderer);
+    topButton.render(renderer);
     nameTextBox.render(renderer);
 }
 
 bool Node::handleEvent(SDL_Event& event) {
 
-    if (button.handleEvent(event)) {
+    if (topButton.handleEvent(event)) {
         return true;
     }
     if (nameTextBox.handleEvent(event)) {
@@ -48,8 +68,8 @@ bool Node::handleEvent(SDL_Event& event) {
 }
 
 void Node::update() {
-    button.moveTo(rect.x + 10, rect.y + 10);
-    nameTextBox.moveTo(rect.x + 10, rect.y + 50);
+    topButton.moveTo(rect.x + margin, rect.y + margin);
+    nameTextBox.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
 }
 
 void Node::topButtonClick() {
@@ -62,4 +82,8 @@ void Node::changeName(std::string str) {
 
 void Node::globalMouseLeftUp(int x, int y) {
     onGlobalMouseLeftUp.emit(x, y);
+}
+
+void Node::globalMouseLeftDown(int x, int y) {
+    onGlobalMouseLeftDown.emit(x, y);
 }

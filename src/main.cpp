@@ -5,19 +5,24 @@
 #include "../incl/node.h"
 #include "../incl/textbox.h"
 #include "../incl/widgetmanager.h"
+// #include "../nativefiledialog/src/include/nfd.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cctype>
+#include <gtk/gtk.h>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "../incl/filedialog.h"
+
 // MARK: main
-int main(/*int argc, char* argv[]*/) {
+int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
+    gtk_init(&argc, &argv);
 
     SDL_Window*   window   = SDL_CreateWindow("Text Input Example",
                                           SDL_WINDOWPOS_CENTERED,
@@ -39,6 +44,18 @@ int main(/*int argc, char* argv[]*/) {
 
     Canvas canvas{renderer, font};
 
+    canvas.onNodeLeftUp.connect(
+        [&](IWidget* widget) { std::cout << "Node Left Up from " << widget << std::endl; });
+    canvas.onNodeLeftDown.connect(
+        [&](IWidget* widget) { std::cout << "Node Left Down from " << widget << std::endl; });
+
+    canvas.onBackgroundLeftUp.connect([&](int x, int y) {
+        std::cout << "Background Left Up at (" << x << "x" << y << ")" << std::endl;
+    });
+    canvas.onBackgroundLeftDown.connect([&](int x, int y) {
+        std::cout << "Background Left Down (" << x << "x" << y << ")" << std::endl;
+    });
+
     auto* tn1 = canvas.addNode(300, 50);
     auto* tn2 = canvas.addNode(450, 50);
     auto* tn3 = canvas.addNode(300, 300);
@@ -50,6 +67,25 @@ int main(/*int argc, char* argv[]*/) {
     gui.onQuitClick.connect([&running]() { running = false; });
     gui.onAddNodeClick.connect([&canvas]() { canvas.addNode(200, 50); });
 
+    gui.onLoadClick.connect([]() {
+        std::string result;
+        LoadFileDialog(result);
+        if (result != "") {
+            std::cout << result << std::endl;
+        } else {
+            std::cout << "no path provided" << std::endl;
+        }
+    });
+    gui.onSaveClick.connect([]() {
+        std::string result;
+        SaveFileDialog(result);
+        if (result != "") {
+            std::cout << result << std::endl;
+        } else {
+            std::cout << "no path provided" << std::endl;
+        }
+    });
+
     while (running) {
 
         while (SDL_PollEvent(&event)) {
@@ -59,13 +95,13 @@ int main(/*int argc, char* argv[]*/) {
             // first, catch GUI event
             if (!gui.handleEvent(event)) {
                 // then other events if no GUI
-                canvas.handleEvents(event);
+                canvas.handleEvent(event);
             }
         }
 
         //? updates
         // first update widgets
-        canvas.updateWidgets();
+        canvas.update();
         // then GUI
         gui.update();
 
@@ -74,7 +110,7 @@ int main(/*int argc, char* argv[]*/) {
         SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
         SDL_RenderClear(renderer);
         // then render widgets
-        canvas.renderWidgets();
+        canvas.render(renderer);
         // render GUI last
         gui.render(renderer);
 

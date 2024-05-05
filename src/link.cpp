@@ -1,7 +1,7 @@
 #include "../incl/link.h"
 #include "../incl/draw_utils.h"
 #include "../incl/utils.h"
-#include <SDL2/SDL2_gfxPrimitives.h>
+// #include <SDL2/SDL2_gfxPrimitives.h>
 #include <cmath>
 #include <iostream>
 
@@ -15,16 +15,7 @@ void Link::render(SDL_Renderer* renderer) {
 
     SDL_SetRenderDrawColor(
         renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
-    thickLineRGBA(renderer,
-                  a,
-                  b,
-                  c,
-                  d,
-                  thickness,
-                  currentColor.r,
-                  currentColor.g,
-                  currentColor.b,
-                  currentColor.a);
+    drawThickLine(renderer, a, b, c, d, thickness, currentColor);
     fillCircle(renderer, a, b, thickness / 2);
     fillCircle(renderer, c, d, thickness / 2);
     draw_indicator(renderer, currentColor);
@@ -51,18 +42,8 @@ void Link::draw_indicator(SDL_Renderer* renderer, SDL_Color color) const noexcep
         int(start_point.x + arrow_width * cos(angle - 3.141592 / 2)),
         int(start_point.y + arrow_width * sin(angle - 3.141592 / 2)),
     };
-    thickLineRGBA(
-        renderer, left_point.x, left_point.y, c, d, thickness, color.r, color.g, color.b, color.a);
-    thickLineRGBA(renderer,
-                  c,
-                  d,
-                  right_point.x,
-                  right_point.y,
-                  thickness,
-                  color.r,
-                  color.g,
-                  color.b,
-                  color.a);
+    drawThickLine(renderer, left_point.x, left_point.y, c, d, thickness, color);
+    drawThickLine(renderer, c, d, right_point.x, right_point.y, thickness, color);
 }
 
 void Link::update() {

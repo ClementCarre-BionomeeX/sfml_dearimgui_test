@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../incl/button.h"
-// #include "../incl/iwidget.h"
 #include "../incl/idraggable.h"
 #include "../incl/signal.h"
 #include "../incl/textbox.h"
+#include "../incl/textbutton.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
@@ -26,10 +26,14 @@ class Node : public IDraggable {
 
     Signal<int, int> onGlobalMouseLeftUp;
     void             globalMouseLeftUp(int x, int y);
+    Signal<int, int> onGlobalMouseLeftDown;
+    void             globalMouseLeftDown(int x, int y);
 
   private:
     int radius;
+    int margin        = 5;
+    int topButtonSize = 24;
 
-    Button  button;
-    TextBox nameTextBox;
+    TextButton topButton;
+    TextBox    nameTextBox;
 };

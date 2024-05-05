@@ -1,5 +1,7 @@
 #include "../incl/canvas.h"
 #include "../incl/link.h"
+#include <iostream>
+#include <string>
 
 Node* Canvas::addNode() {
     auto* ptr = addNode(50, 50);
@@ -10,6 +12,10 @@ Node* Canvas::addNode(int x, int y) {
     auto* ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, font);
     ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
+
+    ptr->onGlobalMouseLeftUp.connect([&, ptr](int, int) { upLeftNode(ptr); });
+    ptr->onGlobalMouseLeftDown.connect([&, ptr](int, int) { downLeftNode(ptr); });
+
     return ptr;
 }
 
@@ -44,8 +50,22 @@ bool Canvas::disconnectNodes(Node* source, Node* target) {
 }
 
 bool Canvas::handleEvent(SDL_Event& event) {
-    return WidgetManager::handleEvents(event);
-    // return true;
+    bool handled = WidgetManager::handleEvents(event);
+
+    if (!handled) {
+        int mouseX = event.motion.x;
+        int mouseY = event.motion.y;
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                backgroundLeftDown(mouseX, mouseY);
+            }
+        } else if (event.type == SDL_MOUSEBUTTONUP) {
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                backgroundLeftUp(mouseX, mouseY);
+            }
+        }
+    }
+    return handled;
 }
 
 void Canvas::update() {

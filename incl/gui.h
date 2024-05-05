@@ -57,8 +57,18 @@ class GUI {
     }
 
     bool handleEvent(SDL_Event& event) {
-        return quitButton.handleEvent(event) || addNodeButon.handleEvent(event) ||
-               saveButton.handleEvent(event) || loadButton.handleEvent(event);
+        // first, check if any button is handled
+        bool handled = quitButton.handleEvent(event) || addNodeButon.handleEvent(event) ||
+                       saveButton.handleEvent(event) || loadButton.handleEvent(event);
+        // check if the event happend in the background
+        if (!handled) {
+            int mouseX = event.motion.x;
+            int mouseY = event.motion.y;
+            handled    = (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
+                       mouseY <= rect.y + rect.h);
+        }
+
+        return handled;
     }
 
     void update() {
