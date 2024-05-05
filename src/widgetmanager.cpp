@@ -30,8 +30,8 @@ void WidgetManager::renderWidgets() {
 bool WidgetManager::removeWidget(IWidget* element) {
     // find the first reference to element
     auto to_remove = std::find_if(
-        widgets.begin(), widgets.end(), [element](auto const& w) { return w.get() == element; });
-    if (to_remove != widgets.end()) {
+        widgets.rbegin(), widgets.rend(), [element](auto const& w) { return w.get() == element; });
+    if (to_remove != widgets.rend()) {
         std::swap(*to_remove, *(widgets.end() - 1));
         widgets.erase(widgets.end() - 1);
     }

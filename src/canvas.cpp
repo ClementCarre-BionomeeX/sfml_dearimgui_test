@@ -14,7 +14,7 @@ Node* Canvas::addNode(int x, int y) {
     ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
 
     ptr->onGlobalMouseLeftUp.connect([&, ptr]() { upLeftNode(ptr); });
-    ptr->onConnectMouseLeftDown.connect([&, ptr]() { downLeftNode(ptr); });
+    ptr->onConnectMouseLeftDown.connect([&, ptr]() { downConnectNode(ptr); });
 
     return ptr;
 }

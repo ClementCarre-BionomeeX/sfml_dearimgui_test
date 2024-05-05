@@ -44,17 +44,18 @@ int main(int argc, char* argv[]) {
 
     Canvas canvas{renderer, font};
 
-    canvas.onNodeLeftUp.connect(
-        [&](IWidget* widget) { std::cout << "Node Left Up from " << widget << std::endl; });
-    canvas.onNodeLeftDown.connect(
-        [&](IWidget* widget) { std::cout << "Node Left Down from " << widget << std::endl; });
+    // canvas.onNodeLeftUp.connect(
+    //     [&](IWidget* widget) { std::cout << "Node Left Up from " << widget << std::endl; });
+    // canvas.onNodeConnectDown.connect([&](IWidget* widget) {
+    //     std::cout << "Node Left Down for connection from " << widget << std::endl;
+    // });
 
-    canvas.onBackgroundLeftUp.connect([&](int x, int y) {
-        std::cout << "Background Left Up at (" << x << "x" << y << ")" << std::endl;
-    });
-    canvas.onBackgroundLeftDown.connect([&](int x, int y) {
-        std::cout << "Background Left Down (" << x << "x" << y << ")" << std::endl;
-    });
+    // canvas.onBackgroundLeftUp.connect([&](int x, int y) {
+    //     std::cout << "Background Left Up at (" << x << "x" << y << ")" << std::endl;
+    // });
+    // canvas.onBackgroundLeftDown.connect([&](int x, int y) {
+    //     std::cout << "Background Left Down (" << x << "x" << y << ")" << std::endl;
+    // });
 
     auto* tn1 = canvas.addNode(300, 50);
     auto* tn2 = canvas.addNode(450, 50);
