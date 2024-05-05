@@ -13,8 +13,8 @@ Node* Canvas::addNode(int x, int y) {
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, font);
     ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
 
-    ptr->onGlobalMouseLeftUp.connect([&, ptr](int, int) { upLeftNode(ptr); });
-    ptr->onGlobalMouseLeftDown.connect([&, ptr](int, int) { downLeftNode(ptr); });
+    ptr->onGlobalMouseLeftUp.connect([&, ptr]() { upLeftNode(ptr); });
+    ptr->onConnectMouseLeftDown.connect([&, ptr]() { downLeftNode(ptr); });
 
     return ptr;
 }
@@ -28,7 +28,8 @@ bool Canvas::removeNode(Node* node) {
         }
     }
     // then remove the node
-    return removeWidget(node);
+    auto res = removeWidget(node);
+    return res;
 }
 
 bool Canvas::connectNodes(Node* source, Node* target) {

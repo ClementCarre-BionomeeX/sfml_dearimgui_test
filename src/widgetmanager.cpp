@@ -2,6 +2,7 @@
 #include "../incl/iwidget.h"
 #include <SDL2/SDL.h>
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <vector>
 

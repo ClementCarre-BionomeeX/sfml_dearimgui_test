@@ -24,16 +24,17 @@ class Node : public IDraggable {
     Signal<std::string> onNameChanged;
     void                changeName(std::string name);
 
-    Signal<int, int> onGlobalMouseLeftUp;
-    void             globalMouseLeftUp(int x, int y);
-    Signal<int, int> onGlobalMouseLeftDown;
-    void             globalMouseLeftDown(int x, int y);
+    Signal<> onGlobalMouseLeftUp;
+    void     globalMouseLeftUp();
+    Signal<> onConnectMouseLeftDown;
+    void     connectMouseLeftDown();
 
   private:
     int radius;
     int margin        = 5;
-    int topButtonSize = 24;
+    int topButtonSize = 20;
 
     TextButton topButton;
     TextBox    nameTextBox;
+    TextButton addConnectionButton;
 };

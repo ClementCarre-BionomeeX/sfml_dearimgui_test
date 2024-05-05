@@ -180,7 +180,7 @@ void TextBox::updateTextOffsetOnCursorMove() {
     TTF_SizeUTF8(font, textBeforeCursor.c_str(), &cursorTextWidth, &textHeight);
 
     int visibleTextWidth = rect.w - 10;    // Assuming 5 pixels padding on each side
-    int bufferZone       = 10;             // 10 pixels buffer for smoother scrolling
+    int bufferZone       = 5;              // 10 pixels buffer for smoother scrolling
 
     if (cursorTextWidth < textOffset) {
         // If cursor is left of the current offset, adjust offset to bring the cursor into view

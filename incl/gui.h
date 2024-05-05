@@ -9,7 +9,7 @@ class GUI {
   public:
     GUI(SDL_Window* window, int w, TTF_Font* font)
         : window(window), rect{0, 0, w, 0},
-          quitButton{10, 10, w - 20, 30, {255, 0, 0, 255}, {200, 50, 50, 255}, 2, "Quit", font},
+          quitButton{10, 10, w - 20, 30, {200, 0, 0, 255}, {250, 50, 50, 255}, 2, "Quit", font},
           addNodeButon{10,
                        50,
                        w - 20,
