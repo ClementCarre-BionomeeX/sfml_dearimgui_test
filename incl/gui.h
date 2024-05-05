@@ -89,7 +89,7 @@ class GUI {
 
   private:
     SDL_Window* window;
-    SDL_Rect    rect;
+    SDL_Rect    rect{0, 0, 0, 0};
     TextButton  quitButton;
     TextButton  addNodeButon;
     TextButton  saveButton;

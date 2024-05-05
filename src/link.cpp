@@ -67,16 +67,16 @@ bool Link::handleEvent(SDL_Event& event) {
 }
 
 bool Link::isNear(int x, int y) const noexcept {
-    return pointLineSegmentDistance(x, y) <= thickness / 2;
+    return pointLineSegmentDistanceSquared(x, y) <= (thickness / 2) * (thickness / 2);
 }
 
 // Function to calculate the distance from point (x, y) to the line segment (x1, y1) - (x2, y2)
-double Link::pointLineSegmentDistance(int x, int y) const noexcept {
+double Link::pointLineSegmentDistanceSquared(int x, int y) const noexcept {
     double norm2 = (c - a) * (c - a) + (d - b) * (d - b);
 
     if (norm2 == 0.0) {
         // Segment is a point
-        return sqrt((x - a) * (x - a) + (y - b) * (y - b));
+        return (x - a) * (x - a) + (y - b) * (y - b);
     }
 
     // Project point onto the line defined by the segment
@@ -94,7 +94,7 @@ double Link::pointLineSegmentDistance(int x, int y) const noexcept {
     double closestX = a + u * (c - a);
     double closestY = b + u * (d - b);
 
-    double dist = sqrt((x - closestX) * (x - closestX) + (y - closestY) * (y - closestY));
+    double dist = (x - closestX) * (x - closestX) + (y - closestY) * (y - closestY);
 
     // Return the distance from the closest point to the point (x, y)
     return dist;

@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
+#include <utility>
 
 class TextBox : public IWidget {
 
@@ -15,32 +16,32 @@ class TextBox : public IWidget {
     bool handleEvent(SDL_Event& event) override;
     void update() override;
 
-    ~TextBox();
+    // ~TextBox();
 
     Signal<std::string> onTextChanged;
     void                changeText(std::string str);
 
   private:
-    void drawCursor(SDL_Renderer* renderer) const;
-    void setCursorByClick(int clickX);
-    void deleteWordLeft();
-    void deleteWordRight();
-    void moveCursorLeftByWord();
-    void moveCursorRightByWord();
-    int  prepareTextTexture(SDL_Renderer* renderer);
-    void renderBackground(SDL_Renderer* renderer);
-    void renderText(SDL_Renderer* renderer, int w);
-    void updateTextOffsetOnCursorMove();
+    void                         drawCursor(SDL_Renderer* renderer) const;
+    void                         setCursorByClick(int clickX);
+    void                         deleteWordLeft();
+    void                         deleteWordRight();
+    void                         moveCursorLeftByWord();
+    void                         moveCursorRightByWord();
+    std::pair<int, SDL_Texture*> prepareTextTexture(SDL_Renderer* renderer);
+    void                         renderBackground(SDL_Renderer* renderer);
+    void                         renderText(SDL_Renderer* renderer, int w, SDL_Texture* texture);
+    void                         updateTextOffsetOnCursorMove();
 
   private:
-    std::string  text;
-    bool         isSelected;
-    SDL_Color    color;
-    SDL_Texture* texture;
-    size_t       cursorPosition;
-    Uint32       lastCursorBlink;
-    bool         cursorVisible;
-    int          minTextWidth;
-    TTF_Font*    font;
-    int          textOffset = 0;
+    std::string text;
+    bool        isSelected;
+    SDL_Color   color;
+    // SDL_Texture* texture;
+    size_t    cursorPosition;
+    Uint32    lastCursorBlink;
+    bool      cursorVisible;
+    int       minTextWidth;
+    TTF_Font* font;
+    int       textOffset = 0;
 };

@@ -15,19 +15,11 @@ class TextButton : public Button {
                int         rad,
                std::string text,
                TTF_Font*   font)
-        : Button(x, y, w, h, baseColor, hoverColor, rad), text(text), font(font), texture(nullptr) {
-    }
-
-    ~TextButton() {
-        if (texture) {
-            SDL_DestroyTexture(texture);
-        }
-    }
+        : Button(x, y, w, h, baseColor, hoverColor, rad), text(text), font(font) {}
 
     void render(SDL_Renderer* renderer) override;
 
   private:
-    std::string  text;
-    TTF_Font*    font;
-    SDL_Texture* texture;
+    std::string text;
+    TTF_Font*   font;
 };

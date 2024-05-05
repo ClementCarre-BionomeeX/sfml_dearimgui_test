@@ -7,26 +7,27 @@
 
 // MARK: TextBox
 TextBox::TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextWidth)
-    : IWidget{x, y, 0, 0}, isSelected(false), color(color), texture(nullptr), cursorPosition(0),
-      lastCursorBlink(SDL_GetTicks()), cursorVisible(true), minTextWidth(minimumTextWidth),
-      font(font) {
+    : IWidget{x, y, 0, 0}, isSelected(false), color(color),
+      // texture(nullptr),
+      cursorPosition(0), lastCursorBlink(SDL_GetTicks()), cursorVisible(true),
+      minTextWidth(minimumTextWidth), font(font) {
     text = "";
 }
 
-// MARK: ~TextBox
-TextBox::~TextBox() {
-    if (texture) {
-        SDL_DestroyTexture(texture);
-    }
-}
+// // MARK: ~TextBox
+// TextBox::~TextBox() {
+//     if (texture) {
+//         SDL_DestroyTexture(texture);
+//     }
+// }
 
 // MARK: prepareTextTexture
-int TextBox::prepareTextTexture(SDL_Renderer* renderer) {
+std::pair<int, SDL_Texture*> TextBox::prepareTextTexture(SDL_Renderer* renderer) {
     const char* renderText = text.empty() ? " " : text.c_str();
 
     // Create a surface from the text
     SDL_Surface* surface = TTF_RenderUTF8_Solid(font, renderText, color);
-    texture              = SDL_CreateTextureFromSurface(renderer, surface);
+    auto*        texture = SDL_CreateTextureFromSurface(renderer, surface);
 
     // Get the width of the rendered text
     int textWidth  = surface->w;
@@ -37,7 +38,7 @@ int TextBox::prepareTextTexture(SDL_Renderer* renderer) {
     rect.w = std::max(minTextWidth, rect.w);    // Ensure the textbox has at least the minimum width
     rect.h = textHeight;                        // Set the height based on the text height
 
-    return textWidth;
+    return {textWidth, texture};
 }
 
 // MARK: renderBackground
@@ -49,7 +50,7 @@ void TextBox::renderBackground(SDL_Renderer* renderer) {
 }
 
 // MARK: renderText
-void TextBox::renderText(SDL_Renderer* renderer, int w) {
+void TextBox::renderText(SDL_Renderer* renderer, int w, SDL_Texture* texture) {
     // Clipping width to ensure text does not overflow
     int displayWidth =
         std::min(w - textOffset, rect.w - 10);    // Assuming 5 pixels padding on each side
@@ -59,13 +60,16 @@ void TextBox::renderText(SDL_Renderer* renderer, int w) {
             rect.x + 5, rect.y, displayWidth, rect.h};    // Adjusted rect for text display
         SDL_RenderCopy(renderer, texture, &srcRect, &destRect);
     }
+    if (texture) {
+        SDL_DestroyTexture(texture);
+    }
 }
 
 // MARK: render
 void TextBox::render(SDL_Renderer* renderer) {
-    int w = prepareTextTexture(renderer);
+    auto [w, texture] = prepareTextTexture(renderer);
     renderBackground(renderer);
-    renderText(renderer, w);
+    renderText(renderer, w, texture);
     if (isSelected && cursorVisible) {
         drawCursor(renderer);
     }

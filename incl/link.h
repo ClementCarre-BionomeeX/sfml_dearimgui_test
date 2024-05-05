@@ -28,7 +28,7 @@ class Link : public IWidget {
     bool      isHovered;
 
     bool   isNear(int x, int y) const noexcept;
-    double pointLineSegmentDistance(int x, int y) const noexcept;
+    double pointLineSegmentDistanceSquared(int x, int y) const noexcept;
     void   draw_indicator(SDL_Renderer* renderer, SDL_Color color) const noexcept;
 
     // anchor cache

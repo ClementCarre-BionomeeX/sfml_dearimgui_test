@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <any>
 #include <array>
+#include <iostream>
 #include <map>
 #include <string>
 #include <utility>
@@ -81,6 +82,6 @@ class IWidget {
     Signal<int, int> onMouseRightUp;
 
   protected:
-    SDL_Rect rect;
+    SDL_Rect rect{0, 0, 0, 0};
     bool     isHover = false;
 };
