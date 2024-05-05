@@ -4,7 +4,7 @@
 
 // MARK: Button
 Button::Button(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor, int rad)
-    : IWidget{x, y, w, h}, baseColor(baseColor), hoverColor(hoverColor), radius(rad) {
+    : IWidget{x, y, w, h}, _baseColor(baseColor), _hoverColor(hoverColor), radius(rad) {
     changeToBaseColor();
     onHover.connect([this]() {
         changeToHoverColor();    // Change color on hover
@@ -26,7 +26,7 @@ Button::Button(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverC
 
 // MARK: render
 void Button::render(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
+    SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
 
     // Middle part (adjust the rect to not overwrite the corners)
     SDL_Rect middleRect = {rect.x + radius, rect.y, rect.w - 2 * radius, rect.h};

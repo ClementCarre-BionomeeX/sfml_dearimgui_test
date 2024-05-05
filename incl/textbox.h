@@ -36,12 +36,11 @@ class TextBox : public IWidget {
   private:
     std::string text;
     bool        isSelected;
-    SDL_Color   color;
-    // SDL_Texture* texture;
-    size_t    cursorPosition;
-    Uint32    lastCursorBlink;
-    bool      cursorVisible;
-    int       minTextWidth;
-    TTF_Font* font;
-    int       textOffset = 0;
+    SDL_Color   _color;
+    size_t      cursorPosition;
+    Uint32      lastCursorBlink;
+    bool        cursorVisible;
+    int         minTextWidth;
+    TTF_Font*   _font;
+    int         textOffset = 0;
 };

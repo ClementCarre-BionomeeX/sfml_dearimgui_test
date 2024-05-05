@@ -47,13 +47,13 @@ void Node::render(SDL_Renderer* renderer) {
 
         int border = 2;
         // draw the background
-        SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
+        SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
         roundCornerRectangle(
             renderer,
             {rect.x + border, rect.y + border, rect.w - 2 * border, rect.h - 2 * border},
             radius);
     } else {
-        SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
+        SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
         roundCornerRectangle(renderer, rect, radius);
     }
 

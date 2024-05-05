@@ -8,7 +8,7 @@
 class GUI {
   public:
     GUI(SDL_Window* window, int w, TTF_Font* font)
-        : window(window), rect{0, 0, w, 0},
+        : _window(window), rect{0, 0, w, 0},
           quitButton{10, 10, w - 20, 30, {200, 0, 0, 255}, {250, 50, 50, 255}, 2, "Quit", font},
           addNodeButon{10,
                        50,
@@ -75,7 +75,7 @@ class GUI {
 
     void update() {
         // get the window size
-        SDL_GetWindowSize(window, nullptr, &rect.h);
+        SDL_GetWindowSize(_window, nullptr, &rect.h);
     }
 
     Signal<> onQuitClick;
@@ -88,7 +88,7 @@ class GUI {
     void     clickLoad() { onLoadClick.emit(); }
 
   private:
-    SDL_Window* window;
+    SDL_Window* _window;
     SDL_Rect    rect{0, 0, 0, 0};
     TextButton  quitButton;
     TextButton  addNodeButon;

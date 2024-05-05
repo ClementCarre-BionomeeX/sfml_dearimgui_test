@@ -7,12 +7,10 @@
 
 // MARK: TextBox
 TextBox::TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextWidth)
-    : IWidget{x, y, 0, 0}, isSelected(false), color(color),
+    : IWidget{x, y, 0, 0}, text{""}, isSelected(false), _color(color),
       // texture(nullptr),
       cursorPosition(0), lastCursorBlink(SDL_GetTicks()), cursorVisible(true),
-      minTextWidth(minimumTextWidth), font(font) {
-    text = "";
-}
+      minTextWidth(minimumTextWidth), _font(font) {}
 
 // // MARK: ~TextBox
 // TextBox::~TextBox() {
@@ -26,7 +24,7 @@ std::pair<int, SDL_Texture*> TextBox::prepareTextTexture(SDL_Renderer* renderer)
     const char* renderText = text.empty() ? " " : text.c_str();
 
     // Create a surface from the text
-    SDL_Surface* surface = TTF_RenderUTF8_Solid(font, renderText, color);
+    SDL_Surface* surface = TTF_RenderUTF8_Solid(_font, renderText, _color);
     auto*        texture = SDL_CreateTextureFromSurface(renderer, surface);
 
     // Get the width of the rendered text
@@ -81,7 +79,7 @@ void TextBox::drawCursor(SDL_Renderer* renderer) const {
 
     if (cursorPosition > 0 && cursorPosition <= text.length()) {
         std::string  textBeforeCursor = text.substr(0, cursorPosition);
-        SDL_Surface* surface          = TTF_RenderText_Solid(font, textBeforeCursor.c_str(), color);
+        SDL_Surface* surface = TTF_RenderText_Solid(_font, textBeforeCursor.c_str(), _color);
         cursorX += surface->w - textOffset;    // Adjust cursor position by textOffset
         SDL_FreeSurface(surface);
     }
@@ -181,7 +179,7 @@ bool TextBox::handleEvent(SDL_Event& event) {
 void TextBox::updateTextOffsetOnCursorMove() {
     std::string textBeforeCursor = text.substr(0, cursorPosition);
     int         cursorTextWidth, textHeight;
-    TTF_SizeUTF8(font, textBeforeCursor.c_str(), &cursorTextWidth, &textHeight);
+    TTF_SizeUTF8(_font, textBeforeCursor.c_str(), &cursorTextWidth, &textHeight);
 
     int visibleTextWidth = rect.w - 10;    // Assuming 5 pixels padding on each side
     int bufferZone       = 5;              // 10 pixels buffer for smoother scrolling
@@ -207,7 +205,7 @@ void TextBox::setCursorByClick(int clickX) {
 
     for (size_t i = 0; i <= text.length(); ++i) {
         std::string subText = text.substr(0, i);
-        TTF_SizeText(font, subText.c_str(), &textWidth, &height);
+        TTF_SizeText(_font, subText.c_str(), &textWidth, &height);
 
         int currentDist = std::abs((rect.x + textWidth) - clickX);
         if (currentDist < minDist) {

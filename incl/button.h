@@ -15,16 +15,16 @@ class Button : public IWidget {
     Signal<> onClick;
     void     click();
 
-    inline void changeToBaseColor() noexcept { color = &baseColor; }
-    inline void changeToHoverColor() noexcept { color = &hoverColor; }
+    inline void changeToBaseColor() noexcept { _color = &_baseColor; }
+    inline void changeToHoverColor() noexcept { _color = &_hoverColor; }
 
   protected:
     ~Button() {}
 
   private:
-    SDL_Color* color;         // Button color
-    SDL_Color  baseColor;     // Button color when not hovered
-    SDL_Color  hoverColor;    // Button color when hovered
-    int        radius;        // Radius for rounded corners
+    SDL_Color* _color;         // Button color
+    SDL_Color  _baseColor;     // Button color when not hovered
+    SDL_Color  _hoverColor;    // Button color when hovered
+    int        radius;         // Radius for rounded corners
     bool       clicking = false;
 };
