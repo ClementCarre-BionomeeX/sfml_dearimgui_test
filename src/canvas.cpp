@@ -82,3 +82,13 @@ void Canvas::render(SDL_Renderer* renderer) {
 std::pair<int, int> Canvas::anchor() const noexcept {
     return {0, 0};
 }
+
+bool Canvas::isConnected(IWidget* source, IWidget* target) const noexcept {
+    auto links = find_all_by_type<Link>();
+    for (auto* link : links) {
+        if (link->isSource(source) && link->isTarget(target)) {
+            return true;
+        }
+    }
+    return false;
+}

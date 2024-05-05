@@ -29,7 +29,9 @@ class Canvas : public IWidget, public WidgetManager {
     void          upLeftNode(Node* node) {
         // if mp_start != node, we add a link
         if (mp_start && mp_start != node) {
-            connectNodes(mp_start, node);
+            if (!disconnectNodes(mp_start, node)) {
+                connectNodes(mp_start, node);
+            }
         }
         // remove any active mouse_position if any
         removeAnyMousePosition();
@@ -56,6 +58,8 @@ class Canvas : public IWidget, public WidgetManager {
             addWidget<Link>(node, mp, SDL_Color{50, 50, 50, 255}, SDL_Color{50, 50, 50, 255}, 5);
         onNodeConnectDown.emit(node);
     }
+
+    bool isConnected(IWidget* source, IWidget* target) const noexcept;
 
   private:
     TTF_Font*      font;

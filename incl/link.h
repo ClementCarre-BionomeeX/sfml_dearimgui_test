@@ -32,5 +32,5 @@ class Link : public IWidget {
     void   draw_indicator(SDL_Renderer* renderer, SDL_Color color) const noexcept;
 
     // anchor cache
-    int a, b, c, d;
+    int a = 0, b = 0, c = 0, d = 0;
 };

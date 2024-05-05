@@ -63,7 +63,7 @@ bool Link::handleEvent(SDL_Event& event) {
     int mouseX = event.motion.x;
     int mouseY = event.motion.y;
     isHovered  = isNear(mouseX, mouseY);
-    return false;
+    return isHovered;
 }
 
 bool Link::isNear(int x, int y) const noexcept {

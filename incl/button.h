@@ -18,6 +18,9 @@ class Button : public IWidget {
     inline void changeToBaseColor() noexcept { color = &baseColor; }
     inline void changeToHoverColor() noexcept { color = &hoverColor; }
 
+  protected:
+    ~Button() {}
+
   private:
     SDL_Color* color;         // Button color
     SDL_Color  baseColor;     // Button color when not hovered

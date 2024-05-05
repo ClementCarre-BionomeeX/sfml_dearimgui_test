@@ -44,6 +44,8 @@ class GUI {
         loadButton.onClick.connect([this]() { clickLoad(); });
     }
 
+    ~GUI() {}
+
     void render(SDL_Renderer* renderer) {
         // render the background box from top to bottom
         SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);

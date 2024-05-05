@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    SDL_Event event;
+    SDL_Event event{0};
     bool      running = true;
     SDL_StartTextInput();
 
