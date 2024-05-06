@@ -23,7 +23,7 @@ void WidgetManager::updateWidgets() {
 
 void WidgetManager::renderWidgets() {
     for (auto& widget : widgets) {
-        widget->render(renderer);
+        widget->render(_renderer);
     }
 }
 

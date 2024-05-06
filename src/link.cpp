@@ -6,32 +6,33 @@
 #include <iostream>
 
 Link::Link(IWidget* source, IWidget* target, SDL_Color color, SDL_Color hoverColor, int thickness)
-    : source(source), target(target), color(color), hoverColor(hoverColor), thickness(thickness),
-      isHovered(false) {}
+    : _source(source), _target(target), _baseColor(color), _hoverColor(hoverColor),
+      _thickness(thickness), isHovered(false) {
+    _color = &_baseColor;
+}
 
 void Link::render(SDL_Renderer* renderer) {
 
-    SDL_Color currentColor = isHovered ? hoverColor : color;
+    _color = isHovered ? &_hoverColor : &_baseColor;
 
-    SDL_SetRenderDrawColor(
-        renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
-    drawThickLine(renderer, a, b, c, d, thickness, currentColor);
-    fillCircle(renderer, a, b, thickness / 2);
-    fillCircle(renderer, c, d, thickness / 2);
-    draw_indicator(renderer, currentColor);
+    SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
+    drawThickLine(renderer, a.x, a.y, b.x, b.y, _thickness, *_color);
+    fillCircle(renderer, a.x, a.y, _thickness / 2);
+    fillCircle(renderer, b.x, b.y, _thickness / 2);
+    draw_indicator(renderer);
 }
 
-void Link::draw_indicator(SDL_Renderer* renderer, SDL_Color color) const noexcept {
+void Link::draw_indicator(SDL_Renderer* renderer) const noexcept {
     int arrow_length = 20;
     int arrow_width  = 7;
 
-    int    dx    = c - a;
-    int    dy    = d - b;
+    int    dx    = b.x - a.x;
+    int    dy    = b.y - a.y;
     double angle = atan2(dy, dx);
 
     SDL_Point start_point = {
-        int(c - arrow_length * cos(angle)),
-        int(d - arrow_length * sin(angle)),
+        int(b.x - arrow_length * cos(angle)),
+        int(b.y - arrow_length * sin(angle)),
     };
 
     SDL_Point left_point = {
@@ -42,20 +43,20 @@ void Link::draw_indicator(SDL_Renderer* renderer, SDL_Color color) const noexcep
         int(start_point.x + arrow_width * cos(angle - 3.141592 / 2)),
         int(start_point.y + arrow_width * sin(angle - 3.141592 / 2)),
     };
-    drawThickLine(renderer, left_point.x, left_point.y, c, d, thickness, color);
-    drawThickLine(renderer, c, d, right_point.x, right_point.y, thickness, color);
+    drawThickLine(renderer, left_point.x, left_point.y, b.x, b.y, _thickness, *_color);
+    drawThickLine(renderer, b.x, b.y, right_point.x, right_point.y, _thickness, *_color);
 }
 
 void Link::update() {
-    std::tie(a, b) = source->anchor();
-    std::tie(c, d) = target->anchor();
+    a = _source->anchor();
+    b = _target->anchor();
 
-    auto inter_source = find_intersection(source->getRect(), {a, b}, {c, d});
-    auto inter_target = find_intersection(target->getRect(), {a, b}, {c, d});
+    auto inter_source = find_intersection(_source->getRect(), a, b);
+    auto inter_target = find_intersection(_target->getRect(), a, b);
 
     if (inter_source && inter_target) {
-        std::tie(a, b) = inter_source.value();
-        std::tie(c, d) = inter_target.value();
+        a = inter_source.value();
+        b = inter_target.value();
     }
 }
 
@@ -67,22 +68,22 @@ bool Link::handleEvent(SDL_Event& event) {
 }
 
 bool Link::isNear(int x, int y) const noexcept {
-    return pointLineSegmentDistanceSquared(x, y) <= (thickness / 2) * (thickness / 2);
+    return pointLineSegmentDistanceSquared(x, y) <= (_thickness / 2) * (_thickness / 2);
 }
 
 // Function to calculate the distance from point (x, y) to the line segment (x1, y1) - (x2, y2)
 double Link::pointLineSegmentDistanceSquared(int x, int y) const noexcept {
-    double norm2 = (c - a) * (c - a) + (d - b) * (d - b);
+    double norm2 = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y);
 
     if (norm2 == 0.0) {
         // Segment is a point
-        return (x - a) * (x - a) + (y - b) * (y - b);
+        return (x - a.x) * (x - a.x) + (y - a.y) * (y - a.y);
     }
 
     // Project point onto the line defined by the segment
-    double u = ((x - a) * (c - a) + (y - b) * (d - b)) / norm2;
+    double u = ((x - a.x) * (b.x - a.x) + (y - a.y) * (b.y - a.y)) / norm2;
 
-    // Clamp u to the 0.0 to 1.0 range to ensure it's within the segment
+    // clamp u to the 0.0 to 1.0 range to ensure it's within the segment
     if (u < 0.0) {
         u = 0.0;
     }
@@ -91,8 +92,8 @@ double Link::pointLineSegmentDistanceSquared(int x, int y) const noexcept {
     }
 
     // Find the closest point on the line segment
-    double closestX = a + u * (c - a);
-    double closestY = b + u * (d - b);
+    double closestX = a.x + u * (b.x - a.x);
+    double closestY = a.y + u * (b.y - a.y);
 
     double dist = (x - closestX) * (x - closestX) + (y - closestY) * (y - closestY);
 
@@ -100,16 +101,16 @@ double Link::pointLineSegmentDistanceSquared(int x, int y) const noexcept {
     return dist;
 }
 
-std::pair<int, int> Link::anchor() const noexcept {
-    return {(a + c) / 2, (b + d) / 2};
+SDL_Point Link::anchor() const noexcept {
+    return {(a.x + b.x) / 2, (a.y + b.y) / 2};
 }
 
 bool Link::isExtremity(IWidget* w) const noexcept {
-    return (w == source || w == target);
+    return (w == _source || w == _target);
 }
 bool Link::isSource(IWidget* w) const noexcept {
-    return (w == source);
+    return (w == _source);
 }
 bool Link::isTarget(IWidget* w) const noexcept {
-    return (w == target);
+    return (w == _target);
 }

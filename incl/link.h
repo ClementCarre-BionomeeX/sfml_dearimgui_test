@@ -9,10 +9,10 @@ class Link : public IWidget {
   public:
     Link(IWidget* source, IWidget* target, SDL_Color color, SDL_Color hoverColor, int thickness);
 
-    void                render(SDL_Renderer* renderer) override;
-    bool                handleEvent(SDL_Event& event) override;
-    void                update() override;
-    std::pair<int, int> anchor() const noexcept override;
+    void      render(SDL_Renderer* renderer) override;
+    bool      handleEvent(SDL_Event& event) override;
+    void      update() override;
+    SDL_Point anchor() const noexcept override;
 
     bool isExtremity(IWidget* w) const noexcept;
 
@@ -20,17 +20,18 @@ class Link : public IWidget {
     bool isTarget(IWidget* w) const noexcept;
 
   private:
-    IWidget*  source;
-    IWidget*  target;
-    SDL_Color color;
-    SDL_Color hoverColor;
-    int       thickness;
-    bool      isHovered;
+    IWidget*   _source;
+    IWidget*   _target;
+    SDL_Color* _color;
+    SDL_Color  _baseColor;
+    SDL_Color  _hoverColor;
+    int        _thickness;
+    bool       isHovered = false;
 
     bool   isNear(int x, int y) const noexcept;
     double pointLineSegmentDistanceSquared(int x, int y) const noexcept;
-    void   draw_indicator(SDL_Renderer* renderer, SDL_Color color) const noexcept;
+    void   draw_indicator(SDL_Renderer* renderer) const noexcept;
 
     // anchor cache
-    int a = 0, b = 0, c = 0, d = 0;
+    SDL_Point a{0, 0}, b{0, 0};
 };

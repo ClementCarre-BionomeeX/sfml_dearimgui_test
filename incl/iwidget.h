@@ -50,9 +50,7 @@ class IWidget {
     virtual void update()                       = 0;
     virtual void render(SDL_Renderer* renderer) = 0;
 
-    virtual std::pair<int, int> anchor() const noexcept {
-        return {rect.x + rect.w / 2, rect.y + rect.h / 2};
-    }
+    virtual SDL_Point anchor() const noexcept { return {rect.x + rect.w / 2, rect.y + rect.h / 2}; }
 
     virtual void moveTo(int x, int y) noexcept {
         rect.x = x;
@@ -64,7 +62,7 @@ class IWidget {
         rect.h = h;
     }
 
-    virtual std::pair<int, int> position() const noexcept { return {rect.x, rect.y}; }
+    virtual SDL_Point position() const noexcept { return {rect.x, rect.y}; }
 
     virtual SDL_Rect getRect() const noexcept { return rect; }
 

@@ -7,12 +7,8 @@
 #include <vector>
 
 class WidgetManager {
-  private:
-    std::vector<std::unique_ptr<IWidget>> widgets;
-    SDL_Renderer*                         renderer;
-
   public:
-    WidgetManager(SDL_Renderer* renderer) : widgets{}, renderer{renderer} {}
+    WidgetManager(SDL_Renderer* renderer) : widgets{}, _renderer{renderer} {}
 
     template <typename T, typename... Args>
     T* addWidget(Args&&... args);
@@ -29,10 +25,14 @@ class WidgetManager {
     std::vector<T*> find_all_by_type() const noexcept;
 
   protected:
-    // draggable managment
+    // drag managment
     IWidget* selection = nullptr;
     int      startx    = 0;
     int      starty    = 0;
+
+  private:
+    std::vector<std::unique_ptr<IWidget>> widgets;
+    SDL_Renderer*                         _renderer;
 };
 
 template <typename T, typename... Args>

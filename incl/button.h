@@ -15,8 +15,8 @@ class Button : public IWidget {
     Signal<> onClick;
     void     click();
 
-    inline void changeToBaseColor() noexcept { _color = &_baseColor; }
-    inline void changeToHoverColor() noexcept { _color = &_hoverColor; }
+    inline void changeToBaseColor() noexcept;
+    inline void changeToHoverColor() noexcept;
 
   protected:
     ~Button() {}

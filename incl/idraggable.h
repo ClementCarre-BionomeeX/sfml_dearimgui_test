@@ -6,53 +6,20 @@
 
 class IDraggable : public IWidget {
   public:
-    IDraggable(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor)
-        : IWidget{x, y, w, h}, _baseColor{baseColor}, _hoverColor{hoverColor} {
-        changeToBaseColor();
-        onMouseLeftDown.connect([this](int, int) {
-            isSelected = true;    // Begin the dragging process
-        });
-
-        onMouseLeftUp.connect([this](int, int) {
-            if (isDragging) {
-                isDragging = false;    // End the dragging process
-            }
-            isSelected = false;    // Deselect the widget
-        });
-
-        onHover.connect([this]() {
-            changeToHoverColor();    // Change color on hover
-        });
-
-        onHoverLost.connect([this]() {
-            changeToBaseColor();    // Revert color when not hovering
-        });
-    }
+    IDraggable(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor);
 
     virtual ~IDraggable() = default;
 
     // dragging signals
     Signal<int, int> onDragging;
+    void             drag(int x, int y);
 
-    inline void changeToBaseColor() noexcept { _color = &_baseColor; }
-    inline void changeToHoverColor() noexcept { _color = &_hoverColor; }
+    void changeToBaseColor() noexcept;
+    void changeToHoverColor() noexcept;
 
-    bool handleEvent(SDL_Event& event) override {
-        bool handled = IWidget::handleEvent(event);
+    bool handleEvent(SDL_Event& event) override;
 
-        // Additional handling for dragging if selected
-        if (event.type == SDL_MOUSEMOTION && isSelected) {
-            if (!isDragging) {
-                isDragging = true;    // Start dragging
-            }
-            onDragging.emit(event.motion.x, event.motion.y);    // Emit dragging signal
-            handled = true;
-        }
-
-        return handled;
-    }
-
-    virtual std::map<std::string, std::any> serialize() const noexcept override {
+    virtual std::map<std::string, std::any> serialize() const noexcept {
         auto result = IWidget::serialize();
         result["baseColor"] =
             std::array<int, 4>{_baseColor.r, _baseColor.g, _baseColor.b, _baseColor.a};

@@ -63,7 +63,6 @@ void Node::render(SDL_Renderer* renderer) {
 }
 
 bool Node::handleEvent(SDL_Event& event) {
-
     if (topButton.handleEvent(event) || nameTextBox.handleEvent(event) ||
         addConnectionButton.handleEvent(event)) {
         return true;

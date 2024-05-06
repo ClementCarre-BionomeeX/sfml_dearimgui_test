@@ -48,3 +48,10 @@ void Button::update() {}
 void Button::click() {
     onClick.emit();
 }
+
+inline void Button::changeToBaseColor() noexcept {
+    _color = &_baseColor;
+}
+inline void Button::changeToHoverColor() noexcept {
+    _color = &_hoverColor;
+}

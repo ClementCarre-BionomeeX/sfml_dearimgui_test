@@ -87,6 +87,8 @@ int main(int argc, char* argv[]) {
         }
     });
 
+    gui.onBackgroundLeftUp.connect([&canvas]() { canvas.backgroundLeftUp(0, 0); });
+
     while (running) {
 
         while (SDL_PollEvent(&event)) {

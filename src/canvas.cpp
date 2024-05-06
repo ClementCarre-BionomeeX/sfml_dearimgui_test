@@ -10,12 +10,10 @@ Node* Canvas::addNode() {
 
 Node* Canvas::addNode(int x, int y) {
     auto* ptr = addDraggableWidget<Node>(
-        x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, font);
+        x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font);
     ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
-
     ptr->onGlobalMouseLeftUp.connect([&, ptr]() { upLeftNode(ptr); });
     ptr->onConnectMouseLeftDown.connect([&, ptr]() { downConnectNode(ptr); });
-
     return ptr;
 }
 
@@ -46,13 +44,11 @@ bool Canvas::disconnectNodes(Node* source, Node* target) {
             found = true;
         }
     }
-
     return found;
 }
 
 bool Canvas::handleEvent(SDL_Event& event) {
     bool handled = WidgetManager::handleEvents(event);
-
     if (!handled) {
         int mouseX = event.motion.x;
         int mouseY = event.motion.y;
@@ -66,20 +62,26 @@ bool Canvas::handleEvent(SDL_Event& event) {
             }
         }
     }
+
     return handled;
 }
 
 void Canvas::update() {
     updateWidgets();
+    if (mp_link) {
+        mp_link->update();
+    }
 }
 
 void Canvas::render(SDL_Renderer* renderer) {
     // render background
-
     WidgetManager::renderWidgets();
+    if (mp_link) {
+        mp_link->render(renderer);
+    }
 }
 
-std::pair<int, int> Canvas::anchor() const noexcept {
+SDL_Point Canvas::anchor() const noexcept {
     return {0, 0};
 }
 
@@ -91,4 +93,54 @@ bool Canvas::isConnected(IWidget* source, IWidget* target) const noexcept {
         }
     }
     return false;
+}
+
+void Canvas::upLeftNode(Node* node) {
+    // if mp_start != node, we add a link
+    if (mp_start && mp_start != node) {
+        if (!disconnectNodes(mp_start, node)) {
+            connectNodes(mp_start, node);
+        }
+    }
+    // remove any active mouse_position if any
+    removeAnyMousePosition();
+    onNodeLeftUp.emit(node);
+}
+
+void Canvas::downLeftNode(Node* node) {
+    onNodeLeftDown.emit(node);
+}
+
+void Canvas::backgroundLeftUp(int x, int y) {
+    // remove any active mouse_position if any
+    removeAnyMousePosition();
+    onBackgroundLeftUp.emit(x, y);
+}
+
+void Canvas::backgroundLeftDown(int x, int y) {
+    onBackgroundLeftDown.emit(x, y);
+}
+
+void Canvas::downConnectNode(Node* node) {
+    // create a mouse_position widget
+    mp_start = node;
+    mp       = new MousePosition();
+    mp_link  = new Link(node, mp, SDL_Color{150, 150, 150, 255}, SDL_Color{150, 150, 150, 255}, 5);
+    onNodeConnectDown.emit(node);
+}
+
+void Canvas::removeAnyMousePosition() {
+    if (mp_link) {
+        // removeWidget(mp_link);
+        delete mp_link;
+        mp_link = nullptr;
+    }
+    if (mp) {
+        // removeWidget(mp);
+        delete mp;
+        mp = nullptr;
+    }
+    if (mp_start) {
+        mp_start = nullptr;
+    }
 }

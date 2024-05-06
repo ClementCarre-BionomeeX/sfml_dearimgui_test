@@ -16,8 +16,6 @@ class TextBox : public IWidget {
     bool handleEvent(SDL_Event& event) override;
     void update() override;
 
-    // ~TextBox();
-
     Signal<std::string> onTextChanged;
     void                changeText(std::string str);
 

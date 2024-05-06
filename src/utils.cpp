@@ -2,8 +2,7 @@
 #include <optional>
 #include <utility>
 
-std::optional<std::pair<int, int>>
-line_intersection(SDL_Point p1, SDL_Point p2, SDL_Point p3, SDL_Point p4) {
+std::optional<SDL_Point> line_intersection(SDL_Point p1, SDL_Point p2, SDL_Point p3, SDL_Point p4) {
 
     double denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
     if (denom == 0) {
@@ -13,16 +12,15 @@ line_intersection(SDL_Point p1, SDL_Point p2, SDL_Point p3, SDL_Point p4) {
     if (ua >= 0 && ua <= 1) {
         double ub = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / denom;
         if (ub >= 0 && ub <= 1) {
-            int x = p1.x + ua * (p2.x - p1.x);
-            int y = p1.y + ua * (p2.y - p1.y);
-            return std::optional<std::pair<int, int>>(std::make_pair(x, y));
+            int x = int((double)p1.x + ua * (double)(p2.x - p1.x));
+            int y = int((double)p1.y + ua * (double)(p2.y - p1.y));
+            return std::optional<SDL_Point>({x, y});
         }
     }
     return {};
 }
 
-std::optional<std::pair<int, int>>
-find_intersection(SDL_Rect rect, SDL_Point start, SDL_Point end) {
+std::optional<SDL_Point> find_intersection(SDL_Rect rect, SDL_Point start, SDL_Point end) {
 
     for (int i = 0; i < 4; ++i) {
         auto iter = line_intersection(
