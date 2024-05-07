@@ -73,7 +73,6 @@ bool Canvas::handleEvent(SDL_Event& event) {
 
     // if (!handled) {
     switch (event.type) {
-
     case SDL_MOUSEWHEEL: {
         // Zoom in or out
         // Adjust zoom speed here
@@ -90,9 +89,13 @@ bool Canvas::handleEvent(SDL_Event& event) {
         break;
     }
     case SDL_MOUSEMOTION: {
-        if (event.motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)) {    // Pan with middle mouse
-            viewportOffset.x += event.motion.xrel;
-            viewportOffset.y += event.motion.yrel;
+        if (event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {    // Pan with middle mouse
+
+            float adjustedXRel = static_cast<float>(event.motion.xrel) / zoomFactor;
+            float adjustedYRel = static_cast<float>(event.motion.yrel) / zoomFactor;
+
+            viewportOffset.x += static_cast<int>(adjustedXRel);
+            viewportOffset.y += static_cast<int>(adjustedYRel);
         }
         break;
     }
@@ -109,8 +112,6 @@ void Canvas::update() {
 }
 
 void Canvas::render(SDL_Renderer* renderer) {
-    // TODO have two separate lists for Links and Nodes
-
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
@@ -129,6 +130,7 @@ void Canvas::render(SDL_Renderer* renderer) {
     SDL_RenderSetScale(renderer, zoomFactor, zoomFactor);
     SDL_RenderSetViewport(renderer, &viewportRect);
 
+    // TODO have two separate lists for Links and Nodes
     // first all links
     auto links = find_all_by_type<Link>();
     for (auto* link : links) {
