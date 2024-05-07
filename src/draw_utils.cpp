@@ -27,13 +27,13 @@ void roundCornerRectangle(SDL_Renderer* renderer, SDL_Rect rect, int radius) {
     fillCircle(renderer, rect.x + rect.w - radius - 1, rect.y + rect.h - radius - 1, radius);
 }
 
-void drawThickLine(SDL_Renderer* renderer,
-                   int           x1,
-                   int           y1,
-                   int           x2,
-                   int           y2,
-                   int           thickness,
-                   SDL_Color     color) {
+void drawThickLine(SDL_Renderer*    renderer,
+                   int              x1,
+                   int              y1,
+                   int              x2,
+                   int              y2,
+                   int              thickness,
+                   SDL_Color const& color) {
     // Bresenham's line algorithm for drawing the line
     int dx  = abs(x2 - x1);
     int dy  = abs(y2 - y1);

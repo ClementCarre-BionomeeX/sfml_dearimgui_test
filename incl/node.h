@@ -2,17 +2,27 @@
 
 #include "../incl/button.h"
 #include "../incl/idraggable.h"
+#include "../incl/relation.h"
 #include "../incl/signal.h"
 #include "../incl/textbox.h"
 #include "../incl/textbutton.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 class Node : public IDraggable {
   public:
-    Node(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor, TTF_Font* font);
+    Node(int                                           x,
+         int                                           y,
+         int                                           w,
+         int                                           h,
+         SDL_Color                                     baseColor,
+         SDL_Color                                     hoverColor,
+         TTF_Font*                                     font,
+         std::vector<std::shared_ptr<Relation>> const& relationList);
 
     void render(SDL_Renderer* renderer) override;
     bool handleEvent(SDL_Event& event) override;
@@ -26,8 +36,9 @@ class Node : public IDraggable {
 
     Signal<> onGlobalMouseLeftUp;
     void     globalMouseLeftUp();
-    Signal<> onConnectMouseLeftDown;
-    void     connectMouseLeftDown();
+
+    Signal<std::shared_ptr<Relation>> onConnectMouseLeftDown;
+    void                              connectMouseLeftDown(std::shared_ptr<Relation> relation);
 
   private:
     int radius;
@@ -36,5 +47,8 @@ class Node : public IDraggable {
 
     TextButton topButton;
     TextBox    nameTextBox;
-    TextButton addConnectionButton;
+
+    std::vector<std::unique_ptr<TextButton>> addConnectionButtonList;
+
+    std::vector<std::shared_ptr<Relation>> const& _relationList;
 };

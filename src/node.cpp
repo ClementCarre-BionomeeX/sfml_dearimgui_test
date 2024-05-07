@@ -5,7 +5,14 @@
 #include <limits>
 #include <string>
 
-Node::Node(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor, TTF_Font* font)
+Node::Node(int                                           x,
+           int                                           y,
+           int                                           w,
+           int                                           h,
+           SDL_Color                                     baseColor,
+           SDL_Color                                     hoverColor,
+           TTF_Font*                                     font,
+           std::vector<std::shared_ptr<Relation>> const& relationList)
     : IDraggable{x, y, w, h, baseColor, hoverColor}, radius{2}, topButton(x + margin,
                                                                           y + margin,
                                                                           topButtonSize,
@@ -16,15 +23,7 @@ Node::Node(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor
                                                                           "X",
                                                                           font),
       nameTextBox(x + margin, y + margin * 2 + topButtonSize, {0, 0, 0, 255}, font, w - 2 * margin),
-      addConnectionButton(x + margin,
-                          y,
-                          w - 2 * margin,
-                          30,
-                          {0, 200, 0, 255},
-                          {50, 250, 50, 255},
-                          2,
-                          "Connect",
-                          font) {
+      _relationList(relationList) {
     topButton.onClick.connect([&]() { topButtonClick(); });
     nameTextBox.onTextChanged.connect([&](std::string str) { changeName(str); });
 
@@ -32,12 +31,27 @@ Node::Node(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor
     onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
     topButton.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
     nameTextBox.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
-    addConnectionButton.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
 
-    // onMouseLeftDown.connect([&](int x, int y) { globalMouseLeftDown(x, y); });
-    // topButton.onMouseLeftDown.connect([&](int x, int y) { globalMouseLeftDown(x, y); });
-    // nameTextBox.onMouseLeftDown.connect([&](int x, int y) { globalMouseLeftDown(x, y); });
-    addConnectionButton.onMouseLeftDown.connect([&](int, int) { connectMouseLeftDown(); });
+    for (std::size_t i = 0; i < relationList.size(); ++i) {
+        auto ptr = relationList[i];
+        addConnectionButtonList.emplace_back(std::make_unique<TextButton>(x + margin,
+                                                                          y,
+                                                                          w - 2 * margin,
+                                                                          30,
+                                                                          ptr->baseColor(),
+                                                                          ptr->hoverColor(),
+                                                                          2,
+                                                                          ptr->name(),
+                                                                          font));
+    }
+
+    std::size_t i = 0;
+    for (auto& connectionButton : addConnectionButtonList) {
+        connectionButton->onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
+        connectionButton->onMouseLeftDown.connect(
+            [&, relationList, i](int, int) { connectMouseLeftDown(relationList[i]); });
+        i++;
+    }
 }
 
 void Node::render(SDL_Renderer* renderer) {
@@ -59,12 +73,20 @@ void Node::render(SDL_Renderer* renderer) {
 
     topButton.render(renderer);
     nameTextBox.render(renderer);
-    addConnectionButton.render(renderer);
+    for (auto& connectionButton : addConnectionButtonList) {
+        connectionButton->render(renderer);
+    }
 }
 
 bool Node::handleEvent(SDL_Event& event) {
-    if (topButton.handleEvent(event) || nameTextBox.handleEvent(event) ||
-        addConnectionButton.handleEvent(event)) {
+
+    bool handled = false;
+
+    for (auto& connectionButton : addConnectionButtonList) {
+        handled |= connectionButton->handleEvent(event);
+    }
+
+    if (topButton.handleEvent(event) || nameTextBox.handleEvent(event) || handled) {
         return true;
     }
 
@@ -76,8 +98,15 @@ void Node::update() {
     topButton.moveTo(rect.x + margin, rect.y + margin);
     nameTextBox.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
     SDL_Rect ntb_rect = nameTextBox.getRect();
-    addConnectionButton.moveTo(rect.x + margin, rect.y + 3 * margin + topButtonSize + ntb_rect.h);
-    rect.h = 4 * margin + topButtonSize + ntb_rect.h + 30;
+
+    int i = 0;
+    for (auto& connectionButton : addConnectionButtonList) {
+        connectionButton->moveTo(
+            rect.x + margin, rect.y + 3 * margin + topButtonSize + ntb_rect.h + i * (margin + 30));
+        i++;
+    }
+    rect.h = 3 * margin + topButtonSize + ntb_rect.h +
+             (int)addConnectionButtonList.size() * (30 + margin);
 }
 
 void Node::topButtonClick() {
@@ -92,6 +121,6 @@ void Node::globalMouseLeftUp() {
     onGlobalMouseLeftUp.emit();
 }
 
-void Node::connectMouseLeftDown() {
-    onConnectMouseLeftDown.emit();
+void Node::connectMouseLeftDown(std::shared_ptr<Relation> relation) {
+    onConnectMouseLeftDown.emit(relation);
 }

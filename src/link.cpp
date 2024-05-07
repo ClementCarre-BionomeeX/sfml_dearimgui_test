@@ -1,28 +1,37 @@
 #include "../incl/link.h"
 #include "../incl/draw_utils.h"
 #include "../incl/utils.h"
-// #include <SDL2/SDL2_gfxPrimitives.h>
 #include <cmath>
 #include <iostream>
 
-Link::Link(IWidget* source, IWidget* target, SDL_Color color, SDL_Color hoverColor, int thickness)
-    : _source(source), _target(target), _baseColor(color), _hoverColor(hoverColor),
+Link::Link(IWidget*                  source,
+           IWidget*                  target,
+           std::shared_ptr<Relation> relation,
+           //    SDL_Color color,
+           //    SDL_Color hoverColor,
+           int thickness)
+    : _source(source), _target(target), _relation(relation),
+      // _baseColor(color),
+      //   _hoverColor(hoverColor),
       _thickness(thickness), isHovered(false) {
-    _color = &_baseColor;
+    // _color = &_relation->baseColor();
 }
 
 void Link::render(SDL_Renderer* renderer) {
 
-    _color = isHovered ? &_hoverColor : &_baseColor;
+    // _color = isHovered ? &_hoverColor : &_baseColor;
+    auto color = isHovered ? _relation->baseColor() : _relation->hoverColor();
 
-    SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
-    drawThickLine(renderer, a.x, a.y, b.x, b.y, _thickness, *_color);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    drawThickLine(renderer, a.x, a.y, b.x, b.y, _thickness, color);
     fillCircle(renderer, a.x, a.y, _thickness / 2);
     fillCircle(renderer, b.x, b.y, _thickness / 2);
-    draw_indicator(renderer);
+    if (_relation->directed()) {
+        draw_indicator(renderer, color);
+    }
 }
 
-void Link::draw_indicator(SDL_Renderer* renderer) const noexcept {
+void Link::draw_indicator(SDL_Renderer* renderer, SDL_Color const& color) const noexcept {
     int arrow_length = 20;
     int arrow_width  = 7;
 
@@ -43,8 +52,8 @@ void Link::draw_indicator(SDL_Renderer* renderer) const noexcept {
         int(start_point.x + arrow_width * cos(angle - 3.141592 / 2)),
         int(start_point.y + arrow_width * sin(angle - 3.141592 / 2)),
     };
-    drawThickLine(renderer, left_point.x, left_point.y, b.x, b.y, _thickness, *_color);
-    drawThickLine(renderer, b.x, b.y, right_point.x, right_point.y, _thickness, *_color);
+    drawThickLine(renderer, left_point.x, left_point.y, b.x, b.y, _thickness, color);
+    drawThickLine(renderer, b.x, b.y, right_point.x, right_point.y, _thickness, color);
 }
 
 void Link::update() {
@@ -54,8 +63,10 @@ void Link::update() {
     auto inter_source = find_intersection(_source->getRect(), a, b);
     auto inter_target = find_intersection(_target->getRect(), a, b);
 
-    if (inter_source && inter_target) {
+    if (inter_source) {
         a = inter_source.value();
+    }
+    if (inter_target) {
         b = inter_target.value();
     }
 }
@@ -109,8 +120,11 @@ bool Link::isExtremity(IWidget* w) const noexcept {
     return (w == _source || w == _target);
 }
 bool Link::isSource(IWidget* w) const noexcept {
-    return (w == _source);
+    return w == _source;
 }
 bool Link::isTarget(IWidget* w) const noexcept {
-    return (w == _target);
+    return w == _target;
+}
+bool Link::isRelation(std::shared_ptr<Relation> r) const noexcept {
+    return r == _relation;
 }

@@ -8,6 +8,7 @@ class MousePosition : public IWidget {
     SDL_Point anchor() const noexcept override;
     void      update() override {}
     void      render(SDL_Renderer*) override {}
+    SDL_Rect  getRect() const noexcept override;
 
   private:
 };

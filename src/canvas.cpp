@@ -1,6 +1,7 @@
 #include "../incl/canvas.h"
 #include "../incl/link.h"
 #include <iostream>
+#include <memory>
 #include <string>
 
 Node* Canvas::addNode() {
@@ -9,11 +10,16 @@ Node* Canvas::addNode() {
 }
 
 Node* Canvas::addNode(int x, int y) {
+
     auto* ptr = addDraggableWidget<Node>(
-        x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font);
+        x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
+
     ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
+
     ptr->onGlobalMouseLeftUp.connect([&, ptr]() { upLeftNode(ptr); });
-    ptr->onConnectMouseLeftDown.connect([&, ptr]() { downConnectNode(ptr); });
+
+    ptr->onConnectMouseLeftDown.connect(
+        [&, ptr](std::shared_ptr<Relation> relation) { downConnectNode(ptr, relation); });
     return ptr;
 }
 
@@ -30,16 +36,16 @@ bool Canvas::removeNode(Node* node) {
     return res;
 }
 
-bool Canvas::connectNodes(Node* source, Node* target) {
-    addWidget<Link>(source, target, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, 5);
+bool Canvas::connectNodes(Node* source, Node* target, std::shared_ptr<Relation> relation) {
+    addWidget<Link>(source, target, relation, 5);
     return false;
 }
 
-bool Canvas::disconnectNodes(Node* source, Node* target) {
+bool Canvas::disconnectNodes(Node* source, Node* target, std::shared_ptr<Relation> relation) {
     bool found = false;
     auto links = find_all_by_type<Link>();
     for (auto* link : links) {
-        if (link->isSource(source) && link->isTarget(target)) {
+        if (link->isSource(source) && link->isTarget(target) && link->isRelation(relation)) {
             removeWidget(link);
             found = true;
         }
@@ -74,8 +80,20 @@ void Canvas::update() {
 }
 
 void Canvas::render(SDL_Renderer* renderer) {
-    // render background
-    WidgetManager::renderWidgets();
+    // TODO have two separate lists for Links and Nodes
+
+    // first all links
+    auto links = find_all_by_type<Link>();
+    for (auto* link : links) {
+        link->render(renderer);
+    }
+    // then all nodes
+    auto nodes = find_all_by_type<Node>();
+    for (auto* node : nodes) {
+        node->render(renderer);
+    }
+
+    // WidgetManager::renderWidgets();
     if (mp_link) {
         mp_link->render(renderer);
     }
@@ -98,8 +116,8 @@ bool Canvas::isConnected(IWidget* source, IWidget* target) const noexcept {
 void Canvas::upLeftNode(Node* node) {
     // if mp_start != node, we add a link
     if (mp_start && mp_start != node) {
-        if (!disconnectNodes(mp_start, node)) {
-            connectNodes(mp_start, node);
+        if (!disconnectNodes(mp_start, node, mp_relation)) {
+            connectNodes(mp_start, node, mp_relation);
         }
     }
     // remove any active mouse_position if any
@@ -121,24 +139,28 @@ void Canvas::backgroundLeftDown(int x, int y) {
     onBackgroundLeftDown.emit(x, y);
 }
 
-void Canvas::downConnectNode(Node* node) {
+void Canvas::downConnectNode(Node* node, std::shared_ptr<Relation> relation) {
     // create a mouse_position widget
-    mp_start = node;
-    mp       = new MousePosition();
-    mp_link  = new Link(node, mp, SDL_Color{150, 150, 150, 255}, SDL_Color{150, 150, 150, 255}, 5);
+    auto rel    = std::make_shared<Relation>("", SDL_Color{0, 0, 0, 255}, SDL_Color{0, 0, 0, 255});
+    mp_start    = node;
+    mp          = new MousePosition();
+    mp_link     = new Link(node, mp, rel, 5);
+    mp_relation = relation;
     onNodeConnectDown.emit(node);
+    // mp_link->debug.connect([&](std::string str) { std::cout << str << std::endl; });
 }
 
 void Canvas::removeAnyMousePosition() {
     if (mp_link) {
-        // removeWidget(mp_link);
         delete mp_link;
         mp_link = nullptr;
     }
     if (mp) {
-        // removeWidget(mp);
         delete mp;
         mp = nullptr;
+    }
+    if (mp_relation) {
+        mp_relation = nullptr;
     }
     if (mp_start) {
         mp_start = nullptr;

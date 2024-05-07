@@ -1,0 +1,28 @@
+#pragma once
+#include <SDL2/SDL.h>
+#include <string>
+
+class Relation {
+
+  public:
+    Relation(std::string name, SDL_Color baseColor, SDL_Color hoverColor)
+        : _name(name), _baseColor(baseColor), _hoverColor(hoverColor) {}
+
+    std::string name() const noexcept;
+    SDL_Color   baseColor() const noexcept;
+    SDL_Color   hoverColor() const noexcept;
+
+    bool directed() const noexcept;
+    bool transitive() const noexcept;
+
+    bool operator==(Relation const& other) const noexcept;
+
+  private:
+    std::string _name{""};
+    SDL_Color   _baseColor{0, 0, 0, 0};
+    SDL_Color   _hoverColor{0, 0, 0, 0};
+
+    // TODO
+    bool _directed   = true;
+    bool _transitive = false;
+};

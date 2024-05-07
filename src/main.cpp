@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "../incl/filedialog.h"
+#include "../incl/relation.h"
 
 // MARK: main
 int main(int argc, char* argv[]) {
@@ -42,6 +43,8 @@ int main(int argc, char* argv[]) {
     bool      running = true;
     SDL_StartTextInput();
 
+    std::vector<Relation> relations{{"Is A", {0, 200, 0, 255}, {50, 250, 50, 255}}};
+
     Canvas canvas{renderer, font};
 
     // canvas.onNodeLeftUp.connect(
@@ -57,12 +60,12 @@ int main(int argc, char* argv[]) {
     //     std::cout << "Background Left Down (" << x << "x" << y << ")" << std::endl;
     // });
 
-    auto* tn1 = canvas.addNode(300, 50);
-    auto* tn2 = canvas.addNode(450, 50);
-    auto* tn3 = canvas.addNode(300, 300);
+    // auto* tn1 = canvas.addNode(300, 50);
+    // auto* tn2 = canvas.addNode(450, 50);
+    // auto* tn3 = canvas.addNode(300, 300);
 
-    canvas.connectNodes(tn1, tn2);
-    canvas.connectNodes(tn3, tn2);
+    // canvas.connectNodes(tn1, tn2);
+    // canvas.connectNodes(tn3, tn2);
 
     GUI gui{window, 100, font};
     gui.onQuitClick.connect([&running]() { running = false; });
