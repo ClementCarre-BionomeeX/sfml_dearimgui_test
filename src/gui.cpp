@@ -28,13 +28,18 @@ bool GUI::handleEvent(SDL_Event& event) {
     // first, check if any button is handled
     bool handled = quitButton.handleEvent(event) || addNodeButon.handleEvent(event) ||
                    saveButton.handleEvent(event) || loadButton.handleEvent(event);
+
     // check if the event happend in the background
     if (!handled) {
         int mouseX = event.motion.x;
         int mouseY = event.motion.y;
-        handled    = (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
-                   mouseY <= rect.y + rect.h);
-        if (handled) {
+
+        bool is_inside = (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
+                          mouseY <= rect.y + rect.h);
+        // handled = (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
+        //            mouseY <= rect.y + rect.h);
+
+        if (is_inside) {
             if (event.type == SDL_MOUSEBUTTONUP) {
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     leftUpBackground();

@@ -61,12 +61,41 @@ bool Canvas::handleEvent(SDL_Event& event) {
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 backgroundLeftDown(mouseX, mouseY);
+                handled = true;
             }
         } else if (event.type == SDL_MOUSEBUTTONUP) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 backgroundLeftUp(mouseX, mouseY);
+                handled = true;
             }
         }
+    }
+
+    // if (!handled) {
+    switch (event.type) {
+
+    case SDL_MOUSEWHEEL: {
+        // Zoom in or out
+        // Adjust zoom speed here
+        float zoomIncrement = 0;
+        if (event.wheel.y > 0) {      // Upward motion
+            zoomIncrement = 0.1f;     // Positive increment for zooming in
+        } else {                      // Downward motion
+            zoomIncrement = -0.1f;    // Negative increment for zooming out
+        }
+
+        zoomFactor += zoomIncrement;
+        zoomFactor = std::max(0.1f, std::min(zoomFactor, 10.0f));    // Constrain zoom factor
+
+        break;
+    }
+    case SDL_MOUSEMOTION: {
+        if (event.motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)) {    // Pan with middle mouse
+            viewportOffset.x += event.motion.xrel;
+            viewportOffset.y += event.motion.yrel;
+        }
+        break;
+    }
     }
 
     return handled;
@@ -81,6 +110,24 @@ void Canvas::update() {
 
 void Canvas::render(SDL_Renderer* renderer) {
     // TODO have two separate lists for Links and Nodes
+
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+
+    // Calculate the adjusted window dimensions based on the zoom factor
+    int adjustedWidth  = static_cast<int>(static_cast<float>(windowWidth) / zoomFactor);
+    int adjustedHeight = static_cast<int>(static_cast<float>(windowHeight) / zoomFactor);
+
+    // Create an SDL_Rect to define the viewport
+    SDL_Rect viewportRect = {
+        viewportOffset.x,    // X coordinate
+        viewportOffset.y,    // Y coordinate
+        adjustedWidth,       // Width adjusted by zoom factor
+        adjustedHeight       // Height adjusted by zoom factor
+    };
+
+    SDL_RenderSetScale(renderer, zoomFactor, zoomFactor);
+    SDL_RenderSetViewport(renderer, &viewportRect);
 
     // first all links
     auto links = find_all_by_type<Link>();

@@ -13,7 +13,8 @@ class Canvas : public IWidget, public WidgetManager {
 
   public:
     Canvas(SDL_Renderer* renderer, TTF_Font* font)
-        : IWidget(), WidgetManager(renderer), _font(font), vec() {
+        : IWidget(), WidgetManager(renderer), _font(font), vec(), viewportOffset{0, 0},
+          zoomFactor(1.0f) {
         vec.push_back(std::make_shared<Relation>(
             "Is A", SDL_Color{0, 200, 0, 255}, SDL_Color{30, 230, 30, 255}, false, true));
         vec.push_back(std::make_shared<Relation>("Example Of",
@@ -63,6 +64,9 @@ class Canvas : public IWidget, public WidgetManager {
     std::shared_ptr<Relation> mp_relation = nullptr;
 
     std::vector<std::shared_ptr<Relation>> vec;
+
+    SDL_Point viewportOffset;    // This will track the top-left corner of the viewport
+    float     zoomFactor;        // This will track the zoom level
 
     void removeAnyMousePosition();
 };
