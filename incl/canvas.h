@@ -15,11 +15,14 @@ class Canvas : public IWidget, public WidgetManager {
     Canvas(SDL_Renderer* renderer, TTF_Font* font)
         : IWidget(), WidgetManager(renderer), _font(font), vec() {
         vec.push_back(std::make_shared<Relation>(
-            "Is A", SDL_Color{0, 200, 0, 255}, SDL_Color{30, 230, 30, 255}));
+            "Is A", SDL_Color{0, 200, 0, 255}, SDL_Color{30, 230, 30, 255}, false, true));
+        vec.push_back(std::make_shared<Relation>("Example Of",
+                                                 SDL_Color{100, 100, 200, 255},
+                                                 SDL_Color{130, 130, 230, 255},
+                                                 true,
+                                                 true));
         vec.push_back(std::make_shared<Relation>(
-            "Example Of", SDL_Color{100, 100, 200, 255}, SDL_Color{130, 130, 230, 255}));
-        vec.push_back(std::make_shared<Relation>(
-            "Explain", SDL_Color{200, 200, 0, 255}, SDL_Color{230, 230, 30, 255}));
+            "Explain", SDL_Color{200, 200, 0, 255}, SDL_Color{230, 230, 30, 255}, true, true));
     }
 
     Node* addNode();

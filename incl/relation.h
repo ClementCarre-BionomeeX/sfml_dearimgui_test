@@ -5,8 +5,13 @@
 class Relation {
 
   public:
-    Relation(std::string name, SDL_Color baseColor, SDL_Color hoverColor)
-        : _name(name), _baseColor(baseColor), _hoverColor(hoverColor) {}
+    Relation(std::string name,
+             SDL_Color   baseColor,
+             SDL_Color   hoverColor,
+             bool        directed,
+             bool        transitive)
+        : _name(name), _baseColor(baseColor), _hoverColor(hoverColor), _directed(directed),
+          _transitive(transitive) {}
 
     std::string name() const noexcept;
     SDL_Color   baseColor() const noexcept;

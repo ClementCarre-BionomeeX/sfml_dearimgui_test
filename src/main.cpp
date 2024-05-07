@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     bool      running = true;
     SDL_StartTextInput();
 
-    std::vector<Relation> relations{{"Is A", {0, 200, 0, 255}, {50, 250, 50, 255}}};
+    // std::vector<Relation> relations{{"Is A", {0, 200, 0, 255}, {50, 250, 50, 255}}};
 
     Canvas canvas{renderer, font};
 

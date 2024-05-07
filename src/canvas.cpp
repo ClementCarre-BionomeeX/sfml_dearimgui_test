@@ -141,7 +141,8 @@ void Canvas::backgroundLeftDown(int x, int y) {
 
 void Canvas::downConnectNode(Node* node, std::shared_ptr<Relation> relation) {
     // create a mouse_position widget
-    auto rel    = std::make_shared<Relation>("", SDL_Color{0, 0, 0, 255}, SDL_Color{0, 0, 0, 255});
+    auto rel = std::make_shared<Relation>(
+        "", SDL_Color{0, 0, 0, 255}, SDL_Color{0, 0, 0, 255}, true, true);
     mp_start    = node;
     mp          = new MousePosition();
     mp_link     = new Link(node, mp, rel, 5);
