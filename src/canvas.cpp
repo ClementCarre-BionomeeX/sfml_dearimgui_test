@@ -27,7 +27,7 @@ bool Canvas::removeNode(non_owning_ptr<Node> node) {
     // first, remove all links that have this node as source or target
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
-        if (link->isExtremity(node)) {    // TODO change Link to use non owning
+        if (link->isExtremity(node)) {
             removeWidget(non_owning_ptr<IWidget>(link));
         }
     }
@@ -206,15 +206,7 @@ void Canvas::downConnectNode(non_owning_ptr<Node> node, std::shared_ptr<Relation
 }
 
 void Canvas::removeAnyMousePosition() {
-    // if (mp_link) {
-    //     delete mp_link;
-    //     mp_link = nullptr;
-    // }
     mp_link.release();
-    // if (mp) {
-    //     delete mp;
-    //     mp = nullptr;
-    // }
     mp.release();
     if (mp_relation) {
         mp_relation = nullptr;

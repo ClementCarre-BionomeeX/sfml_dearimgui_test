@@ -70,6 +70,23 @@ class non_owning_ptr {
     // Getter for the pointer (useful in template conversions)
     T* get() const { return ptr; }
 
+    // Safe dynamic casting to another non_owning_ptr type
+    template <typename U>
+    static non_owning_ptr<U> dynamic_cast_to(non_owning_ptr<T> const& source) {
+        if (U* casted = dynamic_cast<U*>(source.get())) {
+            return non_owning_ptr<U>(casted);
+        }
+        return non_owning_ptr<U>(nullptr);
+    }
+    // Safe dynamic casting to another non_owning_ptr type
+    template <typename U>
+    static non_owning_ptr<U> dynamic_cast_to(std::unique_ptr<T> const& source) {
+        if (U* casted = dynamic_cast<U*>(source.get())) {
+            return non_owning_ptr<U>(casted);
+        }
+        return non_owning_ptr<U>(nullptr);
+    }
+
   private:
     T* ptr;
 };

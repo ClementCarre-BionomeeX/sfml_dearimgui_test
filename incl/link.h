@@ -14,9 +14,7 @@ class Link : public IWidget {
     Link(non_owning_ptr<IWidget>   source,
          non_owning_ptr<IWidget>   target,
          std::shared_ptr<Relation> relation,
-         //  SDL_Color color,
-         //  SDL_Color hoverColor,
-         int thickness);
+         int                       thickness);
 
     void      render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool      handleEvent(SDL_Event& event) override;
@@ -37,10 +35,6 @@ class Link : public IWidget {
     non_owning_ptr<IWidget> _target;
 
     std::shared_ptr<Relation> _relation;
-
-    // SDL_Color* _color;
-    // SDL_Color  _baseColor;
-    // SDL_Color  _hoverColor;
 
     int  _thickness;
     bool isHovered = false;

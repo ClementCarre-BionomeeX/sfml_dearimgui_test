@@ -7,19 +7,12 @@
 Link::Link(non_owning_ptr<IWidget>   source,
            non_owning_ptr<IWidget>   target,
            std::shared_ptr<Relation> relation,
-           //    SDL_Color color,
-           //    SDL_Color hoverColor,
-           int thickness)
-    : _source(source), _target(target), _relation(relation),
-      // _baseColor(color),
-      //   _hoverColor(hoverColor),
-      _thickness(thickness), isHovered(false) {
-    // _color = &_relation->baseColor();
-}
+           int                       thickness)
+    : _source(source), _target(target), _relation(relation), _thickness(thickness),
+      isHovered(false) {}
 
 void Link::render(non_owning_ptr<SDL_Renderer> renderer) {
 
-    // _color = isHovered ? &_hoverColor : &_baseColor;
     auto color = isHovered ? _relation->baseColor() : _relation->hoverColor();
 
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);

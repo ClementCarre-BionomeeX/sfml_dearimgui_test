@@ -66,7 +66,7 @@ template <typename T>
 std::vector<non_owning_ptr<T>> WidgetManager::find_all_by_type() const noexcept {
     std::vector<non_owning_ptr<T>> result;
     for (auto& w : widgets) {
-        if (T* t = dynamic_cast<T*>(w.get())) {
+        if (auto t = non_owning_ptr<IWidget>::dynamic_cast_to<T>(w)) {
             result.emplace_back(t);
         }
     }
