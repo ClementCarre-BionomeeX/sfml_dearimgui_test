@@ -11,7 +11,7 @@ class GUI {
 
     ~GUI() {}
 
-    void render(SDL_Renderer* renderer);
+    void render(non_owning_ptr<SDL_Renderer> renderer);
     bool handleEvent(SDL_Event& event);
     void update();
 

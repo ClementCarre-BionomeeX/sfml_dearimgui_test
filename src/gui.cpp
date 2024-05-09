@@ -12,10 +12,10 @@ GUI::GUI(SDL_Window* window, int w, TTF_Font* font)
     saveButton.onClick.connect([this]() { clickSave(); });
     loadButton.onClick.connect([this]() { clickLoad(); });
 }
-void GUI::render(SDL_Renderer* renderer) {
+void GUI::render(non_owning_ptr<SDL_Renderer> renderer) {
     // render the background box from top to bottom
-    SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
-    SDL_RenderFillRect(renderer, &rect);
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 150, 150, 150, 255);
+    SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
 
     // render all buttons
     quitButton.render(renderer);

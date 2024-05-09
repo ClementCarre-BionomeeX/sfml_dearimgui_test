@@ -32,7 +32,7 @@ class WidgetManager {
 
   private:
     std::vector<std::unique_ptr<IWidget>> widgets;
-    SDL_Renderer*                         _renderer;
+    non_owning_ptr<SDL_Renderer>          _renderer;
 };
 
 template <typename T, typename... Args>

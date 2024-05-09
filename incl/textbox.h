@@ -12,7 +12,7 @@ class TextBox : public IWidget {
   public:
     TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextWidth);
 
-    void render(SDL_Renderer* renderer) override;
+    void render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool handleEvent(SDL_Event& event) override;
     void update() override;
 
@@ -20,16 +20,16 @@ class TextBox : public IWidget {
     void                changeText(std::string str);
 
   private:
-    void                         drawCursor(SDL_Renderer* renderer) const;
+    void                         drawCursor(non_owning_ptr<SDL_Renderer> renderer) const;
     void                         setCursorByClick(int clickX);
     void                         deleteWordLeft();
     void                         deleteWordRight();
     void                         moveCursorLeftByWord();
     void                         moveCursorRightByWord();
-    std::pair<int, SDL_Texture*> prepareTextTexture(SDL_Renderer* renderer);
-    void                         renderBackground(SDL_Renderer* renderer);
-    void                         renderText(SDL_Renderer* renderer, int w, SDL_Texture* texture);
-    void                         updateTextOffsetOnCursorMove();
+    std::pair<int, SDL_Texture*> prepareTextTexture(non_owning_ptr<SDL_Renderer> renderer);
+    void                         renderBackground(non_owning_ptr<SDL_Renderer> renderer);
+    void renderText(non_owning_ptr<SDL_Renderer> renderer, int w, SDL_Texture* texture);
+    void updateTextOffsetOnCursorMove();
 
   private:
     std::string text;

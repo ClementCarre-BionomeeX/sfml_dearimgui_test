@@ -34,7 +34,7 @@ class Canvas : public IWidget, public WidgetManager {
 
     bool      handleEvent(SDL_Event& event) override;
     void      update() override;
-    void      render(SDL_Renderer* renderer) override;
+    void      render(non_owning_ptr<SDL_Renderer> renderer) override;
     SDL_Point anchor() const noexcept override;
 
     Signal<Node*> onNodeLeftUp;

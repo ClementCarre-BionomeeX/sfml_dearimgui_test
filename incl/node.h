@@ -24,7 +24,7 @@ class Node : public IDraggable {
          TTF_Font*                                     font,
          std::vector<std::shared_ptr<Relation>> const& relationList);
 
-    void render(SDL_Renderer* renderer) override;
+    void render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool handleEvent(SDL_Event& event) override;
     void update() override;
 

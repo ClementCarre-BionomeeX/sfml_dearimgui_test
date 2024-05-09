@@ -1,4 +1,5 @@
 #pragma once
+#include "../incl/non_owning_ptr.h"
 #include "../incl/signal.h"
 #include <SDL2/SDL.h>
 #include <any>
@@ -47,8 +48,8 @@ class IWidget {
         return handled;
     }
 
-    virtual void update()                       = 0;
-    virtual void render(SDL_Renderer* renderer) = 0;
+    virtual void update()                                      = 0;
+    virtual void render(non_owning_ptr<SDL_Renderer> renderer) = 0;
 
     virtual SDL_Point anchor() const noexcept { return {rect.x + rect.w / 2, rect.y + rect.h / 2}; }
 

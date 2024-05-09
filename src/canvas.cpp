@@ -111,9 +111,9 @@ void Canvas::update() {
     }
 }
 
-void Canvas::render(SDL_Renderer* renderer) {
+void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
     int windowWidth, windowHeight;
-    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+    SDL_GetRendererOutputSize((SDL_Renderer*)renderer, &windowWidth, &windowHeight);
 
     // Calculate the adjusted window dimensions based on the zoom factor
     int adjustedWidth  = static_cast<int>(static_cast<float>(windowWidth) / zoomFactor);
@@ -127,8 +127,8 @@ void Canvas::render(SDL_Renderer* renderer) {
         adjustedHeight       // Height adjusted by zoom factor
     };
 
-    SDL_RenderSetScale(renderer, zoomFactor, zoomFactor);
-    SDL_RenderSetViewport(renderer, &viewportRect);
+    SDL_RenderSetScale((SDL_Renderer*)renderer, zoomFactor, zoomFactor);
+    SDL_RenderSetViewport((SDL_Renderer*)renderer, &viewportRect);
 
     // TODO have two separate lists for Links and Nodes
     // first all links

@@ -17,7 +17,7 @@ class Link : public IWidget {
          //  SDL_Color hoverColor,
          int thickness);
 
-    void      render(SDL_Renderer* renderer) override;
+    void      render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool      handleEvent(SDL_Event& event) override;
     void      update() override;
     SDL_Point anchor() const noexcept override;
@@ -46,7 +46,8 @@ class Link : public IWidget {
 
     bool   isNear(int x, int y) const noexcept;
     double pointLineSegmentDistanceSquared(int x, int y) const noexcept;
-    void   draw_indicator(SDL_Renderer* renderer, SDL_Color const& color) const noexcept;
+    void   draw_indicator(non_owning_ptr<SDL_Renderer> renderer,
+                          SDL_Color const&             color) const noexcept;
 
     // anchor cache
     SDL_Point a{0, 0}, b{0, 0};

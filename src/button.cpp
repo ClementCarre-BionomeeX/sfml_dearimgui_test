@@ -25,16 +25,16 @@ Button::Button(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverC
 }
 
 // MARK: render
-void Button::render(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
+void Button::render(non_owning_ptr<SDL_Renderer> renderer) {
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
 
     // Middle part (adjust the rect to not overwrite the corners)
     SDL_Rect middleRect = {rect.x + radius, rect.y, rect.w - 2 * radius, rect.h};
-    SDL_RenderFillRect(renderer, &middleRect);
+    SDL_RenderFillRect((SDL_Renderer*)renderer, &middleRect);
 
     // Top and bottom strips (to fill the gaps in the rounded corners)
     SDL_Rect topRect = {rect.x, rect.y + radius, rect.w, rect.h - 2 * radius};
-    SDL_RenderFillRect(renderer, &topRect);
+    SDL_RenderFillRect((SDL_Renderer*)renderer, &topRect);
 
     // Four corners: top-left, top-right, bottom-left, bottom-right
     fillCircle(renderer, rect.x + radius, rect.y + radius, radius);
@@ -50,8 +50,8 @@ void Button::click() {
 }
 
 inline void Button::changeToBaseColor() noexcept {
-    _color = &_baseColor;
+    _color = std::make_unique<SDL_Color>(_baseColor);
 }
 inline void Button::changeToHoverColor() noexcept {
-    _color = &_hoverColor;
+    _color = std::make_unique<SDL_Color>(_hoverColor);
 }

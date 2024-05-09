@@ -17,12 +17,12 @@ Link::Link(IWidget*                  source,
     // _color = &_relation->baseColor();
 }
 
-void Link::render(SDL_Renderer* renderer) {
+void Link::render(non_owning_ptr<SDL_Renderer> renderer) {
 
     // _color = isHovered ? &_hoverColor : &_baseColor;
     auto color = isHovered ? _relation->baseColor() : _relation->hoverColor();
 
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);
     drawThickLine(renderer, a.x, a.y, b.x, b.y, _thickness, color);
     fillCircle(renderer, a.x, a.y, _thickness / 2);
     fillCircle(renderer, b.x, b.y, _thickness / 2);
@@ -31,7 +31,8 @@ void Link::render(SDL_Renderer* renderer) {
     }
 }
 
-void Link::draw_indicator(SDL_Renderer* renderer, SDL_Color const& color) const noexcept {
+void Link::draw_indicator(non_owning_ptr<SDL_Renderer> renderer,
+                          SDL_Color const&             color) const noexcept {
     int arrow_length = 20;
     int arrow_width  = 7;
 

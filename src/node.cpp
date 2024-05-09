@@ -54,20 +54,20 @@ Node::Node(int                                           x,
     }
 }
 
-void Node::render(SDL_Renderer* renderer) {
+void Node::render(non_owning_ptr<SDL_Renderer> renderer) {
     if (isSelected) {
-        SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255);
+        SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 215, 0, 255);
         roundCornerRectangle(renderer, rect, radius);
 
         int border = 2;
         // draw the background
-        SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
+        SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
         roundCornerRectangle(
             renderer,
             {rect.x + border, rect.y + border, rect.w - 2 * border, rect.h - 2 * border},
             radius);
     } else {
-        SDL_SetRenderDrawColor(renderer, _color->r, _color->g, _color->b, _color->a);
+        SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
         roundCornerRectangle(renderer, rect, radius);
     }
 

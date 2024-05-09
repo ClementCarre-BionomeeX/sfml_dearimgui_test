@@ -20,12 +20,12 @@ TextBox::TextBox(int x, int y, SDL_Color color, TTF_Font* font, int minimumTextW
 // }
 
 // MARK: prepareTextTexture
-std::pair<int, SDL_Texture*> TextBox::prepareTextTexture(SDL_Renderer* renderer) {
+std::pair<int, SDL_Texture*> TextBox::prepareTextTexture(non_owning_ptr<SDL_Renderer> renderer) {
     const char* renderText = text.empty() ? " " : text.c_str();
 
     // Create a surface from the text
     SDL_Surface* surface = TTF_RenderUTF8_Solid(_font, renderText, _color);
-    auto*        texture = SDL_CreateTextureFromSurface(renderer, surface);
+    auto*        texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, surface);
 
     // Get the width of the rendered text
     int textWidth  = surface->w;
@@ -40,15 +40,16 @@ std::pair<int, SDL_Texture*> TextBox::prepareTextTexture(SDL_Renderer* renderer)
 }
 
 // MARK: renderBackground
-void TextBox::renderBackground(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);    // White background
-    SDL_RenderFillRect(renderer, &rect);
-    SDL_SetRenderDrawColor(renderer, 255, 0, isSelected ? 255 : 0, 255);    // Border color
-    SDL_RenderDrawRect(renderer, &rect);
+void TextBox::renderBackground(non_owning_ptr<SDL_Renderer> renderer) {
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 255, 255, 255);    // White background
+    SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
+    SDL_SetRenderDrawColor(
+        (SDL_Renderer*)renderer, 255, 0, isSelected ? 255 : 0, 255);    // Border color
+    SDL_RenderDrawRect((SDL_Renderer*)renderer, &rect);
 }
 
 // MARK: renderText
-void TextBox::renderText(SDL_Renderer* renderer, int w, SDL_Texture* texture) {
+void TextBox::renderText(non_owning_ptr<SDL_Renderer> renderer, int w, SDL_Texture* texture) {
     // Clipping width to ensure text does not overflow
     int displayWidth =
         std::min(w - textOffset, rect.w - 10);    // Assuming 5 pixels padding on each side
@@ -56,7 +57,7 @@ void TextBox::renderText(SDL_Renderer* renderer, int w, SDL_Texture* texture) {
         SDL_Rect srcRect  = {textOffset, 0, displayWidth, rect.h};
         SDL_Rect destRect = {
             rect.x + 5, rect.y, displayWidth, rect.h};    // Adjusted rect for text display
-        SDL_RenderCopy(renderer, texture, &srcRect, &destRect);
+        SDL_RenderCopy((SDL_Renderer*)renderer, texture, &srcRect, &destRect);
     }
     if (texture) {
         SDL_DestroyTexture(texture);
@@ -64,7 +65,7 @@ void TextBox::renderText(SDL_Renderer* renderer, int w, SDL_Texture* texture) {
 }
 
 // MARK: render
-void TextBox::render(SDL_Renderer* renderer) {
+void TextBox::render(non_owning_ptr<SDL_Renderer> renderer) {
     auto [w, texture] = prepareTextTexture(renderer);
     renderBackground(renderer);
     renderText(renderer, w, texture);
@@ -74,7 +75,7 @@ void TextBox::render(SDL_Renderer* renderer) {
 }
 
 // MARK: drawCursor
-void TextBox::drawCursor(SDL_Renderer* renderer) const {
+void TextBox::drawCursor(non_owning_ptr<SDL_Renderer> renderer) const {
     int cursorX = rect.x + 5;    // Start cursor at the beginning of the box with padding
 
     if (cursorPosition > 0 && cursorPosition <= text.length()) {
@@ -91,8 +92,8 @@ void TextBox::drawCursor(SDL_Renderer* renderer) const {
         cursorX = rect.x + rect.w - 5;
     }
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);    // Black cursor
-    SDL_RenderDrawLine(renderer, cursorX, rect.y + 2, cursorX, rect.y + rect.h - 4);
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 0, 0, 0, 255);    // Black cursor
+    SDL_RenderDrawLine((SDL_Renderer*)renderer, cursorX, rect.y + 2, cursorX, rect.y + rect.h - 4);
 }
 
 // MARK: update

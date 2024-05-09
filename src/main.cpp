@@ -116,9 +116,9 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
         SDL_RenderClear(renderer);
         // then render widgets
-        canvas.render(renderer);
+        canvas.render(non_owning_ptr<SDL_Renderer>(renderer));
         // render GUI last
-        gui.render(renderer);
+        gui.render(non_owning_ptr<SDL_Renderer>(renderer));
 
         SDL_RenderPresent(renderer);
 
