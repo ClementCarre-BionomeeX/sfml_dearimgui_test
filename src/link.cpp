@@ -4,8 +4,8 @@
 #include <cmath>
 #include <iostream>
 
-Link::Link(IWidget*                  source,
-           IWidget*                  target,
+Link::Link(non_owning_ptr<IWidget>   source,
+           non_owning_ptr<IWidget>   target,
            std::shared_ptr<Relation> relation,
            //    SDL_Color color,
            //    SDL_Color hoverColor,
@@ -117,13 +117,13 @@ SDL_Point Link::anchor() const noexcept {
     return {(a.x + b.x) / 2, (a.y + b.y) / 2};
 }
 
-bool Link::isExtremity(IWidget* w) const noexcept {
+bool Link::isExtremity(non_owning_ptr<IWidget> w) const noexcept {
     return (w == _source || w == _target);
 }
-bool Link::isSource(IWidget* w) const noexcept {
+bool Link::isSource(non_owning_ptr<IWidget> w) const noexcept {
     return w == _source;
 }
-bool Link::isTarget(IWidget* w) const noexcept {
+bool Link::isTarget(non_owning_ptr<IWidget> w) const noexcept {
     return w == _target;
 }
 bool Link::isRelation(std::shared_ptr<Relation> r) const noexcept {

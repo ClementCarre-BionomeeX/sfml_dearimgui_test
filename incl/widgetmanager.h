@@ -2,6 +2,7 @@
 
 #include "../incl/iwidget.h"
 #include "../incl/node.h"
+#include "../incl/non_owning_ptr.h"
 #include <SDL2/SDL.h>
 #include <memory>
 #include <vector>
@@ -11,24 +12,24 @@ class WidgetManager {
     WidgetManager(SDL_Renderer* renderer) : widgets{}, _renderer{renderer} {}
 
     template <typename T, typename... Args>
-    T* addWidget(Args&&... args);
+    non_owning_ptr<T> addWidget(Args&&... args);
     template <typename T, typename... Args>
-    T* addDraggableWidget(Args&&... args);
+    non_owning_ptr<T> addDraggableWidget(Args&&... args);
 
     bool handleEvents(SDL_Event& event);
     void updateWidgets();
     void renderWidgets();
 
-    bool removeWidget(IWidget* element);
+    bool removeWidget(non_owning_ptr<IWidget> element);
 
     template <typename T>
-    std::vector<T*> find_all_by_type() const noexcept;
+    std::vector<non_owning_ptr<T>> find_all_by_type() const noexcept;
 
   protected:
     // drag managment
-    IWidget* selection = nullptr;
-    int      startx    = 0;
-    int      starty    = 0;
+    non_owning_ptr<IWidget> selection;
+    int                     startx = 0;
+    int                     starty = 0;
 
   private:
     std::vector<std::unique_ptr<IWidget>> widgets;
@@ -36,16 +37,17 @@ class WidgetManager {
 };
 
 template <typename T, typename... Args>
-inline T* WidgetManager::addWidget(Args&&... args) {
+inline non_owning_ptr<T> WidgetManager::addWidget(Args&&... args) {
     auto widget = std::make_unique<T>(std::forward<Args>(args)...);
-    T*   ptr    = widget.get();
+    auto ptr    = non_owning_ptr<T>(widget);
     widgets.push_back(std::move(widget));
     return ptr;
 }
 
 template <typename T, typename... Args>
-inline T* WidgetManager::addDraggableWidget(Args&&... args) {
-    auto* ptr = addWidget<T>(std::forward<Args>(args)...);
+inline non_owning_ptr<T> WidgetManager::addDraggableWidget(Args&&... args) {
+    auto ptr = addWidget<T>(std::forward<Args>(args)...);
+
     ptr->onHover.connect([ptr]() { ptr->changeToHoverColor(); });
     ptr->onHoverLost.connect([ptr]() { ptr->changeToBaseColor(); });
     ptr->onMouseLeftDown.connect([&, ptr](int x, int y) {
@@ -54,17 +56,18 @@ inline T* WidgetManager::addDraggableWidget(Args&&... args) {
         startx      = x - a;
         starty      = y - b;
     });
-    ptr->onMouseLeftUp.connect([&](int, int) { selection = nullptr; });
+    ptr->onMouseLeftUp.connect([&](int, int) { selection.clear(); });
     ptr->onDragging.connect([&](int x, int y) { selection->moveTo(x - startx, y - starty); });
+
     return ptr;
 }
 
 template <typename T>
-std::vector<T*> WidgetManager::find_all_by_type() const noexcept {
-    std::vector<T*> result;
+std::vector<non_owning_ptr<T>> WidgetManager::find_all_by_type() const noexcept {
+    std::vector<non_owning_ptr<T>> result;
     for (auto& w : widgets) {
         if (T* t = dynamic_cast<T*>(w.get())) {
-            result.push_back(t);
+            result.emplace_back(t);
         }
     }
     return result;

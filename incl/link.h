@@ -2,6 +2,7 @@
 
 #include "../incl/iwidget.h"
 #include "../incl/node.h"
+#include "../incl/non_owning_ptr.h"
 #include "../incl/relation.h"
 #include "../incl/signal.h"
 #include <SDL2/SDL.h>
@@ -10,8 +11,8 @@
 
 class Link : public IWidget {
   public:
-    Link(IWidget*                  source,
-         IWidget*                  target,
+    Link(non_owning_ptr<IWidget>   source,
+         non_owning_ptr<IWidget>   target,
          std::shared_ptr<Relation> relation,
          //  SDL_Color color,
          //  SDL_Color hoverColor,
@@ -22,18 +23,18 @@ class Link : public IWidget {
     void      update() override;
     SDL_Point anchor() const noexcept override;
 
-    bool isExtremity(IWidget* w) const noexcept;
+    bool isExtremity(non_owning_ptr<IWidget> w) const noexcept;
 
-    bool isSource(IWidget* w) const noexcept;
-    bool isTarget(IWidget* w) const noexcept;
+    bool isSource(non_owning_ptr<IWidget> w) const noexcept;
+    bool isTarget(non_owning_ptr<IWidget> w) const noexcept;
     bool isRelation(std::shared_ptr<Relation> r) const noexcept;
 
     // debug
     Signal<std::string> debug;
 
   private:
-    IWidget* _source;
-    IWidget* _target;
+    non_owning_ptr<IWidget> _source;
+    non_owning_ptr<IWidget> _target;
 
     std::shared_ptr<Relation> _relation;
 
