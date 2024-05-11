@@ -39,8 +39,8 @@ class Node : public IDraggable {
     Signal<> onGlobalMouseLeftUp;
     void     globalMouseLeftUp();
 
-    Signal<std::shared_ptr<Relation>> onConnectMouseLeftDown;
-    void                              connectMouseLeftDown(std::shared_ptr<Relation> relation);
+    Signal<std::weak_ptr<Relation>> onConnectMouseLeftDown;
+    void                            connectMouseLeftDown(std::weak_ptr<Relation> relation);
 
   private:
     int radius;

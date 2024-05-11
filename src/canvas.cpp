@@ -4,40 +4,25 @@
 #include <memory>
 #include <string>
 
-std::shared_ptr<Node> Canvas::addNode() {
-    auto ptr = addNode(50, 50);
-    return ptr;
-}
-
-std::shared_ptr<Node> Canvas::addNode(int x, int y) {
+std::weak_ptr<Node> Canvas::addNode(int x, int y) {
     auto ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
 
-    auto weakPtr = std::weak_ptr<Node>(ptr);
-    ptr->onTopButtonClick.connect([weakPtr, this]() {
-        if (auto sharedPtr = weakPtr.lock()) {
-            removeNode(sharedPtr);
-        }
-    });
-    ptr->onGlobalMouseLeftUp.connect([weakPtr, this]() {
-        if (auto sharedPtr = weakPtr.lock()) {
-            upLeftNode(sharedPtr);
-        }
-    });
-    ptr->onConnectMouseLeftDown.connect([weakPtr, this](std::shared_ptr<Relation> relation) {
-        if (auto sharedPtr = weakPtr.lock()) {
-            downConnectNode(sharedPtr, relation);
-        }
-    });
+    ptr.lock()->onTopButtonClick.connect([ptr, this]() { removeNode(ptr); });
+    ptr.lock()->onGlobalMouseLeftUp.connect([ptr, this]() { upLeftNode(ptr); });
+    ptr.lock()->onConnectMouseLeftDown.connect(
+        [ptr, this](std::weak_ptr<Relation> relation) { downConnectNode(ptr, relation); });
     return ptr;
 }
 
-bool Canvas::removeNode(std::shared_ptr<Node> node) {
+bool Canvas::removeNode(std::weak_ptr<Node> node) {
     // first, remove all links that have this node as source or target
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
-        if (link->isExtremity(node)) {
-            removeWidget(link);
+        if (auto lockedlink = link.lock()) {
+            if (lockedlink->isExtremity(node)) {
+                removeWidget(link);
+            }
         }
     }
     // then remove the node
@@ -45,22 +30,25 @@ bool Canvas::removeNode(std::shared_ptr<Node> node) {
     return res;
 }
 
-bool Canvas::connectNodes(std::shared_ptr<Node>     source,
-                          std::shared_ptr<Node>     target,
-                          std::shared_ptr<Relation> relation) {
-    addWidget<Link>(source, target, relation, 5);
-    return false;
+bool Canvas::connectNodes(std::weak_ptr<Node>     source,
+                          std::weak_ptr<Node>     target,
+                          std::weak_ptr<Relation> relation) {
+    auto widget = addWidget<Link>(source, target, relation, 5);
+    return widget.lock() ? true : false;
 }
 
-bool Canvas::disconnectNodes(std::shared_ptr<Node>     source,
-                             std::shared_ptr<Node>     target,
-                             std::shared_ptr<Relation> relation) {
+bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
+                             std::weak_ptr<Node>     target,
+                             std::weak_ptr<Relation> relation) {
     bool found = false;
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
-        if (link->isSource(source) && link->isTarget(target) && link->isRelation(relation)) {
-            removeWidget(link);
-            found = true;
+        if (auto lockedlink = link.lock()) {
+            if (lockedlink->isSource(source) && lockedlink->isTarget(target) &&
+                lockedlink->isRelation(relation)) {
+                removeWidget(link);
+                found = true;
+            }
         }
     }
     return found;
@@ -122,13 +110,15 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
 
         auto allwidgets = find_all_by_type<IWidget>();
         for (auto widget : allwidgets) {
-            auto pos = widget->position();
-            // Calculate the new widget position, centered around the mouse
-            int newPosX = (int)((float)pos.x * zoomRatio + (float)mouseX -
-                                normX * (float)windowWidth * zoomRatio);
-            int newPosY = (int)((float)pos.y * zoomRatio + (float)mouseY -
-                                normY * (float)windowHeight * zoomRatio);
-            widget->moveTo(newPosX, newPosY);
+            if (auto lockedwidget = widget.lock()) {
+                auto pos = lockedwidget->position();
+                // Calculate the new widget position, centered around the mouse
+                int newPosX = (int)((float)pos.x * zoomRatio + (float)mouseX -
+                                    normX * (float)windowWidth * zoomRatio);
+                int newPosY = (int)((float)pos.y * zoomRatio + (float)mouseY -
+                                    normY * (float)windowHeight * zoomRatio);
+                lockedwidget->moveTo(newPosX, newPosY);
+            }
         }
 
         break;
@@ -141,7 +131,9 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
 
             auto allwidgets = find_all_by_type<IWidget>();
             for (auto widget : allwidgets) {
-                widget->push(adjustedXRel, adjustedYRel);
+                if (auto lockedwidget = widget.lock()) {
+                    lockedwidget->push(adjustedXRel, adjustedYRel);
+                }
             }
         }
         break;
@@ -153,10 +145,10 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
 
 void Canvas::update() {
     updateWidgets();
-    if (mp) {
-        mp->update(zoomFactor);
-    }
     if (mp_link) {
+        if (mp) {    // update only if necessary
+            mp->update(zoomFactor);
+        }
         mp_link->update();
     }
 }
@@ -170,12 +162,16 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
     // first all links
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
-        link->render(renderer);
+        if (auto lockedlink = link.lock()) {
+            lockedlink->render(renderer);
+        }
     }
     // then all nodes
     auto nodes = find_all_by_type<Node>();
     for (auto node : nodes) {
-        node->render(renderer);
+        if (auto lockednode = node.lock()) {
+            lockednode->render(renderer);
+        }
     }
 
     if (mp_link) {
@@ -193,18 +189,20 @@ bool Canvas::isConnected(std::shared_ptr<IWidget> source,
                          std::shared_ptr<IWidget> target) const noexcept {
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
-        if (link->isSource(source) && link->isTarget(target)) {
-            return true;
+        if (auto lockedlink = link.lock()) {
+            if (lockedlink->isSource(source) && lockedlink->isTarget(target)) {
+                return true;
+            }
         }
     }
     return false;
 }
 
-void Canvas::upLeftNode(std::shared_ptr<Node> node) {
+void Canvas::upLeftNode(std::weak_ptr<Node> node) {
     // if mp_start != node, we add a link
-    if (mp_start && mp_start != node) {
-        if (!disconnectNodes(mp_start, node, mp_relation)) {
-            connectNodes(mp_start, node, mp_relation);
+    if (mp_start.lock() && mp_start.lock() != node.lock()) {
+        if (!disconnectNodes(mp_start, node, mp_relation.lock())) {
+            connectNodes(mp_start, node, mp_relation.lock());
         }
     }
     // remove any active mouse_position if any
@@ -212,7 +210,7 @@ void Canvas::upLeftNode(std::shared_ptr<Node> node) {
     onNodeLeftUp.emit(node);
 }
 
-void Canvas::downLeftNode(std::shared_ptr<Node> node) {
+void Canvas::downLeftNode(std::weak_ptr<Node> node) {
     onNodeLeftDown.emit(node);
 }
 
@@ -226,28 +224,24 @@ void Canvas::backgroundLeftDown(int x, int y) {
     onBackgroundLeftDown.emit(x, y);
 }
 
-void Canvas::downConnectNode(std::shared_ptr<Node> node, std::shared_ptr<Relation> relation) {
+void Canvas::downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation) {
     // create a mouse_position widget
-    auto weakNode = std::weak_ptr<Node>(node);    // Use weak pointer to avoid cycle
-    mp_start      = node;
-    mp            = std::make_shared<MousePosition>();
-    mp_link       = std::make_unique<Link>(
-        weakNode, std::weak_ptr<MousePosition>(mp), std::weak_ptr<Relation>(mouse_pos_relation), 5);
+    mp_start = node;
+    // mp       = std::make_shared<MousePosition>();
+    mp_link = std::make_unique<Link>(
+        node, std::weak_ptr<MousePosition>(mp), std::weak_ptr<Relation>(mouse_pos_relation), 5);
     mp_relation = relation;
 
-    onNodeConnectDown.emit(weakNode);
+    onNodeConnectDown.emit(node);
 }
 
 void Canvas::removeAnyMousePosition() {
-    mp_link.release();
+    mp_link.reset();
 
-    if (mp) {
-        mp.reset();
+    if (mp_relation.lock()) {
+        mp_relation.reset();
     }
-    if (mp_relation) {
-        mp_relation = nullptr;
-    }
-    if (mp_start) {
+    if (mp_start.lock()) {
         mp_start.reset();
     }
 }

@@ -51,7 +51,9 @@ Node::Node(int                                           x,
     for (auto& connectionButton : addConnectionButtonList) {
         connectionButton->onMouseLeftUp.connect([this](int, int) { globalMouseLeftUp(); });
         connectionButton->onMouseLeftDown.connect(
-            [this, i, relation = relationList[i]](int, int) { connectMouseLeftDown(relation); });
+            [this, i, relation = std::weak_ptr<Relation>(relationList[i])](int, int) {
+                connectMouseLeftDown(relation);
+            });
         ++i;
     }
 }
@@ -136,6 +138,6 @@ void Node::globalMouseLeftUp() {
     onGlobalMouseLeftUp.emit();
 }
 
-void Node::connectMouseLeftDown(std::shared_ptr<Relation> relation) {
+void Node::connectMouseLeftDown(std::weak_ptr<Relation> relation) {
     onConnectMouseLeftDown.emit(relation);
 }

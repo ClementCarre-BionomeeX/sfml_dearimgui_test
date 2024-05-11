@@ -14,6 +14,7 @@ class Canvas : public IWidget, public WidgetManager {
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
         : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f),
+          mp{std::make_shared<MousePosition>()},
           mouse_pos_relation{std::make_shared<Relation>("",
                                                         SDL_Color{0, 0, 0, 255},
                                                         SDL_Color{0, 0, 0, 255},
@@ -31,26 +32,25 @@ class Canvas : public IWidget, public WidgetManager {
             "Explain", SDL_Color{200, 200, 0, 255}, SDL_Color{230, 230, 30, 255}, true, true));
     }
 
-    std::shared_ptr<Node> addNode();
-    std::shared_ptr<Node> addNode(int x, int y);
-    bool                  removeNode(std::shared_ptr<Node> node);
-    bool                  connectNodes(std::shared_ptr<Node>     source,
-                                       std::shared_ptr<Node>     target,
-                                       std::shared_ptr<Relation> relation);
-    bool                  disconnectNodes(std::shared_ptr<Node>     source,
-                                          std::shared_ptr<Node>     target,
-                                          std::shared_ptr<Relation> relation);
+    std::weak_ptr<Node> addNode(int x, int y);
+    bool                removeNode(std::weak_ptr<Node> node);
+    bool                connectNodes(std::weak_ptr<Node>     source,
+                                     std::weak_ptr<Node>     target,
+                                     std::weak_ptr<Relation> relation);
+    bool                disconnectNodes(std::weak_ptr<Node>     source,
+                                        std::weak_ptr<Node>     target,
+                                        std::weak_ptr<Relation> relation);
 
     bool      handleEvent(SDL_Event& event, float zoomfactor) override;
     void      update() override;
     void      render(non_owning_ptr<SDL_Renderer> renderer) override;
     SDL_Point anchor() const noexcept override;
 
-    Signal<std::shared_ptr<Node>> onNodeLeftUp;
-    void                          upLeftNode(std::shared_ptr<Node> node);
+    Signal<std::weak_ptr<Node>> onNodeLeftUp;
+    void                        upLeftNode(std::weak_ptr<Node> node);
 
-    Signal<std::shared_ptr<Node>> onNodeLeftDown;
-    void                          downLeftNode(std::shared_ptr<Node> node);
+    Signal<std::weak_ptr<Node>> onNodeLeftDown;
+    void                        downLeftNode(std::weak_ptr<Node> node);
 
     Signal<int, int> onBackgroundLeftUp;
     void             backgroundLeftUp(int x, int y);
@@ -59,7 +59,7 @@ class Canvas : public IWidget, public WidgetManager {
     void             backgroundLeftDown(int x, int y);
 
     Signal<std::weak_ptr<Node>> onNodeConnectDown;
-    void downConnectNode(std::shared_ptr<Node> node, std::shared_ptr<Relation> relation);
+    void downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation);
 
     bool isConnected(std::shared_ptr<IWidget> source,
                      std::shared_ptr<IWidget> target) const noexcept;
@@ -71,19 +71,15 @@ class Canvas : public IWidget, public WidgetManager {
     }
 
   private:
-    non_owning_ptr<TTF_Font> _font;
-
-    std::shared_ptr<Node>          mp_start;
-    std::unique_ptr<Link>          mp_link;
-    std::shared_ptr<MousePosition> mp;
-
-    std::shared_ptr<Relation> mp_relation = nullptr;
-
+    non_owning_ptr<TTF_Font>               _font;
     std::vector<std::shared_ptr<Relation>> vec;
+    float                                  zoomFactor;    // This will track the zoom level
+    std::shared_ptr<MousePosition>         mp;
+    std::shared_ptr<Relation>              mouse_pos_relation;
 
-    float zoomFactor;    // This will track the zoom level
+    std::weak_ptr<Node>     mp_start;
+    std::unique_ptr<Link>   mp_link;
+    std::weak_ptr<Relation> mp_relation;
 
     void removeAnyMousePosition();
-
-    std::shared_ptr<Relation> mouse_pos_relation;
 };
