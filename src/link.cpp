@@ -4,22 +4,24 @@
 #include <cmath>
 #include <iostream>
 
-Link::Link(std::shared_ptr<IWidget>  source,
-           std::shared_ptr<IWidget>  target,
-           std::shared_ptr<Relation> relation,
-           int                       thickness)
+Link::Link(std::weak_ptr<IWidget>  source,
+           std::weak_ptr<IWidget>  target,
+           std::weak_ptr<Relation> relation,
+           int                     thickness)
     : _source(source), _target(target), _relation(relation), _thickness(thickness),
       isHovered(false) {}
 
 void Link::render(non_owning_ptr<SDL_Renderer> renderer) {
 
-    auto color = isHovered ? _relation->baseColor() : _relation->hoverColor();
+    auto locked_relation = _relation.lock();
+
+    auto color = isHovered ? locked_relation->baseColor() : locked_relation->hoverColor();
 
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);
     drawThickLine(renderer, a.x, a.y, b.x, b.y, _thickness, color);
     fillCircle(renderer, a.x, a.y, _thickness / 2);
     fillCircle(renderer, b.x, b.y, _thickness / 2);
-    if (_relation->directed()) {
+    if (locked_relation->directed()) {
         draw_indicator(renderer, color);
     }
 }
@@ -51,11 +53,14 @@ void Link::draw_indicator(non_owning_ptr<SDL_Renderer> renderer,
 }
 
 void Link::update() {
-    a = _source->anchor();
-    b = _target->anchor();
+    auto locked_source = _source.lock();
+    auto locked_target = _target.lock();
 
-    auto inter_source = find_intersection(_source->getRect(), a, b);
-    auto inter_target = find_intersection(_target->getRect(), a, b);
+    a = locked_source->anchor();
+    b = locked_target->anchor();
+
+    auto inter_source = find_intersection(locked_source->getRect(), a, b);
+    auto inter_target = find_intersection(locked_target->getRect(), a, b);
 
     if (inter_source) {
         a = inter_source.value();
@@ -110,15 +115,16 @@ SDL_Point Link::anchor() const noexcept {
     return {(a.x + b.x) / 2, (a.y + b.y) / 2};
 }
 
-bool Link::isExtremity(std::shared_ptr<IWidget> w) const noexcept {
-    return (w == _source || w == _target);
+bool Link::isExtremity(std::weak_ptr<IWidget> w) const noexcept {
+    auto locked_w = w.lock();
+    return (locked_w == _source.lock() || locked_w == _target.lock());
 }
-bool Link::isSource(std::shared_ptr<IWidget> w) const noexcept {
-    return w == _source;
+bool Link::isSource(std::weak_ptr<IWidget> w) const noexcept {
+    return w.lock() == _source.lock();
 }
-bool Link::isTarget(std::shared_ptr<IWidget> w) const noexcept {
-    return w == _target;
+bool Link::isTarget(std::weak_ptr<IWidget> w) const noexcept {
+    return w.lock() == _target.lock();
 }
-bool Link::isRelation(std::shared_ptr<Relation> r) const noexcept {
-    return r == _relation;
+bool Link::isRelation(std::weak_ptr<Relation> r) const noexcept {
+    return r.lock() == _relation.lock();
 }

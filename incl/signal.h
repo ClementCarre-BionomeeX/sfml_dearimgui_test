@@ -28,6 +28,12 @@ class Signal {
         }
     }
 
+    // Disconnect all slots
+    void disconnect_all() {
+        std::lock_guard<std::mutex> lock(mutex);    // Lock the mutex for thread safety
+        slots.clear();                              // Clear all slots
+    }
+
   private:
     std::vector<Slot>  slots;
     mutable std::mutex mutex;    // Mutex to protect the slots container

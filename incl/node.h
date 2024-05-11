@@ -24,6 +24,8 @@ class Node : public IDraggable {
          non_owning_ptr<TTF_Font>                      font,
          std::vector<std::shared_ptr<Relation>> const& relationList);
 
+    ~Node();
+
     void render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool handleEvent(SDL_Event& event, float zoomfactor) override;
     void update() override;
@@ -50,5 +52,5 @@ class Node : public IDraggable {
 
     std::vector<std::unique_ptr<TextButton>> addConnectionButtonList;
 
-    std::vector<std::shared_ptr<Relation>> const& _relationList;
+    // std::vector<std::shared_ptr<Relation>> _relationList;
 };

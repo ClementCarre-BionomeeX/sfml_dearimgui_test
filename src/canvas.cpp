@@ -13,11 +13,22 @@ std::shared_ptr<Node> Canvas::addNode(int x, int y) {
     auto ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
 
-    ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
-    ptr->onGlobalMouseLeftUp.connect([&, ptr]() { upLeftNode(ptr); });
-    ptr->onConnectMouseLeftDown.connect(
-        [&, ptr](std::shared_ptr<Relation> relation) { downConnectNode(ptr, relation); });
-
+    auto weakPtr = std::weak_ptr<Node>(ptr);
+    ptr->onTopButtonClick.connect([weakPtr, this]() {
+        if (auto sharedPtr = weakPtr.lock()) {
+            removeNode(sharedPtr);
+        }
+    });
+    ptr->onGlobalMouseLeftUp.connect([weakPtr, this]() {
+        if (auto sharedPtr = weakPtr.lock()) {
+            upLeftNode(sharedPtr);
+        }
+    });
+    ptr->onConnectMouseLeftDown.connect([weakPtr, this](std::shared_ptr<Relation> relation) {
+        if (auto sharedPtr = weakPtr.lock()) {
+            downConnectNode(sharedPtr, relation);
+        }
+    });
     return ptr;
 }
 
@@ -217,13 +228,14 @@ void Canvas::backgroundLeftDown(int x, int y) {
 
 void Canvas::downConnectNode(std::shared_ptr<Node> node, std::shared_ptr<Relation> relation) {
     // create a mouse_position widget
-    auto rel = std::make_shared<Relation>(
-        "", SDL_Color{0, 0, 0, 255}, SDL_Color{0, 0, 0, 255}, true, true);
-    mp_start    = node;
-    mp          = std::make_shared<MousePosition>();
-    mp_link     = std::make_unique<Link>(node, mp, rel, 5);
+    auto weakNode = std::weak_ptr<Node>(node);    // Use weak pointer to avoid cycle
+    mp_start      = node;
+    mp            = std::make_shared<MousePosition>();
+    mp_link       = std::make_unique<Link>(
+        weakNode, std::weak_ptr<MousePosition>(mp), std::weak_ptr<Relation>(mouse_pos_relation), 5);
     mp_relation = relation;
-    onNodeConnectDown.emit(node);
+
+    onNodeConnectDown.emit(weakNode);
 }
 
 void Canvas::removeAnyMousePosition() {

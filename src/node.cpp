@@ -22,8 +22,11 @@ Node::Node(int                                           x,
                                                                           2,
                                                                           "X",
                                                                           font),
-      nameTextBox(x + margin, y + margin * 2 + topButtonSize, {0, 0, 0, 255}, font, w - 2 * margin),
-      _relationList(relationList) {
+      nameTextBox(x + margin,
+                  y + margin * 2 + topButtonSize,
+                  {0, 0, 0, 255},
+                  font,
+                  w - 2 * margin) {
     topButton.onClick.connect([&]() { topButtonClick(); });
     nameTextBox.onTextChanged.connect([&](std::string str) { changeName(str); });
 
@@ -32,25 +35,36 @@ Node::Node(int                                           x,
     topButton.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
     nameTextBox.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
 
-    for (std::size_t i = 0; i < relationList.size(); ++i) {
-        auto ptr = relationList[i];
+    for (auto& relation : relationList) {
         addConnectionButtonList.emplace_back(std::make_unique<TextButton>(x + margin,
                                                                           y,
                                                                           w - 2 * margin,
                                                                           30,
-                                                                          ptr->baseColor(),
-                                                                          ptr->hoverColor(),
+                                                                          relation->baseColor(),
+                                                                          relation->hoverColor(),
                                                                           2,
-                                                                          ptr->name(),
+                                                                          relation->name(),
                                                                           font));
     }
 
     std::size_t i = 0;
     for (auto& connectionButton : addConnectionButtonList) {
-        connectionButton->onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
+        connectionButton->onMouseLeftUp.connect([this](int, int) { globalMouseLeftUp(); });
         connectionButton->onMouseLeftDown.connect(
-            [&, relationList, i](int, int) { connectMouseLeftDown(relationList[i]); });
-        i++;
+            [this, i, relation = relationList[i]](int, int) { connectMouseLeftDown(relation); });
+        ++i;
+    }
+}
+
+Node::~Node() {
+    topButton.onClick.disconnect_all();
+    nameTextBox.onTextChanged.disconnect_all();
+    onMouseLeftUp.disconnect_all();
+    topButton.onMouseLeftUp.disconnect_all();
+    nameTextBox.onMouseLeftUp.disconnect_all();
+    for (auto& connectionButton : addConnectionButtonList) {
+        connectionButton->onMouseLeftUp.disconnect_all();
+        connectionButton->onMouseLeftDown.disconnect_all();
     }
 }
 

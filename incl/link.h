@@ -11,30 +11,30 @@
 
 class Link : public IWidget {
   public:
-    Link(std::shared_ptr<IWidget>  source,
-         std::shared_ptr<IWidget>  target,
-         std::shared_ptr<Relation> relation,
-         int                       thickness);
+    Link(std::weak_ptr<IWidget>  source,
+         std::weak_ptr<IWidget>  target,
+         std::weak_ptr<Relation> relation,
+         int                     thickness);
 
     void      render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool      handleEvent(SDL_Event& event, float zoomfactor) override;
     void      update() override;
     SDL_Point anchor() const noexcept override;
 
-    bool isExtremity(std::shared_ptr<IWidget> w) const noexcept;
+    bool isExtremity(std::weak_ptr<IWidget> w) const noexcept;
 
-    bool isSource(std::shared_ptr<IWidget> w) const noexcept;
-    bool isTarget(std::shared_ptr<IWidget> w) const noexcept;
-    bool isRelation(std::shared_ptr<Relation> r) const noexcept;
+    bool isSource(std::weak_ptr<IWidget> w) const noexcept;
+    bool isTarget(std::weak_ptr<IWidget> w) const noexcept;
+    bool isRelation(std::weak_ptr<Relation> r) const noexcept;
 
     // debug
     Signal<std::string> debug;
 
   private:
-    std::shared_ptr<IWidget> _source;
-    std::shared_ptr<IWidget> _target;
+    std::weak_ptr<IWidget> _source;
+    std::weak_ptr<IWidget> _target;
 
-    std::shared_ptr<Relation> _relation;
+    std::weak_ptr<Relation> _relation;
 
     int  _thickness;
     bool isHovered = false;

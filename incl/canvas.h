@@ -13,7 +13,13 @@ class Canvas : public IWidget, public WidgetManager {
 
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
-        : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f) {
+        : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f),
+          mouse_pos_relation{std::make_shared<Relation>("",
+                                                        SDL_Color{0, 0, 0, 255},
+                                                        SDL_Color{0, 0, 0, 255},
+                                                        true,
+                                                        true)} {
+
         vec.push_back(std::make_shared<Relation>(
             "Is A", SDL_Color{0, 200, 0, 255}, SDL_Color{30, 230, 30, 255}, false, true));
         vec.push_back(std::make_shared<Relation>("Example Of",
@@ -52,18 +58,22 @@ class Canvas : public IWidget, public WidgetManager {
     Signal<int, int> onBackgroundLeftDown;
     void             backgroundLeftDown(int x, int y);
 
-    Signal<std::shared_ptr<Node>> onNodeConnectDown;
+    Signal<std::weak_ptr<Node>> onNodeConnectDown;
     void downConnectNode(std::shared_ptr<Node> node, std::shared_ptr<Relation> relation);
 
     bool isConnected(std::shared_ptr<IWidget> source,
                      std::shared_ptr<IWidget> target) const noexcept;
 
-    ~Canvas() { removeAnyMousePosition(); }
+    ~Canvas() {
+        vec.clear();        // Explicitly clear the vector of shared pointers
+        mp_link.reset();    // Ensure unique_ptr resources are released if applicable
+        removeAnyMousePosition();
+    }
 
   private:
     non_owning_ptr<TTF_Font> _font;
-    std::shared_ptr<Node>    mp_start;
 
+    std::shared_ptr<Node>          mp_start;
     std::unique_ptr<Link>          mp_link;
     std::shared_ptr<MousePosition> mp;
 
@@ -74,4 +84,6 @@ class Canvas : public IWidget, public WidgetManager {
     float zoomFactor;    // This will track the zoom level
 
     void removeAnyMousePosition();
+
+    std::shared_ptr<Relation> mouse_pos_relation;
 };

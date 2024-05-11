@@ -54,25 +54,29 @@ inline std::shared_ptr<T> WidgetManager::addDraggableWidget(Args&&... args) {
         return nullptr;    // Early exit if widget creation failed
     }
 
-    ptr->onHover.connect([ptr]() {
-        if (ptr) {
-            ptr->changeToHoverColor();
+    auto weakPtr = std::weak_ptr<T>(ptr);
+
+    ptr->onHover.connect([weakPtr]() {
+        if (auto sharedPtr = weakPtr.lock()) {
+            sharedPtr->changeToHoverColor();
         }
     });
-    ptr->onHoverLost.connect([ptr]() {
-        if (ptr) {
-            ptr->changeToBaseColor();
+
+    ptr->onHoverLost.connect([weakPtr]() {
+        if (auto sharedPtr = weakPtr.lock()) {
+            sharedPtr->changeToBaseColor();
         }
     });
-    ptr->onMouseLeftDown.connect([this, ptr](int x, int y) {
-        if (!ptr) {
-            return;
+
+    ptr->onMouseLeftDown.connect([this, weakPtr](int x, int y) {
+        if (auto sharedPtr = weakPtr.lock()) {
+            selection   = sharedPtr;
+            auto [a, b] = selection->position();
+            startx      = x - a;
+            starty      = y - b;
         }
-        selection   = ptr;
-        auto [a, b] = selection->position();
-        startx      = x - a;
-        starty      = y - b;
     });
+
     ptr->onMouseLeftUp.connect([this](int, int) { selection.reset(); });
     ptr->onDragging.connect([this](int x, int y) {
         if (selection) {
