@@ -99,9 +99,9 @@ int main(int argc, char* argv[]) {
                 running = false;
             }
             // first, catch GUI event
-            if (!gui.handleEvent(event)) {
+            if (!gui.handleEvent(event, 1.0)) {
                 // then other events if no GUI
-                canvas.handleEvent(event);
+                canvas.handleEvent(event, 1.0);
             }
         }
 

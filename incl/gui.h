@@ -13,7 +13,7 @@ class GUI {
     ~GUI() {}
 
     void render(non_owning_ptr<SDL_Renderer> renderer);
-    bool handleEvent(SDL_Event& event);
+    bool handleEvent(SDL_Event& event, float zoomfactor);
     void update();
 
     Signal<> onQuitClick;

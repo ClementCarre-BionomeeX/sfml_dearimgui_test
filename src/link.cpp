@@ -65,9 +65,9 @@ void Link::update() {
     }
 }
 
-bool Link::handleEvent(SDL_Event& event) {
-    int mouseX = event.motion.x;
-    int mouseY = event.motion.y;
+bool Link::handleEvent(SDL_Event& event, float zoomfactor) {
+    int mouseX = (int)((float)(event.motion.x) / zoomfactor);
+    int mouseY = (int)((float)(event.motion.y) / zoomfactor);
     isHovered  = isNear(mouseX, mouseY);
     return isHovered;
 }

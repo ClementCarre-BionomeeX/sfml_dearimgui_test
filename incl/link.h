@@ -17,7 +17,7 @@ class Link : public IWidget {
          int                       thickness);
 
     void      render(non_owning_ptr<SDL_Renderer> renderer) override;
-    bool      handleEvent(SDL_Event& event) override;
+    bool      handleEvent(SDL_Event& event, float zoomfactor) override;
     void      update() override;
     SDL_Point anchor() const noexcept override;
 

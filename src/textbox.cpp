@@ -103,13 +103,14 @@ void TextBox::update() {
 }
 
 // MARK: handleEvent
-bool TextBox::handleEvent(SDL_Event& event) {
+bool TextBox::handleEvent(SDL_Event& event, float zoomfactor) {
     if (event.type == SDL_MOUSEBUTTONDOWN) {
-        int x = event.button.x;
-        int y = event.button.y;
-        if (x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h) {
+        int mouseX = (int)((float)(event.motion.x) / zoomfactor);
+        int mouseY = (int)((float)(event.motion.y) / zoomfactor);
+        if (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
+            mouseY <= rect.y + rect.h) {
             isSelected = true;
-            setCursorByClick(x);
+            setCursorByClick(mouseX);
             return true;
         } else {
             isSelected = false;

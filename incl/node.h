@@ -25,7 +25,7 @@ class Node : public IDraggable {
          std::vector<std::shared_ptr<Relation>> const& relationList);
 
     void render(non_owning_ptr<SDL_Renderer> renderer) override;
-    bool handleEvent(SDL_Event& event) override;
+    bool handleEvent(SDL_Event& event, float zoomfactor) override;
     void update() override;
 
     Signal<> onTopButtonClick;

@@ -17,7 +17,7 @@ class IDraggable : public IWidget {
     void changeToBaseColor() noexcept;
     void changeToHoverColor() noexcept;
 
-    bool handleEvent(SDL_Event& event) override;
+    bool handleEvent(SDL_Event& event, float zoomfactor) override;
 
     virtual std::map<std::string, std::any> serialize() const noexcept {
         auto result = IWidget::serialize();

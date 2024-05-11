@@ -10,18 +10,14 @@ std::shared_ptr<Node> Canvas::addNode() {
 }
 
 std::shared_ptr<Node> Canvas::addNode(int x, int y) {
-
     auto ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
 
-    // auto temp_shared = std::shared_ptr<Node>(ptr.get());
-
     ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
-
     ptr->onGlobalMouseLeftUp.connect([&, ptr]() { upLeftNode(ptr); });
-
     ptr->onConnectMouseLeftDown.connect(
         [&, ptr](std::shared_ptr<Relation> relation) { downConnectNode(ptr, relation); });
+
     return ptr;
 }
 
@@ -59,11 +55,15 @@ bool Canvas::disconnectNodes(std::shared_ptr<Node>     source,
     return found;
 }
 
-bool Canvas::handleEvent(SDL_Event& event) {
-    bool handled = WidgetManager::handleEvents(event);
+bool Canvas::handleEvent(SDL_Event& event, float) {
+
+    bool handled = WidgetManager::handleEvents(event, zoomFactor);
+
     if (!handled) {
+
         int mouseX = event.motion.x;
         int mouseY = event.motion.y;
+
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 backgroundLeftDown(mouseX, mouseY);
@@ -77,31 +77,61 @@ bool Canvas::handleEvent(SDL_Event& event) {
         }
     }
 
-    // if (!handled) {
     switch (event.type) {
     case SDL_MOUSEWHEEL: {
+
+        float zoomBaseIncrement = 0.05f;
+        float oldZoomFactor     = zoomFactor;
         // Zoom in or out
         // Adjust zoom speed here
         float zoomIncrement = 0;
-        if (event.wheel.y > 0) {      // Upward motion
-            zoomIncrement = 0.1f;     // Positive increment for zooming in
-        } else {                      // Downward motion
-            zoomIncrement = -0.1f;    // Negative increment for zooming out
+        if (event.wheel.y > 0) {                   // Upward motion
+            zoomIncrement = zoomBaseIncrement;     // Positive increment for zooming in
+        } else {                                   // Downward motion
+            zoomIncrement = -zoomBaseIncrement;    // Negative increment for zooming out
         }
 
         zoomFactor += zoomIncrement;
         zoomFactor = std::max(0.1f, std::min(zoomFactor, 10.0f));    // Constrain zoom factor
+
+        // Get mouse position in window coordinates
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+
+        // Calculate the ratio of the new zoom relative to the old zoom
+        float zoomRatio = zoomFactor / oldZoomFactor;
+
+        // Window dimensions
+        int windowWidth, windowHeight;
+        SDL_GetRendererOutputSize((SDL_Renderer*)_renderer, &windowWidth, &windowHeight);
+
+        // Calculate the normalized mouse coordinates (from 0 to 1)
+        float normX = (float)mouseX / (float)windowWidth;
+        float normY = (float)mouseY / (float)windowHeight;
+
+        auto allwidgets = find_all_by_type<IWidget>();
+        for (auto widget : allwidgets) {
+            auto pos = widget->position();
+            // Calculate the new widget position, centered around the mouse
+            int newPosX = (int)((float)pos.x * zoomRatio + (float)mouseX -
+                                normX * (float)windowWidth * zoomRatio);
+            int newPosY = (int)((float)pos.y * zoomRatio + (float)mouseY -
+                                normY * (float)windowHeight * zoomRatio);
+            widget->moveTo(newPosX, newPosY);
+        }
 
         break;
     }
     case SDL_MOUSEMOTION: {
         if (event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {    // Pan with middle mouse
 
-            float adjustedXRel = static_cast<float>(event.motion.xrel) / zoomFactor;
-            float adjustedYRel = static_cast<float>(event.motion.yrel) / zoomFactor;
+            int adjustedXRel = (int)(static_cast<float>(event.motion.xrel) / zoomFactor);
+            int adjustedYRel = (int)(static_cast<float>(event.motion.yrel) / zoomFactor);
 
-            viewportOffset.x += static_cast<int>(adjustedXRel);
-            viewportOffset.y += static_cast<int>(adjustedYRel);
+            auto allwidgets = find_all_by_type<IWidget>();
+            for (auto widget : allwidgets) {
+                widget->push(adjustedXRel, adjustedYRel);
+            }
         }
         break;
     }
@@ -112,6 +142,9 @@ bool Canvas::handleEvent(SDL_Event& event) {
 
 void Canvas::update() {
     updateWidgets();
+    if (mp) {
+        mp->update(zoomFactor);
+    }
     if (mp_link) {
         mp_link->update();
     }
@@ -120,23 +153,7 @@ void Canvas::update() {
 void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize((SDL_Renderer*)renderer, &windowWidth, &windowHeight);
-
-    // Calculate the adjusted window dimensions based on the zoom factor
-    int adjustedWidth  = static_cast<int>(static_cast<float>(windowWidth) / zoomFactor);
-    int adjustedHeight = static_cast<int>(static_cast<float>(windowHeight) / zoomFactor);
-
-    // Create an SDL_Rect to define the viewport
-    SDL_Rect viewportRect = {
-        viewportOffset.x,    // X coordinate
-        viewportOffset.y,    // Y coordinate
-        adjustedWidth,       // Width adjusted by zoom factor
-        adjustedHeight       // Height adjusted by zoom factor
-    };
-
-    SDL_Rect baseviewport = {0, 0, windowWidth, windowHeight};
-
     SDL_RenderSetScale((SDL_Renderer*)renderer, zoomFactor, zoomFactor);
-    SDL_RenderSetViewport((SDL_Renderer*)renderer, &viewportRect);
 
     // TODO have two separate lists for Links and Nodes
     // first all links
@@ -150,13 +167,11 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
         node->render(renderer);
     }
 
-    // WidgetManager::renderWidgets();
     if (mp_link) {
         mp_link->render(renderer);
     }
 
     SDL_RenderSetScale((SDL_Renderer*)renderer, 1, 1);
-    SDL_RenderSetViewport((SDL_Renderer*)renderer, &baseviewport);
 }
 
 SDL_Point Canvas::anchor() const noexcept {

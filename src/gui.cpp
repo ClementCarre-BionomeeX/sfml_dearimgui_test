@@ -24,20 +24,20 @@ void GUI::render(non_owning_ptr<SDL_Renderer> renderer) {
     loadButton.render(renderer);
 }
 
-bool GUI::handleEvent(SDL_Event& event) {
+bool GUI::handleEvent(SDL_Event& event, float zoomfactor) {
     // first, check if any button is handled
-    bool handled = quitButton.handleEvent(event) || addNodeButon.handleEvent(event) ||
-                   saveButton.handleEvent(event) || loadButton.handleEvent(event);
+    bool handled =
+        quitButton.handleEvent(event, zoomfactor) || addNodeButon.handleEvent(event, zoomfactor) ||
+        saveButton.handleEvent(event, zoomfactor) || loadButton.handleEvent(event, zoomfactor);
 
     // check if the event happend in the background
     if (!handled) {
-        int mouseX = event.motion.x;
-        int mouseY = event.motion.y;
+
+        int mouseX = (int)((float)(event.motion.x) / zoomfactor);
+        int mouseY = (int)((float)(event.motion.y) / zoomfactor);
 
         bool is_inside = (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
                           mouseY <= rect.y + rect.h);
-        // handled = (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
-        //            mouseY <= rect.y + rect.h);
 
         if (is_inside) {
             if (event.type == SDL_MOUSEBUTTONUP) {

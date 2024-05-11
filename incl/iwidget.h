@@ -16,10 +16,10 @@ class IWidget {
 
     virtual ~IWidget() = default;
 
-    virtual bool handleEvent(SDL_Event& event) {
+    virtual bool handleEvent(SDL_Event& event, float zoomfactor) {
         bool handled = false;
-        int  mouseX  = event.motion.x;
-        int  mouseY  = event.motion.y;
+        int  mouseX  = (int)((float)(event.motion.x) / zoomfactor);
+        int  mouseY  = (int)((float)(event.motion.y) / zoomfactor);
 
         // Handle hover state
         bool currentlyHovering = (mouseX >= rect.x && mouseX <= rect.x + rect.w &&
@@ -56,6 +56,11 @@ class IWidget {
     virtual void moveTo(int x, int y) noexcept {
         rect.x = x;
         rect.y = y;
+    }
+
+    virtual void push(int x, int y) noexcept {
+        rect.x += x;
+        rect.y += y;
     }
 
     virtual void resize(int w, int h) noexcept {

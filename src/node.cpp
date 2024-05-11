@@ -78,20 +78,21 @@ void Node::render(non_owning_ptr<SDL_Renderer> renderer) {
     }
 }
 
-bool Node::handleEvent(SDL_Event& event) {
+bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
 
     bool handled = false;
 
     for (auto& connectionButton : addConnectionButtonList) {
-        handled |= connectionButton->handleEvent(event);
+        handled |= connectionButton->handleEvent(event, zoomfactor);
     }
 
-    if (topButton.handleEvent(event) || nameTextBox.handleEvent(event) || handled) {
+    if (topButton.handleEvent(event, zoomfactor) || nameTextBox.handleEvent(event, zoomfactor) ||
+        handled) {
         return true;
     }
 
     // call default Idraggable::handleEvent(event)
-    return IDraggable::handleEvent(event);
+    return IDraggable::handleEvent(event, zoomfactor);
 }
 
 void Node::update() {

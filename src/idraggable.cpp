@@ -34,15 +34,20 @@ void IDraggable::drag(int x, int y) {
     onDragging.emit(x, y);
 }
 
-bool IDraggable::handleEvent(SDL_Event& event) {
-    bool handled = IWidget::handleEvent(event);
+bool IDraggable::handleEvent(SDL_Event& event, float zoomfactor) {
+    bool handled = IWidget::handleEvent(event, zoomfactor);
 
     // Additional handling for dragging if selected
     if (event.type == SDL_MOUSEMOTION && isSelected) {
         if (!isDragging) {
             isDragging = true;    // Start dragging
         }
-        drag(event.motion.x, event.motion.y);    // Emit dragging signal
+        // int mouseX = event.motion.x;
+        // int mouseY = event.motion.y;
+        int mouseX = (int)((float)(event.motion.x) / zoomfactor);
+        int mouseY = (int)((float)(event.motion.y) / zoomfactor);
+
+        drag(mouseX, mouseY);    // Emit dragging signal
         handled = true;
     }
 

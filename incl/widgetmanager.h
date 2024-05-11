@@ -10,14 +10,14 @@
 
 class WidgetManager {
   public:
-    WidgetManager(non_owning_ptr<SDL_Renderer> renderer) : widgets{}, _renderer{renderer} {}
+    WidgetManager(non_owning_ptr<SDL_Renderer> renderer) : _renderer{renderer}, widgets{} {}
 
     template <typename T, typename... Args>
     std::shared_ptr<T> addWidget(Args&&... args);
     template <typename T, typename... Args>
     std::shared_ptr<T> addDraggableWidget(Args&&... args);
 
-    bool handleEvents(SDL_Event& event);
+    bool handleEvents(SDL_Event& event, float zoomfactor);
     void updateWidgets();
     void renderWidgets();
 
@@ -28,13 +28,13 @@ class WidgetManager {
 
   protected:
     // drag managment
-    std::shared_ptr<IWidget> selection;
-    int                      startx = 0;
-    int                      starty = 0;
+    std::shared_ptr<IWidget>     selection;
+    int                          startx = 0;
+    int                          starty = 0;
+    non_owning_ptr<SDL_Renderer> _renderer;
 
   private:
     std::vector<std::shared_ptr<IWidget>> widgets;
-    non_owning_ptr<SDL_Renderer>          _renderer;
 };
 
 template <typename T, typename... Args>

@@ -6,9 +6,9 @@
 #include <memory>
 #include <vector>
 
-bool WidgetManager::handleEvents(SDL_Event& event) {
+bool WidgetManager::handleEvents(SDL_Event& event, float zoomfactor) {
     for (auto& widget : widgets) {
-        if (widget->handleEvent(event)) {
+        if (widget->handleEvent(event, zoomfactor)) {
             return true;    // Optional: stop processing if one widget handles the event
         }
     }
