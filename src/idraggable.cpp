@@ -24,10 +24,10 @@ IDraggable::IDraggable(int x, int y, int w, int h, SDL_Color baseColor, SDL_Colo
 }
 
 void IDraggable::changeToBaseColor() noexcept {
-    _color = &_baseColor;
+    _color = std::make_unique<SDL_Color>(_baseColor);
 }
 void IDraggable::changeToHoverColor() noexcept {
-    _color = &_hoverColor;
+    _color = std::make_unique<SDL_Color>(_hoverColor);
 }
 
 void IDraggable::drag(int x, int y) {

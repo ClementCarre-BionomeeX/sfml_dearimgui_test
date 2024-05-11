@@ -11,8 +11,8 @@
 
 class Link : public IWidget {
   public:
-    Link(non_owning_ptr<IWidget>   source,
-         non_owning_ptr<IWidget>   target,
+    Link(std::shared_ptr<IWidget>  source,
+         std::shared_ptr<IWidget>  target,
          std::shared_ptr<Relation> relation,
          int                       thickness);
 
@@ -21,18 +21,18 @@ class Link : public IWidget {
     void      update() override;
     SDL_Point anchor() const noexcept override;
 
-    bool isExtremity(non_owning_ptr<IWidget> w) const noexcept;
+    bool isExtremity(std::shared_ptr<IWidget> w) const noexcept;
 
-    bool isSource(non_owning_ptr<IWidget> w) const noexcept;
-    bool isTarget(non_owning_ptr<IWidget> w) const noexcept;
+    bool isSource(std::shared_ptr<IWidget> w) const noexcept;
+    bool isTarget(std::shared_ptr<IWidget> w) const noexcept;
     bool isRelation(std::shared_ptr<Relation> r) const noexcept;
 
     // debug
     Signal<std::string> debug;
 
   private:
-    non_owning_ptr<IWidget> _source;
-    non_owning_ptr<IWidget> _target;
+    std::shared_ptr<IWidget> _source;
+    std::shared_ptr<IWidget> _target;
 
     std::shared_ptr<Relation> _relation;
 

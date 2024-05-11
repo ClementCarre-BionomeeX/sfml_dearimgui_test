@@ -29,9 +29,9 @@ class IDraggable : public IWidget {
     }
 
   protected:
-    SDL_Color* _color;
-    SDL_Color  _baseColor;
-    SDL_Color  _hoverColor;
+    std::unique_ptr<SDL_Color> _color;
+    SDL_Color                  _baseColor;
+    SDL_Color                  _hoverColor;
 
     bool isSelected = false;
     bool isDragging = false;

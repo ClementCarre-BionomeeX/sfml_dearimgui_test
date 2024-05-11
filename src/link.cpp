@@ -4,8 +4,8 @@
 #include <cmath>
 #include <iostream>
 
-Link::Link(non_owning_ptr<IWidget>   source,
-           non_owning_ptr<IWidget>   target,
+Link::Link(std::shared_ptr<IWidget>  source,
+           std::shared_ptr<IWidget>  target,
            std::shared_ptr<Relation> relation,
            int                       thickness)
     : _source(source), _target(target), _relation(relation), _thickness(thickness),
@@ -110,13 +110,13 @@ SDL_Point Link::anchor() const noexcept {
     return {(a.x + b.x) / 2, (a.y + b.y) / 2};
 }
 
-bool Link::isExtremity(non_owning_ptr<IWidget> w) const noexcept {
+bool Link::isExtremity(std::shared_ptr<IWidget> w) const noexcept {
     return (w == _source || w == _target);
 }
-bool Link::isSource(non_owning_ptr<IWidget> w) const noexcept {
+bool Link::isSource(std::shared_ptr<IWidget> w) const noexcept {
     return w == _source;
 }
-bool Link::isTarget(non_owning_ptr<IWidget> w) const noexcept {
+bool Link::isTarget(std::shared_ptr<IWidget> w) const noexcept {
     return w == _target;
 }
 bool Link::isRelation(std::shared_ptr<Relation> r) const noexcept {

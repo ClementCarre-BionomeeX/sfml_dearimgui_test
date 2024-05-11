@@ -11,7 +11,7 @@ Node::Node(int                                           x,
            int                                           h,
            SDL_Color                                     baseColor,
            SDL_Color                                     hoverColor,
-           TTF_Font*                                     font,
+           non_owning_ptr<TTF_Font>                      font,
            std::vector<std::shared_ptr<Relation>> const& relationList)
     : IDraggable{x, y, w, h, baseColor, hoverColor}, radius{2}, topButton(x + margin,
                                                                           y + margin,

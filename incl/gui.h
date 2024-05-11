@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../incl/non_owning_ptr.h"
 #include "../incl/signal.h"
 #include "../incl/textbutton.h"
 #include <SDL2/SDL.h>
@@ -7,7 +8,7 @@
 
 class GUI {
   public:
-    GUI(SDL_Window* window, int w, TTF_Font* font);
+    GUI(non_owning_ptr<SDL_Window> window, int w, non_owning_ptr<TTF_Font> font);
 
     ~GUI() {}
 
@@ -31,10 +32,10 @@ class GUI {
     void     leftUpBackground();
 
   private:
-    SDL_Window* _window;
-    SDL_Rect    rect{0, 0, 0, 0};
-    TextButton  quitButton;
-    TextButton  addNodeButon;
-    TextButton  saveButton;
-    TextButton  loadButton;
+    non_owning_ptr<SDL_Window> _window;
+    SDL_Rect                   rect{0, 0, 0, 0};
+    TextButton                 quitButton;
+    TextButton                 addNodeButon;
+    TextButton                 saveButton;
+    TextButton                 loadButton;
 };

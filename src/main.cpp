@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     // std::vector<Relation> relations{{"Is A", {0, 200, 0, 255}, {50, 250, 50, 255}}};
 
-    Canvas canvas{renderer, font};
+    Canvas canvas{non_owning_ptr<SDL_Renderer>(renderer), non_owning_ptr<TTF_Font>(font)};
 
     // canvas.onNodeLeftUp.connect(
     //     [&](IWidget* widget) { std::cout << "Node Left Up from " << widget << std::endl; });
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
     // canvas.connectNodes(tn1, tn2);
     // canvas.connectNodes(tn3, tn2);
 
-    GUI gui{window, 100, font};
+    GUI gui{non_owning_ptr<SDL_Window>(window), 100, non_owning_ptr<TTF_Font>(font)};
     gui.onQuitClick.connect([&running]() { running = false; });
     gui.onAddNodeClick.connect([&canvas]() { canvas.addNode(200, 50); });
 

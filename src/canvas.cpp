@@ -4,15 +4,17 @@
 #include <memory>
 #include <string>
 
-non_owning_ptr<Node> Canvas::addNode() {
+std::shared_ptr<Node> Canvas::addNode() {
     auto ptr = addNode(50, 50);
     return ptr;
 }
 
-non_owning_ptr<Node> Canvas::addNode(int x, int y) {
+std::shared_ptr<Node> Canvas::addNode(int x, int y) {
 
     auto ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
+
+    // auto temp_shared = std::shared_ptr<Node>(ptr.get());
 
     ptr->onTopButtonClick.connect([&, ptr]() { removeNode(ptr); });
 
@@ -23,12 +25,12 @@ non_owning_ptr<Node> Canvas::addNode(int x, int y) {
     return ptr;
 }
 
-bool Canvas::removeNode(non_owning_ptr<Node> node) {
+bool Canvas::removeNode(std::shared_ptr<Node> node) {
     // first, remove all links that have this node as source or target
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
         if (link->isExtremity(node)) {
-            removeWidget(non_owning_ptr<IWidget>(link));
+            removeWidget(link);
         }
     }
     // then remove the node
@@ -36,15 +38,15 @@ bool Canvas::removeNode(non_owning_ptr<Node> node) {
     return res;
 }
 
-bool Canvas::connectNodes(non_owning_ptr<Node>      source,
-                          non_owning_ptr<Node>      target,
+bool Canvas::connectNodes(std::shared_ptr<Node>     source,
+                          std::shared_ptr<Node>     target,
                           std::shared_ptr<Relation> relation) {
     addWidget<Link>(source, target, relation, 5);
     return false;
 }
 
-bool Canvas::disconnectNodes(non_owning_ptr<Node>      source,
-                             non_owning_ptr<Node>      target,
+bool Canvas::disconnectNodes(std::shared_ptr<Node>     source,
+                             std::shared_ptr<Node>     target,
                              std::shared_ptr<Relation> relation) {
     bool found = false;
     auto links = find_all_by_type<Link>();
@@ -131,6 +133,8 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
         adjustedHeight       // Height adjusted by zoom factor
     };
 
+    SDL_Rect baseviewport = {0, 0, windowWidth, windowHeight};
+
     SDL_RenderSetScale((SDL_Renderer*)renderer, zoomFactor, zoomFactor);
     SDL_RenderSetViewport((SDL_Renderer*)renderer, &viewportRect);
 
@@ -150,14 +154,17 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
     if (mp_link) {
         mp_link->render(renderer);
     }
+
+    SDL_RenderSetScale((SDL_Renderer*)renderer, 1, 1);
+    SDL_RenderSetViewport((SDL_Renderer*)renderer, &baseviewport);
 }
 
 SDL_Point Canvas::anchor() const noexcept {
     return {0, 0};
 }
 
-bool Canvas::isConnected(non_owning_ptr<IWidget> source,
-                         non_owning_ptr<IWidget> target) const noexcept {
+bool Canvas::isConnected(std::shared_ptr<IWidget> source,
+                         std::shared_ptr<IWidget> target) const noexcept {
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
         if (link->isSource(source) && link->isTarget(target)) {
@@ -167,7 +174,7 @@ bool Canvas::isConnected(non_owning_ptr<IWidget> source,
     return false;
 }
 
-void Canvas::upLeftNode(non_owning_ptr<Node> node) {
+void Canvas::upLeftNode(std::shared_ptr<Node> node) {
     // if mp_start != node, we add a link
     if (mp_start && mp_start != node) {
         if (!disconnectNodes(mp_start, node, mp_relation)) {
@@ -179,7 +186,7 @@ void Canvas::upLeftNode(non_owning_ptr<Node> node) {
     onNodeLeftUp.emit(node);
 }
 
-void Canvas::downLeftNode(non_owning_ptr<Node> node) {
+void Canvas::downLeftNode(std::shared_ptr<Node> node) {
     onNodeLeftDown.emit(node);
 }
 
@@ -193,25 +200,27 @@ void Canvas::backgroundLeftDown(int x, int y) {
     onBackgroundLeftDown.emit(x, y);
 }
 
-void Canvas::downConnectNode(non_owning_ptr<Node> node, std::shared_ptr<Relation> relation) {
+void Canvas::downConnectNode(std::shared_ptr<Node> node, std::shared_ptr<Relation> relation) {
     // create a mouse_position widget
     auto rel = std::make_shared<Relation>(
         "", SDL_Color{0, 0, 0, 255}, SDL_Color{0, 0, 0, 255}, true, true);
     mp_start    = node;
-    mp          = std::make_unique<MousePosition>();
-    mp_link     = std::make_unique<Link>(node, non_owning_ptr<MousePosition>(mp), rel, 5);
+    mp          = std::make_shared<MousePosition>();
+    mp_link     = std::make_unique<Link>(node, mp, rel, 5);
     mp_relation = relation;
     onNodeConnectDown.emit(node);
-    // mp_link->debug.connect([&](std::string str) { std::cout << str << std::endl; });
 }
 
 void Canvas::removeAnyMousePosition() {
     mp_link.release();
-    mp.release();
+
+    if (mp) {
+        mp.reset();
+    }
     if (mp_relation) {
         mp_relation = nullptr;
     }
     if (mp_start) {
-        mp_start.clear();
+        mp_start.reset();
     }
 }

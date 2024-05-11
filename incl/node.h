@@ -21,7 +21,7 @@ class Node : public IDraggable {
          int                                           h,
          SDL_Color                                     baseColor,
          SDL_Color                                     hoverColor,
-         TTF_Font*                                     font,
+         non_owning_ptr<TTF_Font>                      font,
          std::vector<std::shared_ptr<Relation>> const& relationList);
 
     void render(non_owning_ptr<SDL_Renderer> renderer) override;

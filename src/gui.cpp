@@ -1,6 +1,6 @@
 #include "../incl/gui.h"
 
-GUI::GUI(SDL_Window* window, int w, TTF_Font* font)
+GUI::GUI(non_owning_ptr<SDL_Window> window, int w, non_owning_ptr<TTF_Font> font)
     : _window(window), rect{0, 0, w, 0},
       quitButton{10, 10, w - 20, 30, {200, 0, 0, 255}, {250, 50, 50, 255}, 2, "Quit", font},
       addNodeButon{10, 50, w - 20, 30, {200, 200, 200, 255}, {220, 220, 220, 255}, 2, "Add", font},
@@ -54,7 +54,7 @@ bool GUI::handleEvent(SDL_Event& event) {
 
 void GUI::update() {
     // get the window size
-    SDL_GetWindowSize(_window, nullptr, &rect.h);
+    SDL_GetWindowSize((SDL_Window*)_window, nullptr, &rect.h);
 }
 
 void GUI::clickQuit() {

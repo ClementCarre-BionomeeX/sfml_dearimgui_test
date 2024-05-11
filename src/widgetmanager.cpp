@@ -27,13 +27,15 @@ void WidgetManager::renderWidgets() {
     }
 }
 
-bool WidgetManager::removeWidget(non_owning_ptr<IWidget> element) {
+bool WidgetManager::removeWidget(std::shared_ptr<IWidget> element) {
     // find the first reference to element
     auto to_remove = std::find_if(
-        widgets.rbegin(), widgets.rend(), [element](auto const& w) { return element == w.get(); });
+        widgets.rbegin(), widgets.rend(), [element](auto const& w) { return element == w; });
     if (to_remove != widgets.rend()) {
         std::swap(*to_remove, *(widgets.end() - 1));
         widgets.erase(widgets.end() - 1);
+        element.reset();
+        return true;
     }
     return false;
 }
