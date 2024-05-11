@@ -227,8 +227,7 @@ void Canvas::backgroundLeftDown(int x, int y) {
 void Canvas::downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation) {
     // create a mouse_position widget
     mp_start = node;
-    // mp       = std::make_shared<MousePosition>();
-    mp_link = std::make_unique<Link>(
+    mp_link  = std::make_unique<Link>(
         node, std::weak_ptr<MousePosition>(mp), std::weak_ptr<Relation>(mouse_pos_relation), 5);
     mp_relation = relation;
 
