@@ -89,18 +89,13 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
         }
 
         // Clamp the zoom factor to prevent excessive zooming
-        zoomFactor = std::max(0.1f, std::min(zoomFactor, 1.0f));
+        zoomFactor = std::max(0.1f, std::min(zoomFactor, 2.0f));
 
         // Get mouse position in window coordinates
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
 
         float zoomRatio = zoomFactor / oldZoomFactor;
-
-        std::cout << "Mouse position:" << std::endl;
-        std::cout << "  " << mouseX << ", " << mouseY << std::endl;
-        std::cout << "zoomRatio:" << std::endl;
-        std::cout << "  " << zoomRatio << std::endl;
 
         auto allwidgets = find_all_by_type<IWidget>();
         for (auto widget : allwidgets) {
