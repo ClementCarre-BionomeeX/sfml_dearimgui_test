@@ -78,45 +78,48 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
 
     switch (event.type) {
     case SDL_MOUSEWHEEL: {
+        float zoomSpeedFactor = 1.1f;    // Adjust zoom factor speed
+        float oldZoomFactor   = zoomFactor;
 
-        float zoomBaseIncrement = 0.05f;
-        float oldZoomFactor     = zoomFactor;
-        // Zoom in or out
-        // Adjust zoom speed here
-        float zoomIncrement = 0;
-        if (event.wheel.y > 0) {                   // Upward motion
-            zoomIncrement = zoomBaseIncrement;     // Positive increment for zooming in
-        } else {                                   // Downward motion
-            zoomIncrement = -zoomBaseIncrement;    // Negative increment for zooming out
+        // Apply zoom factor change based on mouse wheel direction
+        if (event.wheel.y > 0) {    // Zoom in
+            zoomFactor *= zoomSpeedFactor;
+        } else {    // Zoom out
+            zoomFactor /= zoomSpeedFactor;
         }
 
-        zoomFactor += zoomIncrement;
-        zoomFactor = std::max(0.1f, std::min(zoomFactor, 10.0f));    // Constrain zoom factor
+        // Clamp the zoom factor to prevent excessive zooming
+        zoomFactor = std::max(0.1f, std::min(zoomFactor, 1.0f));
 
         // Get mouse position in window coordinates
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
 
-        // Calculate the ratio of the new zoom relative to the old zoom
         float zoomRatio = zoomFactor / oldZoomFactor;
 
-        // Window dimensions
-        int windowWidth, windowHeight;
-        SDL_GetRendererOutputSize((SDL_Renderer*)_renderer, &windowWidth, &windowHeight);
-
-        // Calculate the normalized mouse coordinates (from 0 to 1)
-        float normX = (float)mouseX / (float)windowWidth;
-        float normY = (float)mouseY / (float)windowHeight;
+        std::cout << "Mouse position:" << std::endl;
+        std::cout << "  " << mouseX << ", " << mouseY << std::endl;
+        std::cout << "zoomRatio:" << std::endl;
+        std::cout << "  " << zoomRatio << std::endl;
 
         auto allwidgets = find_all_by_type<IWidget>();
         for (auto widget : allwidgets) {
             if (auto lockedwidget = widget.lock()) {
                 auto pos = lockedwidget->position();
-                // Calculate the new widget position, centered around the mouse
-                int newPosX = (int)((float)pos.x * zoomRatio + (float)mouseX -
-                                    normX * (float)windowWidth * zoomRatio);
-                int newPosY = (int)((float)pos.y * zoomRatio + (float)mouseY -
-                                    normY * (float)windowHeight * zoomRatio);
+
+                // Calculate the relative distance from each widget to the mouse cursor before
+                // zooming
+                int relPosX = pos.x - mouseX;
+                int relPosY = pos.y - mouseY;
+
+                // Apply the zoom ratio to the relative positions
+                int scaledRelPosX = (int)((float)relPosX * zoomRatio);
+                int scaledRelPosY = (int)((float)relPosY * zoomRatio);
+
+                // Set the new position of each widget to keep the relative distance the same
+                int newPosX = mouseX + scaledRelPosX;
+                int newPosY = mouseY + scaledRelPosY;
+
                 lockedwidget->moveTo(newPosX, newPosY);
             }
         }
@@ -154,8 +157,7 @@ void Canvas::update() {
 }
 
 void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
-    int windowWidth, windowHeight;
-    SDL_GetRendererOutputSize((SDL_Renderer*)renderer, &windowWidth, &windowHeight);
+
     SDL_RenderSetScale((SDL_Renderer*)renderer, zoomFactor, zoomFactor);
 
     // TODO have two separate lists for Links and Nodes
@@ -178,7 +180,7 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
         mp_link->render(renderer);
     }
 
-    SDL_RenderSetScale((SDL_Renderer*)renderer, 1, 1);
+    SDL_RenderSetScale((SDL_Renderer*)renderer, 1.0f, 1.0f);
 }
 
 SDL_Point Canvas::anchor() const noexcept {

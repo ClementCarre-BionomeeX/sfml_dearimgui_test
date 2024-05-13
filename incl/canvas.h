@@ -13,8 +13,8 @@ class Canvas : public IWidget, public WidgetManager {
 
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
-        : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f),
-          mp{std::make_shared<MousePosition>()},
+        : IWidget(), WidgetManager(renderer), _font(font), vec(),
+          zoomFactor(1.0f), mp{std::make_shared<MousePosition>()},
           mouse_pos_relation{std::make_shared<Relation>("",
                                                         SDL_Color{0, 0, 0, 255},
                                                         SDL_Color{0, 0, 0, 255},
