@@ -5,7 +5,6 @@
 #include "../incl/node.h"
 #include "../incl/textbox.h"
 #include "../incl/widgetmanager.h"
-// #include "../nativefiledialog/src/include/nfd.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cctype>
@@ -43,29 +42,7 @@ int main(int argc, char* argv[]) {
     bool      running = true;
     SDL_StartTextInput();
 
-    // std::vector<Relation> relations{{"Is A", {0, 200, 0, 255}, {50, 250, 50, 255}}};
-
     Canvas canvas{non_owning_ptr<SDL_Renderer>(renderer), non_owning_ptr<TTF_Font>(font)};
-
-    // canvas.onNodeLeftUp.connect(
-    //     [&](IWidget* widget) { std::cout << "Node Left Up from " << widget << std::endl; });
-    // canvas.onNodeConnectDown.connect([&](IWidget* widget) {
-    //     std::cout << "Node Left Down for connection from " << widget << std::endl;
-    // });
-
-    // canvas.onBackgroundLeftUp.connect([&](int x, int y) {
-    //     std::cout << "Background Left Up at (" << x << "x" << y << ")" << std::endl;
-    // });
-    // canvas.onBackgroundLeftDown.connect([&](int x, int y) {
-    //     std::cout << "Background Left Down (" << x << "x" << y << ")" << std::endl;
-    // });
-
-    // auto* tn1 = canvas.addNode(300, 50);
-    // auto* tn2 = canvas.addNode(450, 50);
-    // auto* tn3 = canvas.addNode(300, 300);
-
-    // canvas.connectNodes(tn1, tn2);
-    // canvas.connectNodes(tn3, tn2);
 
     GUI gui{non_owning_ptr<SDL_Window>(window), 100, non_owning_ptr<TTF_Font>(font)};
     gui.onQuitClick.connect([&running]() { running = false; });
