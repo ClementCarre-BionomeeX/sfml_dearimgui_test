@@ -40,18 +40,12 @@ bool Canvas::connectNodes(std::weak_ptr<Node>     source,
 bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
                              std::weak_ptr<Node>     target,
                              std::weak_ptr<Relation> relation) {
-    bool found = false;
-    auto links = find_all_by_type<Link>();
-    for (auto link : links) {
-        if (auto lockedlink = link.lock()) {
-            if (lockedlink->isSource(source) && lockedlink->isTarget(target) &&
-                lockedlink->isRelation(relation)) {
-                removeWidget(link);
-                found = true;
-            }
-        }
+    auto link = findConnection(source, target, relation);
+    if (link) {
+        removeWidget(link.value());
+        return true;
     }
-    return found;
+    return false;
 }
 
 bool Canvas::handleEvent(SDL_Event& event, float) {
@@ -78,45 +72,43 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
 
     switch (event.type) {
     case SDL_MOUSEWHEEL: {
+        float zoomSpeedFactor = 1.1f;    // Adjust zoom factor speed
+        float oldZoomFactor   = zoomFactor;
 
-        float zoomBaseIncrement = 0.05f;
-        float oldZoomFactor     = zoomFactor;
-        // Zoom in or out
-        // Adjust zoom speed here
-        float zoomIncrement = 0;
-        if (event.wheel.y > 0) {                   // Upward motion
-            zoomIncrement = zoomBaseIncrement;     // Positive increment for zooming in
-        } else {                                   // Downward motion
-            zoomIncrement = -zoomBaseIncrement;    // Negative increment for zooming out
+        // Apply zoom factor change based on mouse wheel direction
+        if (event.wheel.y > 0) {    // Zoom in
+            zoomFactor *= zoomSpeedFactor;
+        } else {    // Zoom out
+            zoomFactor /= zoomSpeedFactor;
         }
 
-        zoomFactor += zoomIncrement;
-        zoomFactor = std::max(0.1f, std::min(zoomFactor, 10.0f));    // Constrain zoom factor
+        // Clamp the zoom factor to prevent excessive zooming
+        zoomFactor = std::max(0.1f, std::min(zoomFactor, 2.0f));
 
         // Get mouse position in window coordinates
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
 
-        // Calculate the ratio of the new zoom relative to the old zoom
         float zoomRatio = zoomFactor / oldZoomFactor;
-
-        // Window dimensions
-        int windowWidth, windowHeight;
-        SDL_GetRendererOutputSize((SDL_Renderer*)_renderer, &windowWidth, &windowHeight);
-
-        // Calculate the normalized mouse coordinates (from 0 to 1)
-        float normX = (float)mouseX / (float)windowWidth;
-        float normY = (float)mouseY / (float)windowHeight;
 
         auto allwidgets = find_all_by_type<IWidget>();
         for (auto widget : allwidgets) {
             if (auto lockedwidget = widget.lock()) {
                 auto pos = lockedwidget->position();
-                // Calculate the new widget position, centered around the mouse
-                int newPosX = (int)((float)pos.x * zoomRatio + (float)mouseX -
-                                    normX * (float)windowWidth * zoomRatio);
-                int newPosY = (int)((float)pos.y * zoomRatio + (float)mouseY -
-                                    normY * (float)windowHeight * zoomRatio);
+
+                // Calculate the relative distance from each widget to the mouse cursor before
+                // zooming
+                int relPosX = pos.x - mouseX;
+                int relPosY = pos.y - mouseY;
+
+                // Apply the zoom ratio to the relative positions
+                int scaledRelPosX = (int)((float)relPosX * zoomRatio);
+                int scaledRelPosY = (int)((float)relPosY * zoomRatio);
+
+                // Set the new position of each widget to keep the relative distance the same
+                int newPosX = mouseX + scaledRelPosX;
+                int newPosY = mouseY + scaledRelPosY;
+
                 lockedwidget->moveTo(newPosX, newPosY);
             }
         }
@@ -154,8 +146,7 @@ void Canvas::update() {
 }
 
 void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
-    int windowWidth, windowHeight;
-    SDL_GetRendererOutputSize((SDL_Renderer*)renderer, &windowWidth, &windowHeight);
+
     SDL_RenderSetScale((SDL_Renderer*)renderer, zoomFactor, zoomFactor);
 
     // TODO have two separate lists for Links and Nodes
@@ -178,31 +169,47 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
         mp_link->render(renderer);
     }
 
-    SDL_RenderSetScale((SDL_Renderer*)renderer, 1, 1);
+    SDL_RenderSetScale((SDL_Renderer*)renderer, 1.0f, 1.0f);
 }
 
 SDL_Point Canvas::anchor() const noexcept {
     return {0, 0};
 }
 
-bool Canvas::isConnected(std::shared_ptr<IWidget> source,
-                         std::shared_ptr<IWidget> target) const noexcept {
+std::optional<std::weak_ptr<Link>>
+Canvas::findConnection(std::weak_ptr<IWidget>  source,
+                       std::weak_ptr<IWidget>  target,
+                       std::weak_ptr<Relation> relation) const noexcept {
     auto links = find_all_by_type<Link>();
-    for (auto link : links) {
-        if (auto lockedlink = link.lock()) {
-            if (lockedlink->isSource(source) && lockedlink->isTarget(target)) {
-                return true;
+    // if relation is not directed, source or target make no sens (lol)
+    if (relation.lock()->directed()) {
+        for (auto link : links) {
+            if (auto lockedlink = link.lock()) {
+                if (lockedlink->isRelation(relation) && lockedlink->isSource(source) &&
+                    lockedlink->isTarget(target)) {
+                    return link;
+                }
+            }
+        }
+    } else {
+        for (auto link : links) {
+            if (auto lockedlink = link.lock()) {
+                if (lockedlink->isRelation(relation) &&
+                    ((lockedlink->isSource(source) && lockedlink->isTarget(target)) ||
+                     (lockedlink->isSource(target) && lockedlink->isTarget(source)))) {
+                    return link;
+                }
             }
         }
     }
-    return false;
+    return {};
 }
 
 void Canvas::upLeftNode(std::weak_ptr<Node> node) {
     // if mp_start != node, we add a link
     if (mp_start.lock() && mp_start.lock() != node.lock()) {
-        if (!disconnectNodes(mp_start, node, mp_relation.lock())) {
-            connectNodes(mp_start, node, mp_relation.lock());
+        if (!disconnectNodes(mp_start, node, mp_relation)) {
+            connectNodes(mp_start, node, mp_relation);
         }
     }
     // remove any active mouse_position if any

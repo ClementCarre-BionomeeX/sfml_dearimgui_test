@@ -7,14 +7,15 @@
 #include "../incl/signal.h"
 #include "../incl/widgetmanager.h"
 #include <SDL2/SDL.h>
+#include <optional>
 #include <string>
 
 class Canvas : public IWidget, public WidgetManager {
 
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
-        : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f),
-          mp{std::make_shared<MousePosition>()},
+        : IWidget(), WidgetManager(renderer), _font(font), vec(),
+          zoomFactor(1.0f), mp{std::make_shared<MousePosition>()},
           mouse_pos_relation{std::make_shared<Relation>("",
                                                         SDL_Color{0, 0, 0, 255},
                                                         SDL_Color{0, 0, 0, 255},
@@ -58,8 +59,10 @@ class Canvas : public IWidget, public WidgetManager {
     void backgroundLeftDown(int x, int y);
     void downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation);
 
-    bool isConnected(std::shared_ptr<IWidget> source,
-                     std::shared_ptr<IWidget> target) const noexcept;
+    std::optional<std::weak_ptr<Link>>
+    findConnection(std::weak_ptr<IWidget>  source,
+                   std::weak_ptr<IWidget>  target,
+                   std::weak_ptr<Relation> relation) const noexcept;
 
     ~Canvas() {
         onNodeLeftUp.disconnect_all();
