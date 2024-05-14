@@ -7,6 +7,7 @@
 #include "../incl/signal.h"
 #include "../incl/widgetmanager.h"
 #include <SDL2/SDL.h>
+#include <optional>
 #include <string>
 
 class Canvas : public IWidget, public WidgetManager {
@@ -61,8 +62,10 @@ class Canvas : public IWidget, public WidgetManager {
     Signal<std::weak_ptr<Node>> onNodeConnectDown;
     void downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation);
 
-    bool isConnected(std::shared_ptr<IWidget> source,
-                     std::shared_ptr<IWidget> target) const noexcept;
+    std::optional<std::weak_ptr<Link>>
+    findConnection(std::weak_ptr<IWidget>  source,
+                   std::weak_ptr<IWidget>  target,
+                   std::weak_ptr<Relation> relation) const noexcept;
 
     ~Canvas() {
         vec.clear();        // Explicitly clear the vector of shared pointers

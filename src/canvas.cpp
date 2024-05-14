@@ -40,18 +40,12 @@ bool Canvas::connectNodes(std::weak_ptr<Node>     source,
 bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
                              std::weak_ptr<Node>     target,
                              std::weak_ptr<Relation> relation) {
-    bool found = false;
-    auto links = find_all_by_type<Link>();
-    for (auto link : links) {
-        if (auto lockedlink = link.lock()) {
-            if (lockedlink->isSource(source) && lockedlink->isTarget(target) &&
-                lockedlink->isRelation(relation)) {
-                removeWidget(link);
-                found = true;
-            }
-        }
+    auto link = findConnection(source, target, relation);
+    if (link) {
+        removeWidget(link.value());
+        return true;
     }
-    return found;
+    return false;
 }
 
 bool Canvas::handleEvent(SDL_Event& event, float) {
@@ -182,24 +176,40 @@ SDL_Point Canvas::anchor() const noexcept {
     return {0, 0};
 }
 
-bool Canvas::isConnected(std::shared_ptr<IWidget> source,
-                         std::shared_ptr<IWidget> target) const noexcept {
+std::optional<std::weak_ptr<Link>>
+Canvas::findConnection(std::weak_ptr<IWidget>  source,
+                       std::weak_ptr<IWidget>  target,
+                       std::weak_ptr<Relation> relation) const noexcept {
     auto links = find_all_by_type<Link>();
-    for (auto link : links) {
-        if (auto lockedlink = link.lock()) {
-            if (lockedlink->isSource(source) && lockedlink->isTarget(target)) {
-                return true;
+    // if relation is not directed, source or target make no sens (lol)
+    if (relation.lock()->directed()) {
+        for (auto link : links) {
+            if (auto lockedlink = link.lock()) {
+                if (lockedlink->isRelation(relation) && lockedlink->isSource(source) &&
+                    lockedlink->isTarget(target)) {
+                    return link;
+                }
+            }
+        }
+    } else {
+        for (auto link : links) {
+            if (auto lockedlink = link.lock()) {
+                if (lockedlink->isRelation(relation) &&
+                    ((lockedlink->isSource(source) && lockedlink->isTarget(target)) ||
+                     (lockedlink->isSource(target) && lockedlink->isTarget(source)))) {
+                    return link;
+                }
             }
         }
     }
-    return false;
+    return {};
 }
 
 void Canvas::upLeftNode(std::weak_ptr<Node> node) {
     // if mp_start != node, we add a link
     if (mp_start.lock() && mp_start.lock() != node.lock()) {
-        if (!disconnectNodes(mp_start, node, mp_relation.lock())) {
-            connectNodes(mp_start, node, mp_relation.lock());
+        if (!disconnectNodes(mp_start, node, mp_relation)) {
+            connectNodes(mp_start, node, mp_relation);
         }
     }
     // remove any active mouse_position if any
