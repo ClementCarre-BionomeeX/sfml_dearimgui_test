@@ -8,10 +8,24 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
     auto ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
 
-    ptr.lock()->onTopButtonClick.connect([ptr, this]() { removeNode(ptr); });
-    ptr.lock()->onGlobalMouseLeftUp.connect([ptr, this]() { upLeftNode(ptr); });
-    ptr.lock()->onConnectMouseLeftDown.connect(
-        [ptr, this](std::weak_ptr<Relation> relation) { downConnectNode(ptr, relation); });
+    if (auto node = ptr.lock()) {
+        node->onTopButtonClick.connect([ptr, this]() {
+            if (auto sharedPtr = ptr.lock()) {
+                removeNode(sharedPtr);
+            }
+        });
+        node->onGlobalMouseLeftUp.connect([ptr, this]() {
+            if (auto sharedPtr = ptr.lock()) {
+                upLeftNode(sharedPtr);
+            }
+        });
+        node->onConnectMouseLeftDown.connect([ptr, this](std::weak_ptr<Relation> relation) {
+            if (auto sharedPtr = ptr.lock()) {
+                downConnectNode(sharedPtr, relation);
+            }
+        });
+    }
+
     return ptr;
 }
 

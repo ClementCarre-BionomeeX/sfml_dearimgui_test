@@ -48,43 +48,41 @@ template <typename T, typename... Args>
 inline std::weak_ptr<T> WidgetManager::addDraggableWidget(Args&&... args) {
     auto ptr = addWidget<T>(std::forward<Args>(args)...);
 
-    if (!ptr.lock()) {
-        std::cout << "Failed to create widget." << std::endl;
-        return {};    // Early exit if widget creation failed
+    if (auto draggable = ptr.lock()) {
+
+        draggable->onHover.connect([ptr]() {
+            if (auto sharedPtr = ptr.lock()) {
+                sharedPtr->changeToHoverColor();
+            }
+        });
+
+        draggable->onHoverLost.connect([ptr]() {
+            if (auto sharedPtr = ptr.lock()) {
+                sharedPtr->changeToBaseColor();
+            }
+        });
+
+        draggable->onMouseLeftDown.connect([this, ptr](int x, int y) {
+            if (auto sharedPtr = ptr.lock()) {
+                selection   = ptr;
+                auto [a, b] = sharedPtr->position();
+                startx      = x - a;
+                starty      = y - b;
+            }
+        });
+
+        draggable->onMouseLeftUp.connect([this](int, int) {
+            if (auto lockedSelection = selection.lock()) {
+                lockedSelection.reset();
+            }
+        });
+
+        draggable->onDragging.connect([this](int x, int y) {
+            if (auto lockedSelection = selection.lock()) {
+                lockedSelection->moveTo(x - startx, y - starty);
+            }
+        });
     }
-
-    ptr.lock()->onHover.connect([ptr]() {
-        if (auto sharedPtr = ptr.lock()) {
-            sharedPtr->changeToHoverColor();
-        }
-    });
-
-    ptr.lock()->onHoverLost.connect([ptr]() {
-        if (auto sharedPtr = ptr.lock()) {
-            sharedPtr->changeToBaseColor();
-        }
-    });
-
-    ptr.lock()->onMouseLeftDown.connect([this, ptr](int x, int y) {
-        if (auto sharedPtr = ptr.lock()) {
-            selection   = ptr;
-            auto [a, b] = sharedPtr->position();
-            startx      = x - a;
-            starty      = y - b;
-        }
-    });
-
-    ptr.lock()->onMouseLeftUp.connect([this](int, int) {
-        if (auto lockedSelection = selection.lock()) {
-            lockedSelection.reset();
-        }
-    });
-
-    ptr.lock()->onDragging.connect([this](int x, int y) {
-        if (auto lockedSelection = selection.lock()) {
-            lockedSelection->moveTo(x - startx, y - starty);
-        }
-    });
 
     return ptr;
 }
