@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
                                           SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    TTF_Font* font = TTF_OpenFont("data/FiraCode-Medium.ttf", 12);
+    TTF_Font* font = TTF_OpenFont("data/FiraCode-Medium.ttf", 24);
     if (!font) {
         SDL_Log("[ERROR] Failed to load font: %s", TTF_GetError());
         return -1;
