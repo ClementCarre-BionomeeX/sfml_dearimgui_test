@@ -14,8 +14,8 @@ class Canvas : public IWidget, public WidgetManager {
 
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
-        : IWidget(), WidgetManager(renderer), _font(font), vec(),
-          zoomFactor(1.0f), mp{std::make_shared<MousePosition>()},
+        : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f),
+          mp{std::make_shared<MousePosition>()},
           mouse_pos_relation{std::make_shared<Relation>("",
                                                         SDL_Color{0, 0, 0, 255},
                                                         SDL_Color{0, 0, 0, 255},
@@ -64,12 +64,18 @@ class Canvas : public IWidget, public WidgetManager {
                    std::weak_ptr<IWidget>  target,
                    std::weak_ptr<Relation> relation) const noexcept;
 
-    ~Canvas() {
+    void disconnectAllSignals() noexcept {
         onNodeLeftUp.disconnect_all();
         onNodeLeftDown.disconnect_all();
         onBackgroundLeftUp.disconnect_all();
         onBackgroundLeftDown.disconnect_all();
         onNodeConnectDown.disconnect_all();
+    }
+
+    ~Canvas() {
+
+        disconnectAllSignals();
+
         vec.clear();        // Explicitly clear the vector of shared pointers
         mp_link.reset();    // Ensure unique_ptr resources are released if applicable
         removeAnyMousePosition();

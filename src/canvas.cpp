@@ -11,6 +11,7 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
     if (auto node = ptr.lock()) {
         node->onTopButtonClick.connect([ptr, this]() {
             if (auto sharedPtr = ptr.lock()) {
+                sharedPtr->disconnectAllSignals();
                 removeNode(sharedPtr);
             }
         });

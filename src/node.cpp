@@ -59,6 +59,10 @@ Node::Node(int                                           x,
 }
 
 Node::~Node() {
+    disconnectAllSignals();
+}
+
+void Node::disconnectAllSignals() noexcept {
     topButton.onClick.disconnect_all();
     nameTextBox.onTextChanged.disconnect_all();
     onMouseLeftUp.disconnect_all();

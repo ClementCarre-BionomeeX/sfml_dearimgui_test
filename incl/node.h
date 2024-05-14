@@ -42,6 +42,8 @@ class Node : public IDraggable {
     Signal<std::weak_ptr<Relation>> onConnectMouseLeftDown;
     void                            connectMouseLeftDown(std::weak_ptr<Relation> relation);
 
+    void disconnectAllSignals() noexcept;
+
   private:
     int radius;
     int margin        = 5;
