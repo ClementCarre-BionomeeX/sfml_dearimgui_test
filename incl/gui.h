@@ -10,26 +10,32 @@ class GUI {
   public:
     GUI(non_owning_ptr<SDL_Window> window, int w, non_owning_ptr<TTF_Font> font);
 
-    ~GUI() {}
+    ~GUI() {
+        onQuitClick.disconnect_all();
+        onAddNodeClick.disconnect_all();
+        onSaveClick.disconnect_all();
+        onLoadClick.disconnect_all();
+        onBackgroundInteraction.disconnect_all();
+        onBackgroundLeftUp.disconnect_all();
+    }
 
     void render(non_owning_ptr<SDL_Renderer> renderer);
     bool handleEvent(SDL_Event& event, float zoomfactor);
     void update();
 
     Signal<> onQuitClick;
-    void     clickQuit();
     Signal<> onAddNodeClick;
-    void     clickAddNode();
     Signal<> onSaveClick;
-    void     clickSave();
     Signal<> onLoadClick;
-    void     clickLoad();
-
     Signal<> onBackgroundInteraction;
-    void     interactBackground();
-
     Signal<> onBackgroundLeftUp;
-    void     leftUpBackground();
+
+    void clickQuit();
+    void clickAddNode();
+    void clickSave();
+    void clickLoad();
+    void interactBackground();
+    void leftUpBackground();
 
   private:
     non_owning_ptr<SDL_Window> _window;

@@ -13,6 +13,8 @@ class TextBox : public IWidget {
   public:
     TextBox(int x, int y, SDL_Color color, non_owning_ptr<TTF_Font> font, int minimumTextWidth);
 
+    ~TextBox() { onTextChanged.disconnect_all(); }
+
     void render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool handleEvent(SDL_Event& event, float zoomfactor) override;
     void update() override;

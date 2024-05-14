@@ -47,24 +47,26 @@ class Canvas : public IWidget, public WidgetManager {
     SDL_Point anchor() const noexcept override;
 
     Signal<std::weak_ptr<Node>> onNodeLeftUp;
-    void                        upLeftNode(std::weak_ptr<Node> node);
-
     Signal<std::weak_ptr<Node>> onNodeLeftDown;
-    void                        downLeftNode(std::weak_ptr<Node> node);
-
-    Signal<int, int> onBackgroundLeftUp;
-    void             backgroundLeftUp(int x, int y);
-
-    Signal<int, int> onBackgroundLeftDown;
-    void             backgroundLeftDown(int x, int y);
-
+    Signal<int, int>            onBackgroundLeftUp;
+    Signal<int, int>            onBackgroundLeftDown;
     Signal<std::weak_ptr<Node>> onNodeConnectDown;
+
+    void upLeftNode(std::weak_ptr<Node> node);
+    void downLeftNode(std::weak_ptr<Node> node);
+    void backgroundLeftUp(int x, int y);
+    void backgroundLeftDown(int x, int y);
     void downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation);
 
     bool isConnected(std::shared_ptr<IWidget> source,
                      std::shared_ptr<IWidget> target) const noexcept;
 
     ~Canvas() {
+        onNodeLeftUp.disconnect_all();
+        onNodeLeftDown.disconnect_all();
+        onBackgroundLeftUp.disconnect_all();
+        onBackgroundLeftDown.disconnect_all();
+        onNodeConnectDown.disconnect_all();
         vec.clear();        // Explicitly clear the vector of shared pointers
         mp_link.reset();    // Ensure unique_ptr resources are released if applicable
         removeAnyMousePosition();

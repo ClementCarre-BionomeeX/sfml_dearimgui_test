@@ -14,7 +14,14 @@ class IWidget {
     IWidget() : rect{0, 0, 0, 0} {}
     IWidget(int x, int y, int w, int h) : rect{x, y, w, h} {}
 
-    virtual ~IWidget() = default;
+    virtual ~IWidget() {
+        onHover.disconnect_all();
+        onHoverLost.disconnect_all();
+        onMouseLeftDown.disconnect_all();
+        onMouseLeftUp.disconnect_all();
+        onMouseRightDown.disconnect_all();
+        onMouseRightUp.disconnect_all();
+    };
 
     virtual bool handleEvent(SDL_Event& event, float zoomfactor) {
         bool handled = false;

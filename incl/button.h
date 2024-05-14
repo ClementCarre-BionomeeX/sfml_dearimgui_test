@@ -21,7 +21,7 @@ class Button : public IWidget {
     inline void changeToHoverColor() noexcept;
 
   protected:
-    ~Button() {}
+    ~Button() { onClick.disconnect_all(); }
 
   private:
     std::unique_ptr<SDL_Color> _color;         // Button color

@@ -16,6 +16,8 @@ class Link : public IWidget {
          std::weak_ptr<Relation> relation,
          int                     thickness);
 
+    ~Link() { debug.disconnect_all(); }
+
     void      render(non_owning_ptr<SDL_Renderer> renderer) override;
     bool      handleEvent(SDL_Event& event, float zoomfactor) override;
     void      update() override;

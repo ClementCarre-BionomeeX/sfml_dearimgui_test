@@ -8,7 +8,7 @@ class IDraggable : public IWidget {
   public:
     IDraggable(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor);
 
-    virtual ~IDraggable() = default;
+    virtual ~IDraggable() { onDragging.disconnect_all(); };
 
     // dragging signals
     Signal<int, int> onDragging;
