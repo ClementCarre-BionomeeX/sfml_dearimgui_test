@@ -36,13 +36,14 @@ bool Canvas::removeNode(std::weak_ptr<Node> node) {
     for (auto link : links) {
         if (auto lockedlink = link.lock()) {
             if (lockedlink->isExtremity(node)) {
-                removeWidget(link);
+                // mark the link to be removed
+                widgetToRemove.push_back(link);
             }
         }
     }
-    // then remove the node
-    auto res = removeWidget(node);
-    return res;
+    // then mark the node to be removed
+    widgetToRemove.push_back(node);
+    return true;
 }
 
 bool Canvas::connectNodes(std::weak_ptr<Node>     source,
@@ -57,7 +58,8 @@ bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
                              std::weak_ptr<Relation> relation) {
     auto link = findConnection(source, target, relation);
     if (link) {
-        removeWidget(link.value());
+        // removeWidget(link.value());
+        widgetToRemove.push_back(link.value());
         return true;
     }
     return false;
@@ -151,6 +153,14 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
 }
 
 void Canvas::update() {
+
+    // first, remove all nodes that need to be removed
+    // be sur not to emit any signals before this !
+    for (auto const& widget : widgetToRemove) {
+        removeWidget(widget);
+    }
+    widgetToRemove.clear();
+
     updateWidgets();
     if (mp_link) {
         if (mp) {    // update only if necessary

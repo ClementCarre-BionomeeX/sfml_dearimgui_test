@@ -1,8 +1,10 @@
 #include "../incl/button.h"
 #include "../incl/canvas.h"
+#include "../incl/filedialog.h"
 #include "../incl/gui.h"
 #include "../incl/link.h"
 #include "../incl/node.h"
+#include "../incl/relation.h"
 #include "../incl/textbox.h"
 #include "../incl/widgetmanager.h"
 #include <SDL2/SDL.h>
@@ -14,9 +16,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "../incl/filedialog.h"
-#include "../incl/relation.h"
 
 // MARK: main
 int main(int argc, char* argv[]) {
