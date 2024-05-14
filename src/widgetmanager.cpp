@@ -28,14 +28,16 @@ void WidgetManager::renderWidgets() {
 }
 
 bool WidgetManager::removeWidget(std::weak_ptr<IWidget> element) {
+    //? starting from the end because it's most likely ??
     // find the first reference to element
     auto to_remove = std::find_if(
         widgets.rbegin(), widgets.rend(), [element](auto const& w) { return element.lock() == w; });
+
     if (to_remove != widgets.rend()) {
         std::swap(*to_remove, *(widgets.end() - 1));
         widgets.erase(widgets.end() - 1);
-        element.reset();
         return true;
     }
+
     return false;
 }

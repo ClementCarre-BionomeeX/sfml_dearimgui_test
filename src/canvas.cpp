@@ -8,10 +8,25 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
     auto ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
 
-    ptr.lock()->onTopButtonClick.connect([ptr, this]() { removeNode(ptr); });
-    ptr.lock()->onGlobalMouseLeftUp.connect([ptr, this]() { upLeftNode(ptr); });
-    ptr.lock()->onConnectMouseLeftDown.connect(
-        [ptr, this](std::weak_ptr<Relation> relation) { downConnectNode(ptr, relation); });
+    if (auto node = ptr.lock()) {
+        node->onTopButtonClick.connect([ptr, this]() {
+            if (auto sharedPtr = ptr.lock()) {
+                sharedPtr->disconnectAllSignals();
+                removeNode(sharedPtr);
+            }
+        });
+        node->onGlobalMouseLeftUp.connect([ptr, this]() {
+            if (auto sharedPtr = ptr.lock()) {
+                upLeftNode(sharedPtr);
+            }
+        });
+        node->onConnectMouseLeftDown.connect([ptr, this](std::weak_ptr<Relation> relation) {
+            if (auto sharedPtr = ptr.lock()) {
+                downConnectNode(sharedPtr, relation);
+            }
+        });
+    }
+
     return ptr;
 }
 
@@ -21,13 +36,14 @@ bool Canvas::removeNode(std::weak_ptr<Node> node) {
     for (auto link : links) {
         if (auto lockedlink = link.lock()) {
             if (lockedlink->isExtremity(node)) {
-                removeWidget(link);
+                // mark the link to be removed
+                widgetToRemove.push_back(link);
             }
         }
     }
-    // then remove the node
-    auto res = removeWidget(node);
-    return res;
+    // then mark the node to be removed
+    widgetToRemove.push_back(node);
+    return true;
 }
 
 bool Canvas::connectNodes(std::weak_ptr<Node>     source,
@@ -42,7 +58,8 @@ bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
                              std::weak_ptr<Relation> relation) {
     auto link = findConnection(source, target, relation);
     if (link) {
-        removeWidget(link.value());
+        // removeWidget(link.value());
+        widgetToRemove.push_back(link.value());
         return true;
     }
     return false;
@@ -136,6 +153,14 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
 }
 
 void Canvas::update() {
+
+    // first, remove all nodes that need to be removed
+    // be sur not to emit any signals before this !
+    for (auto const& widget : widgetToRemove) {
+        removeWidget(widget);
+    }
+    widgetToRemove.clear();
+
     updateWidgets();
     if (mp_link) {
         if (mp) {    // update only if necessary
