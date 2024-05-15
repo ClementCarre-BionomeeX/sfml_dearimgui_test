@@ -276,3 +276,20 @@ void Canvas::removeAnyMousePosition() {
         mp_start.reset();
     }
 }
+
+void Canvas::disconnectAllSignals() noexcept {
+    onNodeLeftUp.disconnect_all();
+    onNodeLeftDown.disconnect_all();
+    onBackgroundLeftUp.disconnect_all();
+    onBackgroundLeftDown.disconnect_all();
+    onNodeConnectDown.disconnect_all();
+}
+
+Canvas::~Canvas() {
+
+    disconnectAllSignals();
+
+    vec.clear();        // Explicitly clear the vector of shared pointers
+    mp_link.reset();    // Ensure unique_ptr resources are released if applicable
+    removeAnyMousePosition();
+}

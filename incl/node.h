@@ -53,6 +53,4 @@ class Node : public IDraggable {
     TextBox    nameTextBox;
 
     std::vector<std::unique_ptr<TextButton>> addConnectionButtonList;
-
-    // std::vector<std::shared_ptr<Relation>> _relationList;
 };

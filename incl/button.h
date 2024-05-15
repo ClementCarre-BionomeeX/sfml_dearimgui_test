@@ -20,8 +20,7 @@ class Button : public IWidget {
     inline void changeToBaseColor() noexcept;
     inline void changeToHoverColor() noexcept;
 
-  protected:
-    ~Button() { onClick.disconnect_all(); }
+    ~Button();
 
   private:
     std::unique_ptr<SDL_Color> _color;         // Button color

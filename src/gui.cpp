@@ -75,3 +75,12 @@ void GUI::interactBackground() {
 void GUI::leftUpBackground() {
     onBackgroundLeftUp.emit();
 }
+
+GUI::~GUI() {
+    onQuitClick.disconnect_all();
+    onAddNodeClick.disconnect_all();
+    onSaveClick.disconnect_all();
+    onLoadClick.disconnect_all();
+    onBackgroundInteraction.disconnect_all();
+    onBackgroundLeftUp.disconnect_all();
+}

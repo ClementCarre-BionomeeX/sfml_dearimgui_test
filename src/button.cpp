@@ -55,3 +55,7 @@ inline void Button::changeToBaseColor() noexcept {
 inline void Button::changeToHoverColor() noexcept {
     _color = std::make_unique<SDL_Color>(_hoverColor);
 }
+
+Button::~Button() {
+    onClick.disconnect_all();
+}
