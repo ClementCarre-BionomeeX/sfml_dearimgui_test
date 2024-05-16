@@ -55,8 +55,8 @@ class IWidget {
         return handled;
     }
 
-    virtual void update()                                      = 0;
-    virtual void render(non_owning_ptr<SDL_Renderer> renderer) = 0;
+    virtual void update()                                                        = 0;
+    virtual void render(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) = 0;
 
     virtual SDL_Point anchor() const noexcept { return {rect.x + rect.w / 2, rect.y + rect.h / 2}; }
 

@@ -25,22 +25,43 @@ Button::Button(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverC
 }
 
 // MARK: render
-void Button::render(non_owning_ptr<SDL_Renderer> renderer) {
+void Button::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
 
+    // Scale the button's position and size by the zoomFactor
+    SDL_Rect zoomedRect = {
+        //
+        static_cast<int>((float)rect.x * zoomFactor),    //
+        static_cast<int>((float)rect.y * zoomFactor),    //
+        static_cast<int>((float)rect.w * zoomFactor),    //
+        static_cast<int>((float)rect.h * zoomFactor)     //
+    };
+    int zoomedRadius = static_cast<int>((float)radius * zoomFactor);
+
     // Middle part (adjust the rect to not overwrite the corners)
-    SDL_Rect middleRect = {rect.x + radius, rect.y, rect.w - 2 * radius, rect.h};
+    SDL_Rect middleRect = {
+        zoomedRect.x + zoomedRadius, zoomedRect.y, zoomedRect.w - 2 * zoomedRadius, zoomedRect.h};
     SDL_RenderFillRect((SDL_Renderer*)renderer, &middleRect);
 
     // Top and bottom strips (to fill the gaps in the rounded corners)
-    SDL_Rect topRect = {rect.x, rect.y + radius, rect.w, rect.h - 2 * radius};
+    SDL_Rect topRect = {
+        zoomedRect.x, zoomedRect.y + zoomedRadius, zoomedRect.w, zoomedRect.h - 2 * zoomedRadius};
     SDL_RenderFillRect((SDL_Renderer*)renderer, &topRect);
 
     // Four corners: top-left, top-right, bottom-left, bottom-right
-    fillCircle(renderer, rect.x + radius, rect.y + radius, radius);
-    fillCircle(renderer, rect.x + rect.w - radius - 1, rect.y + radius, radius);
-    fillCircle(renderer, rect.x + radius, rect.y + rect.h - radius - 1, radius);
-    fillCircle(renderer, rect.x + rect.w - radius - 1, rect.y + rect.h - radius - 1, radius);
+    fillCircle(renderer, zoomedRect.x + zoomedRadius, zoomedRect.y + zoomedRadius, zoomedRadius);
+    fillCircle(renderer,
+               zoomedRect.x + zoomedRect.w - zoomedRadius - 1,
+               zoomedRect.y + zoomedRadius,
+               zoomedRadius);
+    fillCircle(renderer,
+               zoomedRect.x + zoomedRadius,
+               zoomedRect.y + zoomedRect.h - zoomedRadius - 1,
+               zoomedRadius);
+    fillCircle(renderer,
+               zoomedRect.x + zoomedRect.w - zoomedRadius - 1,
+               zoomedRect.y + zoomedRect.h - zoomedRadius - 1,
+               zoomedRadius);
 }
 
 void Button::update() {}

@@ -74,28 +74,50 @@ void Node::disconnectAllSignals() noexcept {
     }
 }
 
-void Node::render(non_owning_ptr<SDL_Renderer> renderer) {
+void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
+    // Scale the node's position and size by the zoomFactor
+    SDL_Rect zoomedRect = {
+        //
+        static_cast<int>((float)rect.x * zoomFactor),    //
+        static_cast<int>((float)rect.y * zoomFactor),    //
+        static_cast<int>((float)rect.w * zoomFactor),    //
+        static_cast<int>((float)rect.h * zoomFactor)     //
+    };
+
+    int zoomedRadius = static_cast<int>((float)radius * zoomFactor);
+
     if (isSelected) {
         SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 215, 0, 255);
-        roundCornerRectangle(renderer, rect, radius);
+        roundCornerRectangle(renderer, zoomedRect, zoomedRadius);
 
-        int border = 2;
-        // draw the background
+        int border = static_cast<int>(2 * zoomFactor);
+        // Draw the background
         SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
-        roundCornerRectangle(
-            renderer,
-            {rect.x + border, rect.y + border, rect.w - 2 * border, rect.h - 2 * border},
-            radius);
+        roundCornerRectangle(renderer,
+                             {zoomedRect.x + border,
+                              zoomedRect.y + border,
+                              zoomedRect.w - 2 * border,
+                              zoomedRect.h - 2 * border},
+                             zoomedRadius);
     } else {
         SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
-        roundCornerRectangle(renderer, rect, radius);
+        roundCornerRectangle(renderer, zoomedRect, zoomedRadius);
     }
 
-    topButton.render(renderer);
-    nameTextBox.render(renderer);
+    topButton.moveTo(rect.x + margin, rect.y + margin);
+    nameTextBox.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
+
+    SDL_Rect ntb_rect = nameTextBox.getRect();
+
+    int i = 0;
     for (auto& connectionButton : addConnectionButtonList) {
-        connectionButton->render(renderer);
+        connectionButton->moveTo(
+            rect.x + margin, rect.y + 3 * margin + topButtonSize + ntb_rect.h + i * (margin + 30));
+        connectionButton->render(renderer, zoomFactor);
+        i++;
     }
+    topButton.render(renderer, zoomFactor);
+    nameTextBox.render(renderer, zoomFactor);
 }
 
 bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
@@ -116,17 +138,7 @@ bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
 }
 
 void Node::update() {
-    topButton.moveTo(rect.x + margin, rect.y + margin);
-    nameTextBox.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
-    SDL_Rect ntb_rect = nameTextBox.getRect();
-
-    int i = 0;
-    for (auto& connectionButton : addConnectionButtonList) {
-        connectionButton->moveTo(
-            rect.x + margin, rect.y + 3 * margin + topButtonSize + ntb_rect.h + i * (margin + 30));
-        i++;
-    }
-    rect.h = 3 * margin + topButtonSize + ntb_rect.h +
+    rect.h = 3 * margin + topButtonSize + nameTextBox.getRect().h +
              (int)addConnectionButtonList.size() * (30 + margin);
 }
 

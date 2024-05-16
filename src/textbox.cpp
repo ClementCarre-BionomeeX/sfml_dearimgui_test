@@ -33,26 +33,55 @@ TextBox::prepareTextTexture(non_owning_ptr<SDL_Renderer> renderer) {
     return {textWidth, non_owning_ptr<SDL_Texture>(texture)};
 }
 
-// MARK: renderBackground
-void TextBox::renderBackground(non_owning_ptr<SDL_Renderer> renderer) {
-    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 255, 255, 255);    // White background
-    SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
-    SDL_SetRenderDrawColor(
-        (SDL_Renderer*)renderer, 255, 0, isSelected ? 255 : 0, 255);    // Border color
-    SDL_RenderDrawRect((SDL_Renderer*)renderer, &rect);
+void TextBox::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
+    auto [w, texture] = prepareTextTexture(renderer);
+
+    // Scale the position and size of the textbox for background rendering
+    renderBackground(renderer, zoomFactor);
+
+    // Render the text using the zoom factor
+    renderText(renderer, w, texture, zoomFactor);
+
+    // Draw the cursor if the textbox is selected and the cursor is visible
+    if (isSelected && cursorVisible) {
+        drawCursor(renderer, zoomFactor);
+    }
 }
 
-// MARK: renderText
+void TextBox::renderBackground(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
+    // Scale the background rect
+    SDL_Rect zoomedRect = {
+        //
+        static_cast<int>((float)rect.x * zoomFactor),    //
+        static_cast<int>((float)rect.y * zoomFactor),    //
+        static_cast<int>((float)rect.w * zoomFactor),    //
+        static_cast<int>((float)rect.h * zoomFactor)     //
+    };
+
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 255, 255, 255);    // White background
+    SDL_RenderFillRect((SDL_Renderer*)renderer, &zoomedRect);
+    SDL_SetRenderDrawColor(
+        (SDL_Renderer*)renderer, 255, 0, isSelected ? 255 : 0, 255);    // Border color
+    SDL_RenderDrawRect((SDL_Renderer*)renderer, &zoomedRect);
+}
+
 void TextBox::renderText(non_owning_ptr<SDL_Renderer> renderer,
                          int                          w,
-                         non_owning_ptr<SDL_Texture>  texture) {
-    // Clipping width to ensure text does not overflow
-    int displayWidth =
-        std::min(w - textOffset, rect.w - 10);    // Assuming 5 pixels padding on each side
+                         non_owning_ptr<SDL_Texture>  texture,
+                         float                        zoomFactor) {
+    // Scale the position and size of the text rect
+    int zoomedTextOffset = static_cast<int>((float)textOffset * zoomFactor);
+    int zoomedRectW      = static_cast<int>((float)rect.w * zoomFactor);
+    int zoomedRectH      = static_cast<int>((float)rect.h * zoomFactor);
+
+    int displayWidth = std::min(w - zoomedTextOffset,
+                                zoomedRectW - 10);    // Assuming 5 pixels padding on each side
     if (displayWidth > 0) {
-        SDL_Rect srcRect  = {textOffset, 0, displayWidth, rect.h};
-        SDL_Rect destRect = {
-            rect.x + 5, rect.y, displayWidth, rect.h};    // Adjusted rect for text display
+        SDL_Rect srcRect  = {zoomedTextOffset, 0, displayWidth, zoomedRectH};
+        SDL_Rect destRect = {static_cast<int>((float)(rect.x + 5) * zoomFactor),
+                             static_cast<int>((float)rect.y * zoomFactor),
+                             displayWidth,
+                             zoomedRectH};    // Adjusted rect for text display
         SDL_RenderCopy((SDL_Renderer*)renderer, (SDL_Texture*)texture, &srcRect, &destRect);
     }
     if (texture) {
@@ -60,37 +89,43 @@ void TextBox::renderText(non_owning_ptr<SDL_Renderer> renderer,
     }
 }
 
-// MARK: render
-void TextBox::render(non_owning_ptr<SDL_Renderer> renderer) {
-    auto [w, texture] = prepareTextTexture(renderer);
-    renderBackground(renderer);
-    renderText(renderer, w, texture);
-    if (isSelected && cursorVisible) {
-        drawCursor(renderer);
-    }
-}
-
-// MARK: drawCursor
-void TextBox::drawCursor(non_owning_ptr<SDL_Renderer> renderer) const {
-    int cursorX = rect.x + 5;    // Start cursor at the beginning of the box with padding
+void TextBox::drawCursor(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) const {
+    // Calculate the position and size of the cursor based on zoom factor
+    int cursorX =
+        static_cast<int>((float)(rect.x + 5) *
+                         zoomFactor);    // Start cursor at the beginning of the box with padding
+    int zoomedRectY = static_cast<int>((float)rect.y * zoomFactor);
+    int zoomedRectH = static_cast<int>((float)rect.h * zoomFactor);
 
     if (cursorPosition > 0 && cursorPosition <= text.length()) {
         std::string  textBeforeCursor = text.substr(0, cursorPosition);
         SDL_Surface* surface =
             TTF_RenderText_Solid((TTF_Font*)_font, textBeforeCursor.c_str(), _color);
-        cursorX += surface->w - textOffset;    // Adjust cursor position by textOffset
+        cursorX += static_cast<int>((float)(surface->w - textOffset) *
+                                    zoomFactor);    // Adjust cursor position by textOffset
         SDL_FreeSurface(surface);
     }
 
-    if (cursorX < rect.x + 5) {    // Ensure cursor does not go out of box on the left
-        cursorX = rect.x + 5;
+    int zoomedRectX = static_cast<int>((float)rect.x * zoomFactor);
+    int zoomedRectW = static_cast<int>((float)rect.w * zoomFactor);
+
+    if (cursorX <
+        zoomedRectX + static_cast<int>(
+                          5 * zoomFactor)) {    // Ensure cursor does not go out of box on the left
+        cursorX = zoomedRectX + static_cast<int>(5 * zoomFactor);
     } else if (cursorX >
-               rect.x + rect.w - 5) {    // Ensure cursor does not go out of box on the right
-        cursorX = rect.x + rect.w - 5;
+               zoomedRectX + zoomedRectW -
+                   static_cast<int>(
+                       5 * zoomFactor)) {    // Ensure cursor does not go out of box on the right
+        cursorX = zoomedRectX + zoomedRectW - static_cast<int>(5 * zoomFactor);
     }
 
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 0, 0, 0, 255);    // Black cursor
-    SDL_RenderDrawLine((SDL_Renderer*)renderer, cursorX, rect.y + 2, cursorX, rect.y + rect.h - 4);
+    SDL_RenderDrawLine((SDL_Renderer*)renderer,
+                       cursorX,
+                       zoomedRectY + static_cast<int>(2 * zoomFactor),
+                       cursorX,
+                       zoomedRectY + zoomedRectH - static_cast<int>(4 * zoomFactor));
 }
 
 // MARK: update

@@ -6,7 +6,6 @@
 #include "../incl/node.h"
 #include "../incl/relation.h"
 #include "../incl/signal.h"
-#include "../incl/viewport.h"
 #include "../incl/widgetmanager.h"
 #include <SDL2/SDL.h>
 #include <optional>
@@ -46,7 +45,7 @@ class Canvas : public IWidget, public WidgetManager {
 
     bool      handleEvent(SDL_Event& event, float zoomfactor) override;
     void      update() override;
-    void      render(non_owning_ptr<SDL_Renderer> renderer) override;
+    void      render(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) override;
     SDL_Point anchor() const noexcept override;
 
     Signal<std::weak_ptr<Node>> onNodeLeftUp;
