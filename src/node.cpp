@@ -24,11 +24,19 @@ Node::Node(int                                           x,
                                                                           font),
       nameTextBox(x + margin,
                   y + margin * 2 + topButtonSize,
-                  {0, 0, 0, 255},
-                  font,
-                  w - 2 * margin) {
+                  w - 2 * margin,
+                  30,
+                  "Yo !",
+                  SDL_Color{0, 0, 0, 255},
+                  (TTF_Font*)font)    //
+//   nameTextBox(x + margin,
+//               y + margin * 2 + topButtonSize,
+//               {0, 0, 0, 255},
+//               font,
+//               w - 2 * margin)    //
+{
     topButton.onClick.connect([&]() { topButtonClick(); });
-    nameTextBox.onTextChanged.connect([&](std::string str) { changeName(str); });
+    // nameTextBox.onTextChanged.connect([&](std::string str) { changeName(str); });
 
     // connect all left up and all left down to global
     onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
@@ -64,7 +72,7 @@ Node::~Node() {
 
 void Node::disconnectAllSignals() noexcept {
     topButton.onClick.disconnect_all();
-    nameTextBox.onTextChanged.disconnect_all();
+    // nameTextBox.onTextChanged.disconnect_all();
     onMouseLeftUp.disconnect_all();
     topButton.onMouseLeftUp.disconnect_all();
     nameTextBox.onMouseLeftUp.disconnect_all();

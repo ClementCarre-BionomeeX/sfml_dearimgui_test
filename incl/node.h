@@ -2,6 +2,7 @@
 
 #include "../incl/button.h"
 #include "../incl/idraggable.h"
+#include "../incl/label.h"
 #include "../incl/relation.h"
 #include "../incl/signal.h"
 #include "../incl/textbox.h"
@@ -50,7 +51,8 @@ class Node : public IDraggable {
     int topButtonSize = 20;
 
     TextButton topButton;
-    TextBox    nameTextBox;
+    // TextBox    nameTextBox;
+    Label nameTextBox;
 
     std::vector<std::unique_ptr<TextButton>> addConnectionButtonList;
 };
