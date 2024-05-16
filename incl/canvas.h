@@ -66,6 +66,7 @@ class Canvas : public IWidget, public WidgetManager {
                    std::weak_ptr<Relation> relation) const noexcept;
 
     void disconnectAllSignals() noexcept;
+    void moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFactor);
 
     ~Canvas();
 

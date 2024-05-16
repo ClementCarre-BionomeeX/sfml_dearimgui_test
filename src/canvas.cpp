@@ -5,6 +5,11 @@
 #include <string>
 
 std::weak_ptr<Node> Canvas::addNode(int x, int y) {
+
+    // change value to world position
+    x = (int)((float)x / zoomFactor);
+    y = (int)((float)y / zoomFactor);
+
     auto ptr = addDraggableWidget<Node>(
         x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
 
@@ -92,38 +97,41 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
         float zoomSpeedFactor = 1.1f;    // Adjust zoom factor speed
         float oldZoomFactor   = zoomFactor;
 
-        // Apply zoom factor change based on mouse wheel direction
-        if (event.wheel.y > 0) {    // Zoom in
-            zoomFactor *= zoomSpeedFactor;
-        } else {    // Zoom out
-            zoomFactor /= zoomSpeedFactor;
-        }
+        SDL_Keymod keyMod = SDL_GetModState();
 
-        // Clamp the zoom factor to prevent excessive zooming
-        zoomFactor = std::max(0.1f, std::min(zoomFactor, 2.0f));
+        if (keyMod & KMOD_ALT) {
+            // Special behavior when Alt key is pressed
+            if (event.wheel.y < 0) {    // Zoom in
+                if (zoomFactor > 1.0f) {
+                    zoomFactor = 1.0f;    // If zoomFactor > 1, set to 1
+                } else {
+                    zoomFactor = 0.1f;    // If zoomFactor <= 1, set to minimum (0.1)
+                }
+            } else {    // Zoom out
+                if (zoomFactor < 1.0f) {
+                    zoomFactor = 1.0f;    // If zoomFactor < 1, set to 1
+                } else {
+                    zoomFactor = 2.0f;    // If zoomFactor >= 1, set to maximum (2.0)
+                }
+            }
+        } else {
+            // Apply zoom factor change based on mouse wheel direction
+            if (event.wheel.y > 0) {    // Zoom in
+                zoomFactor *= zoomSpeedFactor;
+            } else {    // Zoom out
+                zoomFactor /= zoomSpeedFactor;
+            }
+
+            // Clamp the zoom factor to prevent excessive zooming
+            zoomFactor = std::max(0.1f, std::min(zoomFactor, 2.0f));
+        }
 
         // Get mouse position in window coordinates
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
 
-        auto allwidgets = find_all_by_type<IWidget>();
-        for (auto widget : allwidgets) {
-            if (auto lockedwidget = widget.lock()) {
-
-                auto worldPos = lockedwidget->position();
-
-                int oldWorldMouseX = (int)((float)mouseX / oldZoomFactor);
-                int oldWorldMouseY = (int)((float)mouseY / oldZoomFactor);
-
-                int relWorldPosX = worldPos.x - oldWorldMouseX;
-                int relWorldPosY = worldPos.y - oldWorldMouseY;
-
-                int newWorldPosX = relWorldPosX + (int)((float)mouseX / zoomFactor);
-                int newWorldPosY = relWorldPosY + (int)((float)mouseY / zoomFactor);
-
-                lockedwidget->moveTo(newWorldPosX, newWorldPosY);
-            }
-        }
+        moveWidgetsAround({mouseX, mouseY}, oldZoomFactor);
+        handled = true;
 
         break;
     }
@@ -139,12 +147,47 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
                     lockedwidget->push(worldMouseX, worldMouseY);
                 }
             }
+            handled = true;
+        }
+        break;
+    }
+    case SDL_KEYDOWN: {
+        if (event.key.keysym.sym == SDLK_r) {
+            float oldZoomFactor = zoomFactor;
+            // Reset the zoom factor to 1
+            zoomFactor = 1.0f;
+
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+
+            moveWidgetsAround({mouseX, mouseY}, oldZoomFactor);
+            handled = true;
         }
         break;
     }
     }
 
     return handled;
+}
+
+void Canvas::moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFactor) {
+    auto allwidgets = find_all_by_type<IWidget>();
+    for (auto widget : allwidgets) {
+        if (auto lockedwidget = widget.lock()) {
+
+            auto worldPos = lockedwidget->position();
+
+            int oldWorldTargetX = (int)((float)screenPositionTarget.x / oldZoomFactor);
+            int oldWorldTargetY = (int)((float)screenPositionTarget.y / oldZoomFactor);
+            int relWorldPosX    = worldPos.x - oldWorldTargetX;
+            int relWorldPosY    = worldPos.y - oldWorldTargetY;
+
+            int newWorldPosX = relWorldPosX + (int)((float)screenPositionTarget.x / zoomFactor);
+            int newWorldPosY = relWorldPosY + (int)((float)screenPositionTarget.y / zoomFactor);
+
+            lockedwidget->moveTo(newWorldPosX, newWorldPosY);
+        }
+    }
 }
 
 void Canvas::update() {
