@@ -26,7 +26,7 @@ class Node : public IDraggable {
 
     ~Node();
 
-    void render(non_owning_ptr<SDL_Renderer> renderer) override;
+    void render(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) override;
     bool handleEvent(SDL_Event& event, float zoomfactor) override;
     void update() override;
 
@@ -53,6 +53,4 @@ class Node : public IDraggable {
     TextBox    nameTextBox;
 
     std::vector<std::unique_ptr<TextButton>> addConnectionButtonList;
-
-    // std::vector<std::shared_ptr<Relation>> _relationList;
 };

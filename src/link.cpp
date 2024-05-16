@@ -11,33 +11,46 @@ Link::Link(std::weak_ptr<IWidget>  source,
     : _source(source), _target(target), _relation(relation), _thickness(thickness),
       isHovered(false) {}
 
-void Link::render(non_owning_ptr<SDL_Renderer> renderer) {
+void Link::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
 
     auto locked_relation = _relation.lock();
 
-    auto color = isHovered ? locked_relation->baseColor() : locked_relation->hoverColor();
+    auto color = isHovered ? locked_relation->hoverColor() : locked_relation->baseColor();
 
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);
-    drawThickLine(renderer, a.x, a.y, b.x, b.y, _thickness, color);
-    fillCircle(renderer, a.x, a.y, _thickness / 2);
-    fillCircle(renderer, b.x, b.y, _thickness / 2);
+
+    // Scale positions and thickness by zoomFactor
+    int zoomedAX        = static_cast<int>((float)a.x * zoomFactor);
+    int zoomedAY        = static_cast<int>((float)a.y * zoomFactor);
+    int zoomedBX        = static_cast<int>((float)b.x * zoomFactor);
+    int zoomedBY        = static_cast<int>((float)b.y * zoomFactor);
+    int zoomedThickness = std::max(static_cast<int>((float)_thickness * zoomFactor), 1);
+
+    drawThickLine(renderer, zoomedAX, zoomedAY, zoomedBX, zoomedBY, zoomedThickness, color);
+    fillCircle(renderer, zoomedAX, zoomedAY, zoomedThickness / 2);
+    fillCircle(renderer, zoomedBX, zoomedBY, zoomedThickness / 2);
+
     if (locked_relation->directed()) {
-        draw_indicator(renderer, color);
+        draw_indicator(renderer, color, zoomFactor);
     }
 }
 
 void Link::draw_indicator(non_owning_ptr<SDL_Renderer> renderer,
-                          SDL_Color const&             color) const noexcept {
-    int arrow_length = 20;
-    int arrow_width  = 7;
+                          SDL_Color const&             color,
+                          float                        zoomFactor) const noexcept {
+    int arrow_length = static_cast<int>(20.f * zoomFactor);
+    int arrow_width  = static_cast<int>(7.f * zoomFactor);
 
     int    dx    = b.x - a.x;
     int    dy    = b.y - a.y;
     double angle = atan2(dy, dx);
 
+    SDL_Point zoomed_b = {static_cast<int>((float)b.x * zoomFactor),
+                          static_cast<int>((float)b.y * zoomFactor)};
+
     SDL_Point start_point = {
-        int(b.x - arrow_length * cos(angle)),
-        int(b.y - arrow_length * sin(angle)),
+        int(zoomed_b.x - arrow_length * cos(angle)),
+        int(zoomed_b.y - arrow_length * sin(angle)),
     };
 
     SDL_Point left_point = {
@@ -48,8 +61,21 @@ void Link::draw_indicator(non_owning_ptr<SDL_Renderer> renderer,
         int(start_point.x + arrow_width * cos(angle - 3.141592 / 2)),
         int(start_point.y + arrow_width * sin(angle - 3.141592 / 2)),
     };
-    drawThickLine(renderer, left_point.x, left_point.y, b.x, b.y, _thickness, color);
-    drawThickLine(renderer, b.x, b.y, right_point.x, right_point.y, _thickness, color);
+
+    drawThickLine(renderer,
+                  left_point.x,
+                  left_point.y,
+                  zoomed_b.x,
+                  zoomed_b.y,
+                  static_cast<int>((float)_thickness * zoomFactor),
+                  color);
+    drawThickLine(renderer,
+                  zoomed_b.x,
+                  zoomed_b.y,
+                  right_point.x,
+                  right_point.y,
+                  static_cast<int>((float)_thickness * zoomFactor),
+                  color);
 }
 
 void Link::update() {

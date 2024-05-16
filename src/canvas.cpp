@@ -106,27 +106,22 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
 
-        float zoomRatio = zoomFactor / oldZoomFactor;
-
         auto allwidgets = find_all_by_type<IWidget>();
         for (auto widget : allwidgets) {
             if (auto lockedwidget = widget.lock()) {
-                auto pos = lockedwidget->position();
 
-                // Calculate the relative distance from each widget to the mouse cursor before
-                // zooming
-                int relPosX = pos.x - mouseX;
-                int relPosY = pos.y - mouseY;
+                auto worldPos = lockedwidget->position();
 
-                // Apply the zoom ratio to the relative positions
-                int scaledRelPosX = (int)((float)relPosX * zoomRatio);
-                int scaledRelPosY = (int)((float)relPosY * zoomRatio);
+                int oldWorldMouseX = (int)((float)mouseX / oldZoomFactor);
+                int oldWorldMouseY = (int)((float)mouseY / oldZoomFactor);
 
-                // Set the new position of each widget to keep the relative distance the same
-                int newPosX = mouseX + scaledRelPosX;
-                int newPosY = mouseY + scaledRelPosY;
+                int relWorldPosX = worldPos.x - oldWorldMouseX;
+                int relWorldPosY = worldPos.y - oldWorldMouseY;
 
-                lockedwidget->moveTo(newPosX, newPosY);
+                int newWorldPosX = relWorldPosX + (int)((float)mouseX / zoomFactor);
+                int newWorldPosY = relWorldPosY + (int)((float)mouseY / zoomFactor);
+
+                lockedwidget->moveTo(newWorldPosX, newWorldPosY);
             }
         }
 
@@ -135,13 +130,13 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
     case SDL_MOUSEMOTION: {
         if (event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {    // Pan with middle mouse
 
-            int adjustedXRel = (int)(static_cast<float>(event.motion.xrel) / zoomFactor);
-            int adjustedYRel = (int)(static_cast<float>(event.motion.yrel) / zoomFactor);
+            int worldMouseX = (int)((float)event.motion.xrel / zoomFactor);
+            int worldMouseY = (int)((float)event.motion.yrel / zoomFactor);
 
             auto allwidgets = find_all_by_type<IWidget>();
             for (auto widget : allwidgets) {
                 if (auto lockedwidget = widget.lock()) {
-                    lockedwidget->push(adjustedXRel, adjustedYRel);
+                    lockedwidget->push(worldMouseX, worldMouseY);
                 }
             }
         }
@@ -170,31 +165,27 @@ void Canvas::update() {
     }
 }
 
-void Canvas::render(non_owning_ptr<SDL_Renderer> renderer) {
-
-    SDL_RenderSetScale((SDL_Renderer*)renderer, zoomFactor, zoomFactor);
+void Canvas::render(non_owning_ptr<SDL_Renderer> renderer, float) {
 
     // TODO have two separate lists for Links and Nodes
     // first all links
     auto links = find_all_by_type<Link>();
     for (auto link : links) {
         if (auto lockedlink = link.lock()) {
-            lockedlink->render(renderer);
+            lockedlink->render(renderer, zoomFactor);
         }
     }
     // then all nodes
     auto nodes = find_all_by_type<Node>();
     for (auto node : nodes) {
         if (auto lockednode = node.lock()) {
-            lockednode->render(renderer);
+            lockednode->render(renderer, zoomFactor);
         }
     }
 
     if (mp_link) {
-        mp_link->render(renderer);
+        mp_link->render(renderer, zoomFactor);
     }
-
-    SDL_RenderSetScale((SDL_Renderer*)renderer, 1.0f, 1.0f);
 }
 
 SDL_Point Canvas::anchor() const noexcept {
@@ -275,4 +266,21 @@ void Canvas::removeAnyMousePosition() {
     if (mp_start.lock()) {
         mp_start.reset();
     }
+}
+
+void Canvas::disconnectAllSignals() noexcept {
+    onNodeLeftUp.disconnect_all();
+    onNodeLeftDown.disconnect_all();
+    onBackgroundLeftUp.disconnect_all();
+    onBackgroundLeftDown.disconnect_all();
+    onNodeConnectDown.disconnect_all();
+}
+
+Canvas::~Canvas() {
+
+    disconnectAllSignals();
+
+    vec.clear();        // Explicitly clear the vector of shared pointers
+    mp_link.reset();    // Ensure unique_ptr resources are released if applicable
+    removeAnyMousePosition();
 }

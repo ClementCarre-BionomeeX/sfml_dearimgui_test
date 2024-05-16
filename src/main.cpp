@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
         SDL_RenderClear(renderer);
         // then render widgets
-        canvas.render(non_owning_ptr<SDL_Renderer>(renderer));
+        canvas.render(non_owning_ptr<SDL_Renderer>(renderer), 1.f);
         // render GUI last
         gui.render(non_owning_ptr<SDL_Renderer>(renderer));
 

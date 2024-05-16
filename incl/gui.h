@@ -10,14 +10,7 @@ class GUI {
   public:
     GUI(non_owning_ptr<SDL_Window> window, int w, non_owning_ptr<TTF_Font> font);
 
-    ~GUI() {
-        onQuitClick.disconnect_all();
-        onAddNodeClick.disconnect_all();
-        onSaveClick.disconnect_all();
-        onLoadClick.disconnect_all();
-        onBackgroundInteraction.disconnect_all();
-        onBackgroundLeftUp.disconnect_all();
-    }
+    ~GUI();
 
     void render(non_owning_ptr<SDL_Renderer> renderer);
     bool handleEvent(SDL_Event& event, float zoomfactor);

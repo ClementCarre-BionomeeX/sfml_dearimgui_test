@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../incl/iwidget.h"
 #include "../incl/link.h"
 #include "../incl/mouse_position.h"
@@ -44,7 +45,7 @@ class Canvas : public IWidget, public WidgetManager {
 
     bool      handleEvent(SDL_Event& event, float zoomfactor) override;
     void      update() override;
-    void      render(non_owning_ptr<SDL_Renderer> renderer) override;
+    void      render(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) override;
     SDL_Point anchor() const noexcept override;
 
     Signal<std::weak_ptr<Node>> onNodeLeftUp;
@@ -64,33 +65,21 @@ class Canvas : public IWidget, public WidgetManager {
                    std::weak_ptr<IWidget>  target,
                    std::weak_ptr<Relation> relation) const noexcept;
 
-    void disconnectAllSignals() noexcept {
-        onNodeLeftUp.disconnect_all();
-        onNodeLeftDown.disconnect_all();
-        onBackgroundLeftUp.disconnect_all();
-        onBackgroundLeftDown.disconnect_all();
-        onNodeConnectDown.disconnect_all();
-    }
+    void disconnectAllSignals() noexcept;
 
-    ~Canvas() {
-
-        disconnectAllSignals();
-
-        vec.clear();        // Explicitly clear the vector of shared pointers
-        mp_link.reset();    // Ensure unique_ptr resources are released if applicable
-        removeAnyMousePosition();
-    }
+    ~Canvas();
 
   private:
     non_owning_ptr<TTF_Font>               _font;
     std::vector<std::shared_ptr<Relation>> vec;
-    float                                  zoomFactor;    // This will track the zoom level
-    std::shared_ptr<MousePosition>         mp;
-    std::shared_ptr<Relation>              mouse_pos_relation;
 
-    std::weak_ptr<Node>     mp_start;
-    std::unique_ptr<Link>   mp_link;
-    std::weak_ptr<Relation> mp_relation;
+    float zoomFactor;    // This will track the zoom level
+
+    std::shared_ptr<MousePosition> mp;
+    std::shared_ptr<Relation>      mouse_pos_relation;
+    std::weak_ptr<Node>            mp_start;
+    std::unique_ptr<Link>          mp_link;
+    std::weak_ptr<Relation>        mp_relation;
 
     std::vector<std::weak_ptr<IWidget>> widgetToRemove;
 

@@ -56,8 +56,8 @@ class non_owning_ptr {
     bool operator!=(const non_owning_ptr& other) const { return ptr != other.ptr; }
 
     // TODO : temporary while not everyone is non_owning.
-    bool operator==(T* other) const { return ptr == other; }
-    bool operator!=(T* other) const { return ptr != other; }
+    // bool operator==(T* other) const { return ptr == other; }
+    // bool operator!=(T* other) const { return ptr != other; }
 
     // Bool Conversion Operator
     explicit operator bool() const { return ptr != nullptr; }

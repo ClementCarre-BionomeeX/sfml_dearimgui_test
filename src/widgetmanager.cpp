@@ -21,9 +21,9 @@ void WidgetManager::updateWidgets() {
     }
 }
 
-void WidgetManager::renderWidgets() {
+void WidgetManager::renderWidgets(float zoomfactor) {
     for (auto& widget : widgets) {
-        widget->render(_renderer);
+        widget->render(_renderer, zoomfactor);
     }
 }
 

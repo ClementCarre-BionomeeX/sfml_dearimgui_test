@@ -18,10 +18,10 @@ void GUI::render(non_owning_ptr<SDL_Renderer> renderer) {
     SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
 
     // render all buttons
-    quitButton.render(renderer);
-    addNodeButon.render(renderer);
-    saveButton.render(renderer);
-    loadButton.render(renderer);
+    quitButton.render(renderer, 1.f);
+    addNodeButon.render(renderer, 1.f);
+    saveButton.render(renderer, 1.f);
+    loadButton.render(renderer, 1.f);
 }
 
 bool GUI::handleEvent(SDL_Event& event, float zoomfactor) {
@@ -74,4 +74,13 @@ void GUI::interactBackground() {
 }
 void GUI::leftUpBackground() {
     onBackgroundLeftUp.emit();
+}
+
+GUI::~GUI() {
+    onQuitClick.disconnect_all();
+    onAddNodeClick.disconnect_all();
+    onSaveClick.disconnect_all();
+    onLoadClick.disconnect_all();
+    onBackgroundInteraction.disconnect_all();
+    onBackgroundLeftUp.disconnect_all();
 }

@@ -15,7 +15,7 @@ class TextBox : public IWidget {
 
     ~TextBox() { onTextChanged.disconnect_all(); }
 
-    void render(non_owning_ptr<SDL_Renderer> renderer) override;
+    void render(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) override;
     bool handleEvent(SDL_Event& event, float zoomfactor) override;
     void update() override;
 
@@ -23,17 +23,22 @@ class TextBox : public IWidget {
     void                changeText(std::string str);
 
   private:
-    void drawCursor(non_owning_ptr<SDL_Renderer> renderer) const;
     void setCursorByClick(int clickX);
     void deleteWordLeft();
     void deleteWordRight();
     void moveCursorLeftByWord();
     void moveCursorRightByWord();
+
     std::pair<int, non_owning_ptr<SDL_Texture>>
-         prepareTextTexture(non_owning_ptr<SDL_Renderer> renderer);
-    void renderBackground(non_owning_ptr<SDL_Renderer> renderer);
-    void
-    renderText(non_owning_ptr<SDL_Renderer> renderer, int w, non_owning_ptr<SDL_Texture> texture);
+    prepareTextTexture(non_owning_ptr<SDL_Renderer> renderer);
+
+    void renderBackground(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor);
+    void renderText(non_owning_ptr<SDL_Renderer> renderer,
+                    int                          w,
+                    non_owning_ptr<SDL_Texture>  texture,
+                    float                        zoomfactor);
+    void drawCursor(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) const;
+
     void updateTextOffsetOnCursorMove();
 
   private:

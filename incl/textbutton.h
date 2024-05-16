@@ -17,7 +17,7 @@ class TextButton : public Button {
                non_owning_ptr<TTF_Font> font)
         : Button(x, y, w, h, baseColor, hoverColor, rad), _text(text), _font(font) {}
 
-    void render(non_owning_ptr<SDL_Renderer> renderer) override;
+    void render(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) override;
 
   private:
     std::string              _text;

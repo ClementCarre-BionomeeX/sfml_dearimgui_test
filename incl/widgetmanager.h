@@ -19,7 +19,7 @@ class WidgetManager {
 
     bool handleEvents(SDL_Event& event, float zoomfactor);
     void updateWidgets();
-    void renderWidgets();
+    void renderWidgets(float zoomfactor);
 
     bool removeWidget(std::weak_ptr<IWidget> element);
 
