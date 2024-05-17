@@ -3,6 +3,7 @@
 #include "../incl/button.h"
 #include "../incl/idraggable.h"
 #include "../incl/label.h"
+#include "../incl/modalvaluechanger.h"
 #include "../incl/relation.h"
 #include "../incl/signal.h"
 #include "../incl/textbox.h"
@@ -31,19 +32,20 @@ class Node : public IDraggable {
     bool handleEvent(SDL_Event& event, float zoomfactor) override;
     void update() override;
 
-    Signal<> onTopButtonClick;
-    void     topButtonClick();
-
-    Signal<std::string> onNameChanged;
-    void                changeName(std::string name);
-
-    Signal<> onGlobalMouseLeftUp;
-    void     globalMouseLeftUp();
-
-    Signal<std::weak_ptr<Relation>> onConnectMouseLeftDown;
-    void                            connectMouseLeftDown(std::weak_ptr<Relation> relation);
-
     void disconnectAllSignals() noexcept;
+
+    // SIGNALS
+    Signal<>                                                onTopButtonClick;
+    Signal<std::string>                                     onNameChanged;
+    Signal<>                                                onGlobalMouseLeftUp;
+    Signal<std::weak_ptr<Relation>>                         onConnectMouseLeftDown;
+    Signal<std::shared_ptr<ModalValueChanger<std::string>>> onCreateModal;
+
+    // SLOTS
+    void topButtonClick();
+    void changeName(std::string name);
+    void globalMouseLeftUp();
+    void connectMouseLeftDown(std::weak_ptr<Relation> relation);
 
   private:
     int radius;
@@ -51,8 +53,11 @@ class Node : public IDraggable {
     int topButtonSize = 20;
 
     TextButton topButton;
-    // TextBox    nameTextBox;
-    Label nameTextBox;
+    Label      labelName;
 
-    std::vector<std::unique_ptr<TextButton>> addConnectionButtonList;
+    std::vector<std::unique_ptr<TextButton>>        addConnectionButtonList;
+    std::shared_ptr<ModalValueChanger<std::string>> nameChangeModal;
+    non_owning_ptr<TTF_Font>                        _font;
+
+    void showChangeNameModal(non_owning_ptr<TTF_Font> font);
 };

@@ -22,26 +22,22 @@ Node::Node(int                                           x,
                                                                           2,
                                                                           "X",
                                                                           font),
-      nameTextBox(x + margin,
-                  y + margin * 2 + topButtonSize,
-                  w - 2 * margin,
-                  30,
-                  "Yo !",
-                  SDL_Color{0, 0, 0, 255},
-                  (TTF_Font*)font)    //
-//   nameTextBox(x + margin,
-//               y + margin * 2 + topButtonSize,
-//               {0, 0, 0, 255},
-//               font,
-//               w - 2 * margin)    //
-{
+      labelName(x + margin,
+                y + margin * 2 + topButtonSize,
+                w - 2 * margin,
+                30,
+                "Yo !",
+                SDL_Color{0, 0, 0, 255},
+                font),
+      _font{font} {
     topButton.onClick.connect([&]() { topButtonClick(); });
-    // nameTextBox.onTextChanged.connect([&](std::string str) { changeName(str); });
 
     // connect all left up and all left down to global
     onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
     topButton.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
-    nameTextBox.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
+    labelName.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
+
+    labelName.onMouseRightDown.connect([this](int, int) { showChangeNameModal(_font); });
 
     for (auto& relation : relationList) {
         addConnectionButtonList.emplace_back(std::make_unique<TextButton>(x + margin,
@@ -72,10 +68,10 @@ Node::~Node() {
 
 void Node::disconnectAllSignals() noexcept {
     topButton.onClick.disconnect_all();
-    // nameTextBox.onTextChanged.disconnect_all();
     onMouseLeftUp.disconnect_all();
     topButton.onMouseLeftUp.disconnect_all();
-    nameTextBox.onMouseLeftUp.disconnect_all();
+    labelName.onMouseLeftUp.disconnect_all();
+    labelName.onMouseRightDown.disconnect_all();
     for (auto& connectionButton : addConnectionButtonList) {
         connectionButton->onMouseLeftUp.disconnect_all();
         connectionButton->onMouseLeftDown.disconnect_all();
@@ -113,9 +109,9 @@ void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     }
 
     topButton.moveTo(rect.x + margin, rect.y + margin);
-    nameTextBox.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
+    labelName.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
 
-    SDL_Rect ntb_rect = nameTextBox.getRect();
+    SDL_Rect ntb_rect = labelName.getRect();
 
     int i = 0;
     for (auto& connectionButton : addConnectionButtonList) {
@@ -125,18 +121,30 @@ void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
         i++;
     }
     topButton.render(renderer, zoomFactor);
-    nameTextBox.render(renderer, zoomFactor);
+    labelName.render(renderer, zoomFactor);
+
+    /*  if (nameChangeModal) {
+         nameChangeModal->render(renderer, zoomFactor);
+     } */
 }
 
 bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
 
     bool handled = false;
 
+    /* // model event first
+    if (nameChangeModal) {
+        handled |= nameChangeModal->handleEvent(event, zoomfactor);
+        if (handled) {
+            return true;
+        }
+    } */
+
     for (auto& connectionButton : addConnectionButtonList) {
         handled |= connectionButton->handleEvent(event, zoomfactor);
     }
 
-    if (topButton.handleEvent(event, zoomfactor) || nameTextBox.handleEvent(event, zoomfactor) ||
+    if (topButton.handleEvent(event, zoomfactor) || labelName.handleEvent(event, zoomfactor) ||
         handled) {
         return true;
     }
@@ -146,7 +154,7 @@ bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
 }
 
 void Node::update() {
-    rect.h = 3 * margin + topButtonSize + nameTextBox.getRect().h +
+    rect.h = 3 * margin + topButtonSize + labelName.getRect().h +
              (int)addConnectionButtonList.size() * (30 + margin);
 }
 
@@ -155,6 +163,7 @@ void Node::topButtonClick() {
 }
 
 void Node::changeName(std::string str) {
+    labelName.setText(str);
     onNameChanged.emit(str);
 }
 
@@ -164,4 +173,26 @@ void Node::globalMouseLeftUp() {
 
 void Node::connectMouseLeftDown(std::weak_ptr<Relation> relation) {
     onConnectMouseLeftDown.emit(relation);
+}
+
+void Node::showChangeNameModal(non_owning_ptr<TTF_Font> font) {
+
+    // let's say this is a GUI element, so always render at mouse position, do not move and do not
+    // zoom
+    int mx, my;
+    SDL_GetMouseState(&mx, &my);
+
+    auto modal = std::make_shared<ModalValueChanger<std::string>>(
+        mx + 20, my + 20, 250, 0, "Change Node Name", labelName.getText(), font);
+
+    nameChangeModal = modal;
+
+    modal->onClosed.connect([this](std::optional<std::string> newName) {
+        if (newName.has_value()) {
+            changeName(newName.value());
+        }
+        nameChangeModal.reset();
+        onCreateModal.emit(nullptr);    // Signal to clear the modal in the canvas
+    });
+    onCreateModal.emit(modal);
 }

@@ -82,7 +82,10 @@ class Canvas : public IWidget, public WidgetManager {
     std::unique_ptr<Link>          mp_link;
     std::weak_ptr<Relation>        mp_relation;
 
-    std::vector<std::weak_ptr<IWidget>> widgetToRemove;
+    std::vector<std::weak_ptr<IWidget>>             widgetToRemove;
+    std::shared_ptr<ModalValueChanger<std::string>> activeModal;
 
+    void setModal(std::shared_ptr<ModalValueChanger<std::string>> modal);
+    void clearModal();
     void removeAnyMousePosition();
 };

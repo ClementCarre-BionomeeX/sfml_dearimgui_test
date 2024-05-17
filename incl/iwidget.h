@@ -51,6 +51,18 @@ class IWidget {
                 handled = true;
             }
         }
+        // Handle mouse button events
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            if (event.button.button == SDL_BUTTON_RIGHT && isHover) {
+                onMouseRightDown.emit(mouseX, mouseY);
+                handled = true;
+            }
+        } else if (event.type == SDL_MOUSEBUTTONUP) {
+            if (event.button.button == SDL_BUTTON_RIGHT && isHover) {
+                onMouseRightUp.emit(mouseX, mouseY);
+                handled = true;
+            }
+        }
 
         return handled;
     }

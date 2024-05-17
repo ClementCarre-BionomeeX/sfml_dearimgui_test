@@ -12,6 +12,14 @@ TextBox::TextBox(int x, int y, SDL_Color color, non_owning_ptr<TTF_Font> font, i
       cursorPosition(0), lastCursorBlink(SDL_GetTicks()), cursorVisible(true),
       minTextWidth(minimumTextWidth), _font(font) {}
 
+int TextBox::getHeight() const {
+    const char*  renderText = text.empty() ? " " : text.c_str();
+    SDL_Surface* surface    = TTF_RenderUTF8_Solid((TTF_Font*)_font, renderText, _color);
+    int          h          = surface->h;
+    SDL_FreeSurface(surface);
+    return h;
+}
+
 // MARK: prepareTextTexture
 std::pair<int, non_owning_ptr<SDL_Texture>>
 TextBox::prepareTextTexture(non_owning_ptr<SDL_Renderer> renderer) {

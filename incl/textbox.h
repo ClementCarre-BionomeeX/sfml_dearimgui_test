@@ -22,6 +22,8 @@ class TextBox : public IWidget {
     Signal<std::string> onTextChanged;
     void                changeText(std::string str);
 
+    int getHeight() const;
+
   private:
     void setCursorByClick(int clickX);
     void deleteWordLeft();

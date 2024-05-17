@@ -30,6 +30,9 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
                 downConnectNode(sharedPtr, relation);
             }
         });
+        node->onCreateModal.connect([this](std::shared_ptr<ModalValueChanger<std::string>> modal) {
+            this->setModal(modal);
+        });
     }
 
     return ptr;
@@ -71,6 +74,9 @@ bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
 }
 
 bool Canvas::handleEvent(SDL_Event& event, float) {
+    if (activeModal) {
+        return activeModal->handleEvent(event, zoomFactor);
+    }
 
     bool handled = WidgetManager::handleEvents(event, zoomFactor);
 
@@ -229,10 +235,22 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer, float) {
     if (mp_link) {
         mp_link->render(renderer, zoomFactor);
     }
+
+    if (activeModal) {
+        activeModal->render(renderer, zoomFactor);
+    }
 }
 
 SDL_Point Canvas::anchor() const noexcept {
     return {0, 0};
+}
+
+void Canvas::setModal(std::shared_ptr<ModalValueChanger<std::string>> modal) {
+    activeModal = modal;
+}
+
+void Canvas::clearModal() {
+    activeModal.reset();
 }
 
 std::optional<std::weak_ptr<Link>>
