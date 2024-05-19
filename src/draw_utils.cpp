@@ -8,7 +8,7 @@ void fillCircle(non_owning_ptr<SDL_Renderer> renderer, int cx, int cy, int radiu
             int dx = radius - w;    // horizontal offset
             int dy = radius - h;    // vertical offset
             if ((dx * dx + dy * dy) <= (radius * radius)) {
-                SDL_RenderDrawPoint((SDL_Renderer*)renderer, cx + dx, cy + dy);
+                SDL_RenderDrawPoint(renderer.get(), cx + dx, cy + dy);
             }
         }
     }
@@ -16,10 +16,10 @@ void fillCircle(non_owning_ptr<SDL_Renderer> renderer, int cx, int cy, int radiu
 
 void roundCornerRectangle(non_owning_ptr<SDL_Renderer> renderer, SDL_Rect rect, int radius) {
     SDL_Rect middleRect = {rect.x + radius, rect.y, rect.w - 2 * radius, rect.h};
-    SDL_RenderFillRect((SDL_Renderer*)renderer, &middleRect);
+    SDL_RenderFillRect(renderer.get(), &middleRect);
     // Top and bottom strips (to fill the gaps in the rounded corners)
     SDL_Rect topRect = {rect.x, rect.y + radius, rect.w, rect.h - 2 * radius};
-    SDL_RenderFillRect((SDL_Renderer*)renderer, &topRect);
+    SDL_RenderFillRect(renderer.get(), &topRect);
     // Four corners: top-left, top-right, bottom-left, bottom-right
     fillCircle(renderer, rect.x + radius, rect.y + radius, radius);
     fillCircle(renderer, rect.x + rect.w - radius - 1, rect.y + radius, radius);
@@ -43,8 +43,8 @@ void drawThickLine(non_owning_ptr<SDL_Renderer> renderer,
 
     while (true) {
         SDL_Rect rect = {x1 - thickness / 2, y1 - thickness / 2, thickness, thickness};
-        SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);
-        SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
+        SDL_SetRenderDrawColor(renderer.get(), color.r, color.g, color.b, color.a);
+        SDL_RenderFillRect(renderer.get(), &rect);
 
         if (x1 == x2 && y1 == y2)
             break;

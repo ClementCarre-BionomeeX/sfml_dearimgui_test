@@ -14,8 +14,8 @@ GUI::GUI(non_owning_ptr<SDL_Window> window, int w, non_owning_ptr<TTF_Font> font
 }
 void GUI::render(non_owning_ptr<SDL_Renderer> renderer) {
     // render the background box from top to bottom
-    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 150, 150, 150, 255);
-    SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
+    SDL_SetRenderDrawColor(renderer.get(), 150, 150, 150, 255);
+    SDL_RenderFillRect(renderer.get(), &rect);
 
     // render all buttons
     quitButton.render(renderer, 1.f);
@@ -33,8 +33,8 @@ bool GUI::handleEvent(SDL_Event& event, float zoomfactor) {
     // check if the event happend in the background
     if (!handled) {
 
-        int mouseX = (int)((float)(event.motion.x) / zoomfactor);
-        int mouseY = (int)((float)(event.motion.y) / zoomfactor);
+        int mouseX = static_cast<int>(static_cast<float>(event.motion.x) / zoomfactor);
+        int mouseY = static_cast<int>(static_cast<float>(event.motion.y) / zoomfactor);
 
         bool is_inside = (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
                           mouseY <= rect.y + rect.h);

@@ -20,11 +20,12 @@ void Link::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);
 
     // Scale positions and thickness by zoomFactor
-    int zoomedAX        = static_cast<int>((float)a.x * zoomFactor);
-    int zoomedAY        = static_cast<int>((float)a.y * zoomFactor);
-    int zoomedBX        = static_cast<int>((float)b.x * zoomFactor);
-    int zoomedBY        = static_cast<int>((float)b.y * zoomFactor);
-    int zoomedThickness = std::max(static_cast<int>((float)_thickness * zoomFactor), 1);
+    int zoomedAX = static_cast<int>(static_cast<float>(a.x) * zoomFactor);
+    int zoomedAY = static_cast<int>(static_cast<float>(a.y) * zoomFactor);
+    int zoomedBX = static_cast<int>(static_cast<float>(b.x) * zoomFactor);
+    int zoomedBY = static_cast<int>(static_cast<float>(b.y) * zoomFactor);
+    int zoomedThickness =
+        std::max(static_cast<int>(static_cast<float>(_thickness) * zoomFactor), 1);
 
     drawThickLine(renderer, zoomedAX, zoomedAY, zoomedBX, zoomedBY, zoomedThickness, color);
     fillCircle(renderer, zoomedAX, zoomedAY, zoomedThickness / 2);
@@ -45,8 +46,8 @@ void Link::draw_indicator(non_owning_ptr<SDL_Renderer> renderer,
     int    dy    = b.y - a.y;
     double angle = atan2(dy, dx);
 
-    SDL_Point zoomed_b = {static_cast<int>((float)b.x * zoomFactor),
-                          static_cast<int>((float)b.y * zoomFactor)};
+    SDL_Point zoomed_b = {static_cast<int>(static_cast<float>(b.x) * zoomFactor),
+                          static_cast<int>(static_cast<float>(b.y) * zoomFactor)};
 
     SDL_Point start_point = {
         int(zoomed_b.x - arrow_length * cos(angle)),
@@ -67,14 +68,14 @@ void Link::draw_indicator(non_owning_ptr<SDL_Renderer> renderer,
                   left_point.y,
                   zoomed_b.x,
                   zoomed_b.y,
-                  static_cast<int>((float)_thickness * zoomFactor),
+                  static_cast<int>(static_cast<float>(_thickness) * zoomFactor),
                   color);
     drawThickLine(renderer,
                   zoomed_b.x,
                   zoomed_b.y,
                   right_point.x,
                   right_point.y,
-                  static_cast<int>((float)_thickness * zoomFactor),
+                  static_cast<int>(static_cast<float>(_thickness) * zoomFactor),
                   color);
 }
 
@@ -97,14 +98,15 @@ void Link::update() {
 }
 
 bool Link::handleEvent(SDL_Event& event, float zoomfactor) {
-    int mouseX = (int)((float)(event.motion.x) / zoomfactor);
-    int mouseY = (int)((float)(event.motion.y) / zoomfactor);
+    int mouseX = (int)(static_cast<float>(event.motion.x) / zoomfactor);
+    int mouseY = (int)(static_cast<float>(event.motion.y) / zoomfactor);
     isHovered  = isNear(mouseX, mouseY);
     return isHovered;
 }
 
 bool Link::isNear(int x, int y) const noexcept {
-    return pointLineSegmentDistanceSquared(x, y) <= (_thickness / 2) * (_thickness / 2);
+    return pointLineSegmentDistanceSquared(x, y) <=
+           (static_cast<double>(_thickness * _thickness) / 4.0);
 }
 
 // Function to calculate the distance from point (x, y) to the line segment (x1, y1) - (x2, y2)
@@ -117,7 +119,7 @@ double Link::pointLineSegmentDistanceSquared(int x, int y) const noexcept {
     }
 
     // Project point onto the line defined by the segment
-    double u = ((x - a.x) * (b.x - a.x) + (y - a.y) * (b.y - a.y)) / norm2;
+    double u = static_cast<double>((x - a.x) * (b.x - a.x) + (y - a.y) * (b.y - a.y)) / norm2;
 
     // clamp u to the 0.0 to 1.0 range to ensure it's within the segment
     if (u < 0.0) {

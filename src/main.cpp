@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     TTF_Init();
     gtk_init(&argc, &argv);
 
-    SDL_Window*   window   = SDL_CreateWindow("Text Input Example",
+    SDL_Window*   window   = SDL_CreateWindow("Node Editor",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           1920,
@@ -72,26 +72,31 @@ int main(int argc, char* argv[]) {
     auto certiMiss = canvas.addNode(200, 150);
     if (auto lockedptr = certiMiss.lock()) {
         lockedptr->changeState(KnowledgeState::Certified_Missing);
+        lockedptr->changeName("Missing");
     }
 
     auto unknMiss = canvas.addNode(350, 150);
     if (auto lockedptr = unknMiss.lock()) {
         lockedptr->changeState(KnowledgeState::Uncertified_Missing);
+        lockedptr->changeName("Missing ?");
     }
 
     auto ukn = canvas.addNode(500, 150);
     if (auto lockedptr = ukn.lock()) {
         lockedptr->changeState(KnowledgeState::Unknown);
+        lockedptr->changeName("UNKNOWN");
     }
 
     auto unknAcqui = canvas.addNode(650, 150);
     if (auto lockedptr = unknAcqui.lock()) {
         lockedptr->changeState(KnowledgeState::Uncertified_Acquired);
+        lockedptr->changeName("Acquired ?");
     }
 
     auto certiAcqui = canvas.addNode(800, 150);
     if (auto lockedptr = certiAcqui.lock()) {
         lockedptr->changeState(KnowledgeState::Certified_Acquired);
+        lockedptr->changeName("Acquired");
     }
 
     while (running) {

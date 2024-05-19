@@ -7,8 +7,8 @@
 std::weak_ptr<Node> Canvas::addNode(int x, int y) {
 
     // change value to world position
-    x = (int)((float)x / zoomFactor);
-    y = (int)((float)y / zoomFactor);
+    x = static_cast<int>(static_cast<float>(x) / zoomFactor);
+    y = static_cast<int>(static_cast<float>(y) / zoomFactor);
 
     auto ptr = addDraggableWidget<Node>(x, y, 100, 200, _font, vec);
 
@@ -65,7 +65,6 @@ bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
                              std::weak_ptr<Relation> relation) {
     auto link = findConnection(source, target, relation);
     if (link) {
-        // removeWidget(link.value());
         widgetToRemove.push_back(link.value());
         return true;
     }
@@ -143,8 +142,8 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
     case SDL_MOUSEMOTION: {
         if (event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {    // Pan with middle mouse
 
-            int worldMouseX = (int)((float)event.motion.xrel / zoomFactor);
-            int worldMouseY = (int)((float)event.motion.yrel / zoomFactor);
+            int worldMouseX = static_cast<int>(static_cast<float>(event.motion.xrel) / zoomFactor);
+            int worldMouseY = static_cast<int>(static_cast<float>(event.motion.yrel) / zoomFactor);
 
             auto allwidgets = find_all_by_type<IWidget>();
             for (auto widget : allwidgets) {
@@ -182,13 +181,19 @@ void Canvas::moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFact
 
             auto worldPos = lockedwidget->position();
 
-            int oldWorldTargetX = (int)((float)screenPositionTarget.x / oldZoomFactor);
-            int oldWorldTargetY = (int)((float)screenPositionTarget.y / oldZoomFactor);
-            int relWorldPosX    = worldPos.x - oldWorldTargetX;
-            int relWorldPosY    = worldPos.y - oldWorldTargetY;
+            int oldWorldTargetX =
+                static_cast<int>(static_cast<float>(screenPositionTarget.x) / oldZoomFactor);
+            int oldWorldTargetY =
+                static_cast<int>(static_cast<float>(screenPositionTarget.y) / oldZoomFactor);
+            int relWorldPosX = worldPos.x - oldWorldTargetX;
+            int relWorldPosY = worldPos.y - oldWorldTargetY;
 
-            int newWorldPosX = relWorldPosX + (int)((float)screenPositionTarget.x / zoomFactor);
-            int newWorldPosY = relWorldPosY + (int)((float)screenPositionTarget.y / zoomFactor);
+            int newWorldPosX =
+                relWorldPosX +
+                static_cast<int>(static_cast<float>(screenPositionTarget.x) / zoomFactor);
+            int newWorldPosY =
+                relWorldPosY +
+                static_cast<int>(static_cast<float>(screenPositionTarget.y) / zoomFactor);
 
             lockedwidget->moveTo(newWorldPosX, newWorldPosY);
         }
@@ -263,7 +268,7 @@ Canvas::findConnection(std::weak_ptr<IWidget>  source,
             if (auto lockedlink = link.lock()) {
                 if (lockedlink->isRelation(relation) && lockedlink->isSource(source) &&
                     lockedlink->isTarget(target)) {
-                    return link;
+                    return std::make_optional(link);
                 }
             }
         }
@@ -273,7 +278,7 @@ Canvas::findConnection(std::weak_ptr<IWidget>  source,
                 if (lockedlink->isRelation(relation) &&
                     ((lockedlink->isSource(source) && lockedlink->isTarget(target)) ||
                      (lockedlink->isSource(target) && lockedlink->isTarget(source)))) {
-                    return link;
+                    return std::make_optional(link);
                 }
             }
         }

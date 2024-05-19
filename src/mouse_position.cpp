@@ -3,11 +3,15 @@
 SDL_Point MousePosition::anchor() const noexcept {
     int x, y;
     SDL_GetMouseState(&x, &y);
-    return {(int)((float)x / _zoomfactor), (int)((float)y / _zoomfactor)};
+    return {static_cast<int>(static_cast<float>(x) / _zoomfactor),
+            static_cast<int>(static_cast<float>(y) / _zoomfactor)};
 }
 
 SDL_Rect MousePosition::getRect() const noexcept {
     int x, y;
     SDL_GetMouseState(&x, &y);
-    return {(int)((float)x / _zoomfactor), (int)((float)y / _zoomfactor), 0, 0};
+    return {static_cast<int>(static_cast<float>(x) / _zoomfactor),
+            static_cast<int>(static_cast<float>(y) / _zoomfactor),
+            0,
+            0};
 }

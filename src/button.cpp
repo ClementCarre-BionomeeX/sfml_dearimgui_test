@@ -26,7 +26,7 @@ Button::Button(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverC
 
 // MARK: render
 void Button::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
-    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
+    SDL_SetRenderDrawColor(renderer.get(), _color->r, _color->g, _color->b, _color->a);
 
     // Scale the button's position and size by the zoomFactor
     SDL_Rect zoomedRect = {
@@ -36,17 +36,17 @@ void Button::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
         static_cast<int>((float)rect.w * zoomFactor),    //
         static_cast<int>((float)rect.h * zoomFactor)     //
     };
-    int zoomedRadius = static_cast<int>((float)radius * zoomFactor);
+    int zoomedRadius = static_cast<int>(static_cast<float>(radius) * zoomFactor);
 
     // Middle part (adjust the rect to not overwrite the corners)
     SDL_Rect middleRect = {
         zoomedRect.x + zoomedRadius, zoomedRect.y, zoomedRect.w - 2 * zoomedRadius, zoomedRect.h};
-    SDL_RenderFillRect((SDL_Renderer*)renderer, &middleRect);
+    SDL_RenderFillRect(renderer.get(), &middleRect);
 
     // Top and bottom strips (to fill the gaps in the rounded corners)
     SDL_Rect topRect = {
         zoomedRect.x, zoomedRect.y + zoomedRadius, zoomedRect.w, zoomedRect.h - 2 * zoomedRadius};
-    SDL_RenderFillRect((SDL_Renderer*)renderer, &topRect);
+    SDL_RenderFillRect(renderer.get(), &topRect);
 
     // Four corners: top-left, top-right, bottom-left, bottom-right
     fillCircle(renderer, zoomedRect.x + zoomedRadius, zoomedRect.y + zoomedRadius, zoomedRadius);

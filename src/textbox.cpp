@@ -14,7 +14,7 @@ TextBox::TextBox(int x, int y, SDL_Color color, non_owning_ptr<TTF_Font> font, i
 
 int TextBox::getHeight() const {
     const char*  renderText = text.empty() ? " " : text.c_str();
-    SDL_Surface* surface    = TTF_RenderUTF8_Solid((TTF_Font*)_font, renderText, _color);
+    SDL_Surface* surface    = TTF_RenderUTF8_Solid(_font.get(), renderText, _color);
     int          h          = surface->h;
     SDL_FreeSurface(surface);
     return h;
@@ -26,8 +26,8 @@ TextBox::prepareTextTexture(non_owning_ptr<SDL_Renderer> renderer) {
     const char* renderText = text.empty() ? " " : text.c_str();
 
     // Create a surface from the text
-    SDL_Surface* surface = TTF_RenderUTF8_Solid((TTF_Font*)_font, renderText, _color);
-    auto*        texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, surface);
+    SDL_Surface* surface = TTF_RenderUTF8_Solid(_font.get(), renderText, _color);
+    auto*        texture = SDL_CreateTextureFromSurface(renderer.get(), surface);
 
     // Get the width of the rendered text
     int textWidth  = surface->w;
@@ -60,17 +60,16 @@ void TextBox::renderBackground(non_owning_ptr<SDL_Renderer> renderer, float zoom
     // Scale the background rect
     SDL_Rect zoomedRect = {
         //
-        static_cast<int>((float)rect.x * zoomFactor),    //
-        static_cast<int>((float)rect.y * zoomFactor),    //
-        static_cast<int>((float)rect.w * zoomFactor),    //
-        static_cast<int>((float)rect.h * zoomFactor)     //
+        static_cast<int>(static_cast<float>(rect.x) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.y) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.w) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.h) * zoomFactor)     //
     };
 
-    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 255, 255, 255);    // White background
-    SDL_RenderFillRect((SDL_Renderer*)renderer, &zoomedRect);
-    SDL_SetRenderDrawColor(
-        (SDL_Renderer*)renderer, 255, 0, isSelected ? 255 : 0, 255);    // Border color
-    SDL_RenderDrawRect((SDL_Renderer*)renderer, &zoomedRect);
+    SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255, 255);    // White background
+    SDL_RenderFillRect(renderer.get(), &zoomedRect);
+    SDL_SetRenderDrawColor(renderer.get(), 255, 0, isSelected ? 255 : 0, 255);    // Border color
+    SDL_RenderDrawRect(renderer.get(), &zoomedRect);
 }
 
 void TextBox::renderText(non_owning_ptr<SDL_Renderer> renderer,
@@ -78,44 +77,43 @@ void TextBox::renderText(non_owning_ptr<SDL_Renderer> renderer,
                          non_owning_ptr<SDL_Texture>  texture,
                          float                        zoomFactor) {
     // Scale the position and size of the text rect
-    int zoomedTextOffset = static_cast<int>((float)textOffset * zoomFactor);
-    int zoomedRectW      = static_cast<int>((float)rect.w * zoomFactor);
-    int zoomedRectH      = static_cast<int>((float)rect.h * zoomFactor);
+    int zoomedTextOffset = static_cast<int>(static_cast<float>(textOffset) * zoomFactor);
+    int zoomedRectW      = static_cast<int>(static_cast<float>(rect.w) * zoomFactor);
+    int zoomedRectH      = static_cast<int>(static_cast<float>(rect.h) * zoomFactor);
 
     int displayWidth = std::min(w - zoomedTextOffset,
                                 zoomedRectW - 10);    // Assuming 5 pixels padding on each side
     if (displayWidth > 0) {
         SDL_Rect srcRect  = {zoomedTextOffset, 0, displayWidth, zoomedRectH};
-        SDL_Rect destRect = {static_cast<int>((float)(rect.x + 5) * zoomFactor),
-                             static_cast<int>((float)rect.y * zoomFactor),
+        SDL_Rect destRect = {static_cast<int>(static_cast<float>(rect.x + 5) * zoomFactor),
+                             static_cast<int>(static_cast<float>(rect.y) * zoomFactor),
                              displayWidth,
                              zoomedRectH};    // Adjusted rect for text display
-        SDL_RenderCopy((SDL_Renderer*)renderer, (SDL_Texture*)texture, &srcRect, &destRect);
+        SDL_RenderCopy(renderer.get(), texture.get(), &srcRect, &destRect);
     }
     if (texture) {
-        SDL_DestroyTexture((SDL_Texture*)texture);
+        SDL_DestroyTexture(texture.get());
     }
 }
 
 void TextBox::drawCursor(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) const {
     // Calculate the position and size of the cursor based on zoom factor
     int cursorX =
-        static_cast<int>((float)(rect.x + 5) *
+        static_cast<int>(static_cast<float>(rect.x + 5) *
                          zoomFactor);    // Start cursor at the beginning of the box with padding
-    int zoomedRectY = static_cast<int>((float)rect.y * zoomFactor);
-    int zoomedRectH = static_cast<int>((float)rect.h * zoomFactor);
+    int zoomedRectY = static_cast<int>(static_cast<float>(rect.y) * zoomFactor);
+    int zoomedRectH = static_cast<int>(static_cast<float>(rect.h) * zoomFactor);
 
     if (cursorPosition > 0 && cursorPosition <= text.length()) {
         std::string  textBeforeCursor = text.substr(0, cursorPosition);
-        SDL_Surface* surface =
-            TTF_RenderText_Solid((TTF_Font*)_font, textBeforeCursor.c_str(), _color);
-        cursorX += static_cast<int>((float)(surface->w - textOffset) *
+        SDL_Surface* surface = TTF_RenderText_Solid(_font.get(), textBeforeCursor.c_str(), _color);
+        cursorX += static_cast<int>(static_cast<float>(surface->w - textOffset) *
                                     zoomFactor);    // Adjust cursor position by textOffset
         SDL_FreeSurface(surface);
     }
 
-    int zoomedRectX = static_cast<int>((float)rect.x * zoomFactor);
-    int zoomedRectW = static_cast<int>((float)rect.w * zoomFactor);
+    int zoomedRectX = static_cast<int>(static_cast<float>(rect.x) * zoomFactor);
+    int zoomedRectW = static_cast<int>(static_cast<float>(rect.w) * zoomFactor);
 
     if (cursorX <
         zoomedRectX + static_cast<int>(
@@ -128,8 +126,8 @@ void TextBox::drawCursor(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor
         cursorX = zoomedRectX + zoomedRectW - static_cast<int>(5 * zoomFactor);
     }
 
-    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 0, 0, 0, 255);    // Black cursor
-    SDL_RenderDrawLine((SDL_Renderer*)renderer,
+    SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255);    // Black cursor
+    SDL_RenderDrawLine(renderer.get(),
                        cursorX,
                        zoomedRectY + static_cast<int>(2 * zoomFactor),
                        cursorX,
@@ -148,8 +146,8 @@ void TextBox::update() {
 // MARK: handleEvent
 bool TextBox::handleEvent(SDL_Event& event, float zoomfactor) {
     if (event.type == SDL_MOUSEBUTTONDOWN) {
-        int mouseX = (int)((float)(event.motion.x) / zoomfactor);
-        int mouseY = (int)((float)(event.motion.y) / zoomfactor);
+        int mouseX = static_cast<int>(static_cast<float>(event.motion.x) / zoomfactor);
+        int mouseY = static_cast<int>(static_cast<float>(event.motion.y) / zoomfactor);
         if (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
             mouseY <= rect.y + rect.h) {
             isSelected = true;
@@ -221,7 +219,7 @@ bool TextBox::handleEvent(SDL_Event& event, float zoomfactor) {
 void TextBox::updateTextOffsetOnCursorMove() {
     std::string textBeforeCursor = text.substr(0, cursorPosition);
     int         cursorTextWidth, textHeight;
-    TTF_SizeUTF8((TTF_Font*)_font, textBeforeCursor.c_str(), &cursorTextWidth, &textHeight);
+    TTF_SizeUTF8(_font.get(), textBeforeCursor.c_str(), &cursorTextWidth, &textHeight);
 
     int visibleTextWidth = rect.w - 10;    // Assuming 5 pixels padding on each side
     int bufferZone       = 5;              // 10 pixels buffer for smoother scrolling
@@ -247,7 +245,7 @@ void TextBox::setCursorByClick(int clickX) {
 
     for (size_t i = 0; i <= text.length(); ++i) {
         std::string subText = text.substr(0, i);
-        TTF_SizeText((TTF_Font*)_font, subText.c_str(), &textWidth, &height);
+        TTF_SizeText(_font.get(), subText.c_str(), &textWidth, &height);
 
         int currentDist = std::abs((rect.x + textWidth) - clickX);
         if (currentDist < minDist) {

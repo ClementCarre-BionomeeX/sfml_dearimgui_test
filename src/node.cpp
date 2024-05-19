@@ -107,21 +107,21 @@ void Node::disconnectAllSignals() noexcept {
 void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     // Scale the node's position and size by the zoomFactor
     SDL_Rect zoomedRect = {
-        static_cast<int>((float)rect.x * zoomFactor),    //
-        static_cast<int>((float)rect.y * zoomFactor),    //
-        static_cast<int>((float)rect.w * zoomFactor),    //
-        static_cast<int>((float)rect.h * zoomFactor)     //
+        static_cast<int>(static_cast<float>(rect.x) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.y) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.w) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.h) * zoomFactor)     //
     };
 
-    int zoomedRadius = static_cast<int>((float)radius * zoomFactor);
+    int zoomedRadius = static_cast<int>(static_cast<float>(radius) * zoomFactor);
 
     if (isSelected) {
-        SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 215, 0, 255);
+        SDL_SetRenderDrawColor(renderer.get(), 255, 215, 0, 255);
         roundCornerRectangle(renderer, zoomedRect, zoomedRadius);
 
         int border = static_cast<int>(2 * zoomFactor);
         // Draw the background
-        SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
+        SDL_SetRenderDrawColor(renderer.get(), _color->r, _color->g, _color->b, _color->a);
         roundCornerRectangle(renderer,
                              {
                                  zoomedRect.x + border,        //
@@ -131,7 +131,7 @@ void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
                              },
                              zoomedRadius);
     } else {
-        SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
+        SDL_SetRenderDrawColor(renderer.get(), _color->r, _color->g, _color->b, _color->a);
         roundCornerRectangle(renderer, zoomedRect, zoomedRadius);
     }
 
@@ -163,7 +163,7 @@ bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
 
 void Node::update() {
     rect.h = 3 * margin + topButtonSize + labelName.getRect().h +
-             (int)addConnectionButtonList.size() * (30 + margin);
+             static_cast<int>(addConnectionButtonList.size()) * (30 + margin);
 
     topButton.moveTo(rect.x + margin, rect.y + margin);
     labelName.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);

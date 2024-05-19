@@ -38,8 +38,8 @@ bool IDraggable::handleEvent(SDL_Event& event, float zoomfactor) {
     // Additional handling for dragging if selected
     if (event.type == SDL_MOUSEMOTION && isDragging) {
 
-        int mouseX = (int)((float)(event.motion.x) / zoomfactor);
-        int mouseY = (int)((float)(event.motion.y) / zoomfactor);
+        int mouseX = static_cast<int>(static_cast<float>(event.motion.x) / zoomfactor);
+        int mouseY = static_cast<int>(static_cast<float>(event.motion.y) / zoomfactor);
 
         drag(mouseX, mouseY);    // Emit dragging signal
         handled = true;

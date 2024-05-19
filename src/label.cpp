@@ -11,7 +11,7 @@ Label::Label(int                      x,
 
 Label::~Label() {}
 
-void Label::setText(const std::string& newText) {
+void Label::setText(std::string const& newText) {
     text = newText;
 }
 
@@ -25,19 +25,19 @@ void Label::setColor(SDL_Color newColor) {
 
 void Label::render(non_owning_ptr<SDL_Renderer> renderer, float zoomfactor) {
 
-    SDL_Surface* surface = TTF_RenderText_Blended((TTF_Font*)font, text.c_str(), color);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, surface);
+    SDL_Surface* surface = TTF_RenderText_Blended(font.get(), text.c_str(), color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer.get(), surface);
 
     SDL_Rect renderingRect = {
         //
-        (int)((float)(rect.x) * zoomfactor),    //
-        (int)((float)(rect.y) * zoomfactor),    //
-        (int)((float)(rect.w) * zoomfactor),    //
-        (int)((float)(rect.h) * zoomfactor)     //
+        static_cast<int>(static_cast<float>(rect.x) * zoomfactor),    //
+        static_cast<int>(static_cast<float>(rect.y) * zoomfactor),    //
+        static_cast<int>(static_cast<float>(rect.w) * zoomfactor),    //
+        static_cast<int>(static_cast<float>(rect.h) * zoomfactor)     //
     };
 
     // Render the texture
-    SDL_RenderCopy((SDL_Renderer*)renderer, texture, nullptr, &renderingRect);
+    SDL_RenderCopy(renderer.get(), texture, nullptr, &renderingRect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
