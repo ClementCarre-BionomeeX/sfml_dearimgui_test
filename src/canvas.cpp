@@ -304,6 +304,9 @@ void Canvas::backgroundLeftUp(int x, int y) {
 }
 
 void Canvas::backgroundLeftDown(int x, int y) {
+    if (auto lockselection = selection.lock()) {
+        lockselection->unselect();
+    }
     onBackgroundLeftDown.emit(x, y);
 }
 

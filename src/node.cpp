@@ -135,15 +135,8 @@ void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
         roundCornerRectangle(renderer, zoomedRect, zoomedRadius);
     }
 
-    topButton.moveTo(rect.x + margin, rect.y + margin);
-    labelName.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
-
-    SDL_Rect ntb_rect = labelName.getRect();
-
     int i = 0;
     for (auto& connectionButton : addConnectionButtonList) {
-        connectionButton->moveTo(
-            rect.x + margin, rect.y + 3 * margin + topButtonSize + ntb_rect.h + i * (margin + 30));
         connectionButton->render(renderer, zoomFactor);
         i++;
     }
@@ -171,6 +164,17 @@ bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
 void Node::update() {
     rect.h = 3 * margin + topButtonSize + labelName.getRect().h +
              (int)addConnectionButtonList.size() * (30 + margin);
+
+    topButton.moveTo(rect.x + margin, rect.y + margin);
+    labelName.moveTo(rect.x + margin, rect.y + margin * 2 + topButtonSize);
+    SDL_Rect ntb_rect = labelName.getRect();
+
+    int i = 0;
+    for (auto& connectionButton : addConnectionButtonList) {
+        connectionButton->moveTo(
+            rect.x + margin, rect.y + 3 * margin + topButtonSize + ntb_rect.h + i * (margin + 30));
+        i++;
+    }
 }
 
 void Node::topButtonClick() {

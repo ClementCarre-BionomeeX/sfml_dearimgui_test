@@ -64,7 +64,13 @@ inline std::weak_ptr<T> WidgetManager::addDraggableWidget(Args&&... args) {
 
         draggable->onMouseLeftDown.connect([this, ptr](int x, int y) {
             if (auto sharedPtr = ptr.lock()) {
-                selection   = ptr;
+                if (auto lockselection = selection.lock()) {
+                    lockselection->unselect();
+                }
+                selection = ptr;
+                if (auto lockselection = selection.lock()) {
+                    lockselection->select();
+                }
                 auto [a, b] = sharedPtr->position();
                 startx      = x - a;
                 starty      = y - b;

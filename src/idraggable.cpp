@@ -3,15 +3,13 @@
 IDraggable::IDraggable(int x, int y, int w, int h, SDL_Color baseColor, SDL_Color hoverColor)
     : IWidget{x, y, w, h}, _baseColor{baseColor}, _hoverColor{hoverColor} {
     changeToBaseColor();
-    onMouseLeftDown.connect([this](int, int) {
-        isSelected = true;    // Begin the dragging process
-    });
+
+    onMouseLeftDown.connect([this](int, int) { isDragging = true; });
 
     onMouseLeftUp.connect([this](int, int) {
         if (isDragging) {
             isDragging = false;    // End the dragging process
         }
-        isSelected = false;    // Deselect the widget
     });
 
     onHover.connect([this]() {
@@ -38,12 +36,8 @@ bool IDraggable::handleEvent(SDL_Event& event, float zoomfactor) {
     bool handled = IWidget::handleEvent(event, zoomfactor);
 
     // Additional handling for dragging if selected
-    if (event.type == SDL_MOUSEMOTION && isSelected) {
-        if (!isDragging) {
-            isDragging = true;    // Start dragging
-        }
-        // int mouseX = event.motion.x;
-        // int mouseY = event.motion.y;
+    if (event.type == SDL_MOUSEMOTION && isDragging) {
+
         int mouseX = (int)((float)(event.motion.x) / zoomfactor);
         int mouseY = (int)((float)(event.motion.y) / zoomfactor);
 
@@ -53,3 +47,7 @@ bool IDraggable::handleEvent(SDL_Event& event, float zoomfactor) {
 
     return handled;
 }
+
+IDraggable::~IDraggable() {
+    onDragging.disconnect_all();
+};

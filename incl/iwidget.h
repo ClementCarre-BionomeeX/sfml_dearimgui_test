@@ -31,6 +31,7 @@ class IWidget {
         // Handle hover state
         bool currentlyHovering = (mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                                   mouseY >= rect.y && mouseY <= rect.y + rect.h);
+
         if (currentlyHovering && !isHover) {
             onHover.emit();
             isHover = true;
@@ -97,6 +98,12 @@ class IWidget {
         return result;
     }
 
+    void select() { isSelected = true; }
+    void unselect() { isSelected = false; }
+
+    Signal<> onSelected;
+    Signal<> onUnselected;
+
     Signal<>         onHover;
     Signal<>         onHoverLost;
     Signal<int, int> onMouseLeftDown;
@@ -106,5 +113,6 @@ class IWidget {
 
   protected:
     SDL_Rect rect{0, 0, 0, 0};
-    bool     isHover = false;
+    bool     isHover    = false;
+    bool     isSelected = false;
 };
