@@ -2,9 +2,7 @@
 CXX = g++
 
 CXXFLAGS = -I/usr/include/SDL2 -Werror -Wpedantic -Wconversion -Wsign-conversion -Woverloaded-virtual -Wshadow -Wnon-virtual-dtor -Wcast-align -Wall -Wextra -std=c++23 -O3  $(shell pkg-config --cflags gtk+-3.0)
-# CXXFLAGS = -I/usr/include/SDL2 -Wall -Wextra -std=c++17 $(shell pkg-config --cflags gtk+-3.0)
 LDFLAGS = $(shell pkg-config --libs gtk+-3.0) -lSDL2 -ldl -lSDL2_ttf
-
 
 # Source and header files
 CPP_SOURCES = $(shell find src -name '*.cpp')
