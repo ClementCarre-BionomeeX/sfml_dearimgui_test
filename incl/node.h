@@ -2,6 +2,7 @@
 
 #include "../incl/button.h"
 #include "../incl/idraggable.h"
+#include "../incl/knowledge.h"
 #include "../incl/label.h"
 #include "../incl/modalvaluechanger.h"
 #include "../incl/relation.h"
@@ -21,8 +22,6 @@ class Node : public IDraggable {
          int                                           y,
          int                                           w,
          int                                           h,
-         SDL_Color                                     baseColor,
-         SDL_Color                                     hoverColor,
          non_owning_ptr<TTF_Font>                      font,
          std::vector<std::shared_ptr<Relation>> const& relationList);
 
@@ -47,6 +46,8 @@ class Node : public IDraggable {
     void globalMouseLeftUp();
     void connectMouseLeftDown(std::weak_ptr<Relation> relation);
 
+    void changeState(KnowledgeState newstate);
+
   private:
     int radius;
     int margin        = 5;
@@ -59,5 +60,6 @@ class Node : public IDraggable {
     std::shared_ptr<ModalValueChanger<std::string>> nameChangeModal;
     non_owning_ptr<TTF_Font>                        _font;
 
-    void showChangeNameModal(non_owning_ptr<TTF_Font> font);
+    KnowledgeState state = KnowledgeState::Unknown;
+    void           showChangeNameModal(non_owning_ptr<TTF_Font> font);
 };

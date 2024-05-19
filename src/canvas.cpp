@@ -10,8 +10,7 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
     x = (int)((float)x / zoomFactor);
     y = (int)((float)y / zoomFactor);
 
-    auto ptr = addDraggableWidget<Node>(
-        x, y, 100, 200, SDL_Color{0, 200, 200, 255}, SDL_Color{30, 230, 230, 255}, _font, vec);
+    auto ptr = addDraggableWidget<Node>(x, y, 100, 200, _font, vec);
 
     if (auto node = ptr.lock()) {
         node->onTopButtonClick.connect([ptr, this]() {

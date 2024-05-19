@@ -68,6 +68,32 @@ int main(int argc, char* argv[]) {
 
     gui.onBackgroundLeftUp.connect([&canvas]() { canvas.backgroundLeftUp(0, 0); });
 
+    //! TESTS NODES for color choosing
+    auto certiMiss = canvas.addNode(200, 150);
+    if (auto lockedptr = certiMiss.lock()) {
+        lockedptr->changeState(KnowledgeState::Certified_Missing);
+    }
+
+    auto unknMiss = canvas.addNode(350, 150);
+    if (auto lockedptr = unknMiss.lock()) {
+        lockedptr->changeState(KnowledgeState::Uncertified_Missing);
+    }
+
+    auto ukn = canvas.addNode(500, 150);
+    if (auto lockedptr = ukn.lock()) {
+        lockedptr->changeState(KnowledgeState::Unknown);
+    }
+
+    auto unknAcqui = canvas.addNode(650, 150);
+    if (auto lockedptr = unknAcqui.lock()) {
+        lockedptr->changeState(KnowledgeState::Uncertified_Acquired);
+    }
+
+    auto certiAcqui = canvas.addNode(800, 150);
+    if (auto lockedptr = certiAcqui.lock()) {
+        lockedptr->changeState(KnowledgeState::Certified_Acquired);
+    }
+
     while (running) {
 
         while (SDL_PollEvent(&event)) {

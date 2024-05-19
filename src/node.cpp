@@ -9,35 +9,50 @@ Node::Node(int                                           x,
            int                                           y,
            int                                           w,
            int                                           h,
-           SDL_Color                                     baseColor,
-           SDL_Color                                     hoverColor,
            non_owning_ptr<TTF_Font>                      font,
            std::vector<std::shared_ptr<Relation>> const& relationList)
-    : IDraggable{x, y, w, h, baseColor, hoverColor}, radius{2}, topButton(x + margin,
-                                                                          y + margin,
-                                                                          topButtonSize,
-                                                                          topButtonSize,
-                                                                          {200, 0, 0, 255},
-                                                                          {250, 50, 50, 255},
-                                                                          2,
-                                                                          "X",
-                                                                          font),
+    : IDraggable{x, y, w, h, {0, 0, 0, 0}, {0, 0, 0, 0}},
+
+      radius{2}, topButton(x + margin,
+                           y + margin,
+                           topButtonSize,
+                           topButtonSize,
+                           {200, 0, 0, 255},
+                           {250, 50, 50, 255},
+                           2,
+                           "X",
+                           font),
       labelName(x + margin,
                 y + margin * 2 + topButtonSize,
                 w - 2 * margin,
                 30,
-                "Yo !",
+                "RMB to change",
                 SDL_Color{0, 0, 0, 255},
                 font),
       _font{font} {
-    topButton.onClick.connect([&]() { topButtonClick(); });
+
+    changeState(state);
+
+    topButton.onClick.connect([&]() {
+        topButtonClick();    //
+    });
 
     // connect all left up and all left down to global
-    onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
-    topButton.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
-    labelName.onMouseLeftUp.connect([&](int, int) { globalMouseLeftUp(); });
+    onMouseLeftUp.connect([&](int, int) {
+        globalMouseLeftUp();    //
+    });
 
-    labelName.onMouseRightDown.connect([this](int, int) { showChangeNameModal(_font); });
+    topButton.onMouseLeftUp.connect([&](int, int) {
+        globalMouseLeftUp();    //
+    });
+
+    labelName.onMouseLeftUp.connect([&](int, int) {
+        globalMouseLeftUp();    //
+    });
+
+    labelName.onMouseRightDown.connect([this](int, int) {
+        showChangeNameModal(_font);    //
+    });
 
     for (auto& relation : relationList) {
         addConnectionButtonList.emplace_back(std::make_unique<TextButton>(x + margin,
@@ -53,13 +68,24 @@ Node::Node(int                                           x,
 
     std::size_t i = 0;
     for (auto& connectionButton : addConnectionButtonList) {
-        connectionButton->onMouseLeftUp.connect([this](int, int) { globalMouseLeftUp(); });
+        connectionButton->onMouseLeftUp.connect([this](int, int) {
+            globalMouseLeftUp();    //
+        });
         connectionButton->onMouseLeftDown.connect(
             [this, i, relation = std::weak_ptr<Relation>(relationList[i])](int, int) {
                 connectMouseLeftDown(relation);
             });
         ++i;
     }
+}
+
+void Node::changeState(KnowledgeState newstate) {
+    state       = newstate;
+    auto colors = getColor(state);
+
+    _baseColor  = colors.first;
+    _hoverColor = colors.second;
+    _color      = std::make_unique<SDL_Color>(_baseColor);
 }
 
 Node::~Node() {
@@ -81,7 +107,6 @@ void Node::disconnectAllSignals() noexcept {
 void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     // Scale the node's position and size by the zoomFactor
     SDL_Rect zoomedRect = {
-        //
         static_cast<int>((float)rect.x * zoomFactor),    //
         static_cast<int>((float)rect.y * zoomFactor),    //
         static_cast<int>((float)rect.w * zoomFactor),    //
@@ -98,10 +123,12 @@ void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
         // Draw the background
         SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
         roundCornerRectangle(renderer,
-                             {zoomedRect.x + border,
-                              zoomedRect.y + border,
-                              zoomedRect.w - 2 * border,
-                              zoomedRect.h - 2 * border},
+                             {
+                                 zoomedRect.x + border,        //
+                                 zoomedRect.y + border,        //
+                                 zoomedRect.w - 2 * border,    //
+                                 zoomedRect.h - 2 * border     //
+                             },
                              zoomedRadius);
     } else {
         SDL_SetRenderDrawColor((SDL_Renderer*)renderer, _color->r, _color->g, _color->b, _color->a);
@@ -122,23 +149,11 @@ void Node::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     }
     topButton.render(renderer, zoomFactor);
     labelName.render(renderer, zoomFactor);
-
-    /*  if (nameChangeModal) {
-         nameChangeModal->render(renderer, zoomFactor);
-     } */
 }
 
 bool Node::handleEvent(SDL_Event& event, float zoomfactor) {
 
     bool handled = false;
-
-    /* // model event first
-    if (nameChangeModal) {
-        handled |= nameChangeModal->handleEvent(event, zoomfactor);
-        if (handled) {
-            return true;
-        }
-    } */
 
     for (auto& connectionButton : addConnectionButtonList) {
         handled |= connectionButton->handleEvent(event, zoomfactor);
