@@ -1,8 +1,10 @@
 #include "../incl/canvas.h"
 #include "../incl/link.h"
+
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 
 std::weak_ptr<Node> Canvas::addNode(int x, int y) {
 
@@ -13,24 +15,195 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
     auto ptr = addDraggableWidget<Node>(x, y, 100, 200, _font, vec);
 
     if (auto node = ptr.lock()) {
+
+        node->onSelected.connect([ptr, this]() {
+            for (auto link : selectedLinks) {
+                link.lock()->unselect();
+            }
+            selectedLinks = findAllOutboundConnections(ptr);
+            for (auto link : selectedLinks) {
+                link.lock()->select();
+            }
+        });
+
+        node->onUnselected.connect([ptr, this]() {
+            for (auto link : selectedLinks) {
+                link.lock()->unselect();
+            }
+        });
+
         node->onTopButtonClick.connect([ptr, this]() {
             if (auto sharedPtr = ptr.lock()) {
                 sharedPtr->disconnectAllSignals();
                 removeNode(sharedPtr);
             }
         });
+
         node->onGlobalMouseLeftUp.connect([ptr, this]() {
             if (auto sharedPtr = ptr.lock()) {
                 upLeftNode(sharedPtr);
             }
         });
+
         node->onConnectMouseLeftDown.connect([ptr, this](std::weak_ptr<Relation> relation) {
             if (auto sharedPtr = ptr.lock()) {
                 downConnectNode(sharedPtr, relation);
             }
         });
-        node->onCreateModal.connect([this](std::shared_ptr<ModalValueChanger<std::string>> modal) {
-            this->setModal(modal);
+
+        node->onLabelRightDown.connect([ptr, this]() {
+            int mx, my;
+            SDL_GetMouseState(&mx, &my);
+            if (auto sharedPtr = ptr.lock()) {
+                auto modal = std::make_shared<ModalValueChanger<std::string>>(
+                    mx, my, 250, 0, "Change Node Name", sharedPtr->getName(), _font);
+                modal->onClosed.connect([ptr, this](std::optional<std::string> newName) {
+                    if (auto sharedptr2 = ptr.lock()) {
+                        if (newName.has_value()) {
+                            sharedptr2->changeName(newName.value());
+                        }
+                    }
+                    this->clearModal();
+                });
+                this->setModal(modal);
+            }
+        });
+
+        node->onOtherRightDown.connect([ptr, this]() {
+            int mx, my;
+            SDL_GetMouseState(&mx, &my);
+            if (auto sharedPtr = ptr.lock()) {
+                auto modal = std::make_shared<ModalMenu>(
+                    mx,
+                    my,
+                    200,
+                    0,
+                    _font,
+                    std::vector<std::pair<std::string, Signal<>::Slot>>{
+                        {
+                            "Set Unknown",    //
+                            [ptr, this]() {
+                                if (auto tmp_node = ptr.lock()) {
+                                    tmp_node->changeState(KnowledgeState::Unknown);
+                                }
+                            }    //
+                        },
+                        {
+                            "Set Certified",    //
+                            [ptr, this]() {
+                                if (auto tmp_node = ptr.lock()) {
+                                    switch (tmp_node->getState()) {
+                                    case KnowledgeState::Unknown:
+                                        break;
+                                    case KnowledgeState::Uncertified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Certified_Acquired);
+                                        break;
+                                    case KnowledgeState::Uncertified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Certified_Missing);
+                                        break;
+                                    case KnowledgeState::Certified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Certified_Acquired);
+                                        break;
+                                    case KnowledgeState::Certified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Certified_Missing);
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
+                            }    //
+                        },
+                        {
+                            "Set Uncertified",    //
+                            [ptr, this]() {
+                                if (auto tmp_node = ptr.lock()) {
+                                    switch (tmp_node->getState()) {
+                                    case KnowledgeState::Unknown:
+                                        tmp_node->changeState(KnowledgeState::Unknown);
+                                        break;
+                                    case KnowledgeState::Uncertified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Acquired);
+                                        break;
+                                    case KnowledgeState::Uncertified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Missing);
+                                        break;
+                                    case KnowledgeState::Certified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Acquired);
+                                        break;
+                                    case KnowledgeState::Certified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Missing);
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
+                            }    //
+                        },
+                        {
+                            "Set Missing",    //
+                            [ptr, this]() {
+                                if (auto tmp_node = ptr.lock()) {
+                                    switch (tmp_node->getState()) {
+                                    case KnowledgeState::Unknown:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Missing);
+                                        break;
+                                    case KnowledgeState::Uncertified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Missing);
+                                        break;
+                                    case KnowledgeState::Uncertified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Missing);
+                                        break;
+                                    case KnowledgeState::Certified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Certified_Missing);
+                                        break;
+                                    case KnowledgeState::Certified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Certified_Missing);
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
+                            }    //
+                        },
+                        {
+                            "Set Acquired",    //
+                            [ptr, this]() {
+                                if (auto tmp_node = ptr.lock()) {
+                                    switch (tmp_node->getState()) {
+                                    case KnowledgeState::Unknown:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Acquired);
+                                        break;
+                                    case KnowledgeState::Uncertified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Acquired);
+                                        break;
+                                    case KnowledgeState::Uncertified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Uncertified_Acquired);
+                                        break;
+                                    case KnowledgeState::Certified_Acquired:
+                                        tmp_node->changeState(KnowledgeState::Certified_Acquired);
+                                        break;
+                                    case KnowledgeState::Certified_Missing:
+                                        tmp_node->changeState(KnowledgeState::Certified_Acquired);
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
+                            }    //
+                        },
+                        {
+                            "Remove Node",    //
+                            [ptr, this]() {
+                                if (auto tmp_node = ptr.lock()) {
+                                    this->removeNode(ptr);
+                                }
+                            }    //
+                        }        //
+                    });
+
+                modal->close.connect([this]() { killModal = true; });
+                this->setModalMenu(modal);
+            }
         });
     }
 
@@ -74,6 +247,9 @@ bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
 bool Canvas::handleEvent(SDL_Event& event, float) {
     if (activeModal) {
         return activeModal->handleEvent(event, zoomFactor);
+    }
+    if (activeModalMenu) {
+        return activeModalMenu->handleEvent(event, zoomFactor);
     }
 
     bool handled = WidgetManager::handleEvents(event, zoomFactor);
@@ -201,13 +377,18 @@ void Canvas::moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFact
 }
 
 void Canvas::update() {
-
     // first, remove all nodes that need to be removed
     // be sur not to emit any signals before this !
     for (auto const& widget : widgetToRemove) {
         removeWidget(widget);
     }
     widgetToRemove.clear();
+
+    // same for modal windows
+    if (killModal) {
+        killModal = false;
+        clearModal();
+    }
 
     updateWidgets();
     if (mp_link) {
@@ -219,7 +400,6 @@ void Canvas::update() {
 }
 
 void Canvas::render(non_owning_ptr<SDL_Renderer> renderer, float) {
-
     // TODO have two separate lists for Links and Nodes
     // first all links
     auto links = find_all_by_type<Link>();
@@ -243,6 +423,9 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer, float) {
     if (activeModal) {
         activeModal->render(renderer, zoomFactor);
     }
+    if (activeModalMenu) {
+        activeModalMenu->render(renderer, zoomFactor);
+    }
 }
 
 SDL_Point Canvas::anchor() const noexcept {
@@ -252,9 +435,18 @@ SDL_Point Canvas::anchor() const noexcept {
 void Canvas::setModal(std::shared_ptr<ModalValueChanger<std::string>> modal) {
     activeModal = modal;
 }
+void Canvas::setModalMenu(std::shared_ptr<ModalMenu> modal) {
+    activeModalMenu = modal;
+}
 
 void Canvas::clearModal() {
-    activeModal.reset();
+
+    if (activeModal) {
+        activeModal.reset();
+    }
+    if (activeModalMenu) {
+        activeModalMenu.reset();
+    }
 }
 
 std::optional<std::weak_ptr<Link>>
@@ -284,6 +476,21 @@ Canvas::findConnection(std::weak_ptr<IWidget>  source,
         }
     }
     return {};
+}
+
+std::vector<std::weak_ptr<Link>>
+Canvas::findAllOutboundConnections(std::weak_ptr<Node> source) const noexcept {
+    auto result = std::vector<std::weak_ptr<Link>>();
+    auto links  = find_all_by_type<Link>();
+    for (auto link : links) {
+        if (auto lockedlink = link.lock()) {
+            if (lockedlink->isSource(source) ||
+                (!lockedlink->getRelation().lock()->directed() && lockedlink->isTarget(source))) {
+                result.push_back(link);
+            }
+        }
+    }
+    return result;
 }
 
 void Canvas::upLeftNode(std::weak_ptr<Node> node) {

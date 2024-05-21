@@ -15,7 +15,8 @@ void Link::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
 
     auto locked_relation = _relation.lock();
 
-    auto color = isHovered ? locked_relation->hoverColor() : locked_relation->baseColor();
+    auto color =
+        (isHovered || isSelected) ? locked_relation->hoverColor() : locked_relation->baseColor();
 
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);
 
@@ -155,4 +156,8 @@ bool Link::isTarget(std::weak_ptr<IWidget> w) const noexcept {
 }
 bool Link::isRelation(std::weak_ptr<Relation> r) const noexcept {
     return r.lock() == _relation.lock();
+}
+
+std::weak_ptr<Relation> Link::getRelation() const noexcept {
+    return _relation;
 }

@@ -2,6 +2,7 @@
 
 #include "../incl/iwidget.h"
 #include "../incl/link.h"
+#include "../incl/modalmenu.h"
 #include "../incl/mouse_position.h"
 #include "../incl/node.h"
 #include "../incl/relation.h"
@@ -11,7 +12,7 @@
 #include <optional>
 #include <string>
 
-class Canvas : public IWidget, public WidgetManager {
+class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public WidgetManager {
 
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
@@ -24,14 +25,14 @@ class Canvas : public IWidget, public WidgetManager {
                                                         true)} {
 
         vec.push_back(std::make_shared<Relation>(
-            "Is A", SDL_Color{0, 200, 0, 255}, SDL_Color{30, 230, 30, 255}, false, true));
+            "Is A", SDL_Color{0, 200, 0, 255}, SDL_Color{50, 250, 50, 255}, false, true));
         vec.push_back(std::make_shared<Relation>("Example Of",
                                                  SDL_Color{100, 100, 200, 255},
-                                                 SDL_Color{130, 130, 230, 255},
+                                                 SDL_Color{150, 150, 250, 255},
                                                  true,
                                                  true));
         vec.push_back(std::make_shared<Relation>(
-            "Explain", SDL_Color{200, 200, 0, 255}, SDL_Color{230, 230, 30, 255}, true, true));
+            "Explain", SDL_Color{200, 200, 0, 255}, SDL_Color{250, 250, 50, 255}, true, true));
     }
 
     std::weak_ptr<Node> addNode(int x, int y);
@@ -68,6 +69,9 @@ class Canvas : public IWidget, public WidgetManager {
     void disconnectAllSignals() noexcept;
     void moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFactor);
 
+    std::vector<std::weak_ptr<Link>>
+    findAllOutboundConnections(std::weak_ptr<Node> source) const noexcept;
+
     ~Canvas();
 
   private:
@@ -84,8 +88,14 @@ class Canvas : public IWidget, public WidgetManager {
 
     std::vector<std::weak_ptr<IWidget>>             widgetToRemove;
     std::shared_ptr<ModalValueChanger<std::string>> activeModal;
+    std::shared_ptr<ModalMenu>                      activeModalMenu;
 
     void setModal(std::shared_ptr<ModalValueChanger<std::string>> modal);
+    void setModalMenu(std::shared_ptr<ModalMenu> modal);
     void clearModal();
     void removeAnyMousePosition();
+
+    bool killModal = false;
+
+    std::vector<std::weak_ptr<Link>> selectedLinks;
 };

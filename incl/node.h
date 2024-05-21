@@ -4,6 +4,7 @@
 #include "../incl/idraggable.h"
 #include "../incl/knowledge.h"
 #include "../incl/label.h"
+#include "../incl/modalmenu.h"
 #include "../incl/modalvaluechanger.h"
 #include "../incl/relation.h"
 #include "../incl/signal.h"
@@ -34,19 +35,25 @@ class Node : public IDraggable {
     void disconnectAllSignals() noexcept;
 
     // SIGNALS
-    Signal<>                                                onTopButtonClick;
-    Signal<std::string>                                     onNameChanged;
-    Signal<>                                                onGlobalMouseLeftUp;
-    Signal<std::weak_ptr<Relation>>                         onConnectMouseLeftDown;
-    Signal<std::shared_ptr<ModalValueChanger<std::string>>> onCreateModal;
+    Signal<>                        onTopButtonClick;
+    Signal<std::string>             onNameChanged;
+    Signal<>                        onGlobalMouseLeftUp;
+    Signal<>                        onGlobalMouseRightDown;
+    Signal<std::weak_ptr<Relation>> onConnectMouseLeftDown;
+    Signal<>                        onLabelRightDown;
+    Signal<>                        onOtherRightDown;
 
     // SLOTS
     void topButtonClick();
-    void changeName(std::string name);
     void globalMouseLeftUp();
     void connectMouseLeftDown(std::weak_ptr<Relation> relation);
 
-    void changeState(KnowledgeState newstate);
+    void globalMouseRightDown();
+
+    void           changeName(std::string name);
+    std::string    getName() const noexcept;
+    void           changeState(KnowledgeState newstate);
+    KnowledgeState getState() const noexcept;
 
   private:
     int radius;
@@ -56,10 +63,9 @@ class Node : public IDraggable {
     TextButton topButton;
     Label      labelName;
 
-    std::vector<std::unique_ptr<TextButton>>        addConnectionButtonList;
-    std::shared_ptr<ModalValueChanger<std::string>> nameChangeModal;
-    non_owning_ptr<TTF_Font>                        _font;
+    std::vector<std::unique_ptr<TextButton>> addConnectionButtonList;
 
     KnowledgeState state = KnowledgeState::Unknown;
-    void           showChangeNameModal(non_owning_ptr<TTF_Font> font);
+
+    non_owning_ptr<TTF_Font> _font;
 };

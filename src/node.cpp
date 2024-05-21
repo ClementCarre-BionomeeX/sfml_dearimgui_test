@@ -51,8 +51,12 @@ Node::Node(int                                           x,
     });
 
     labelName.onMouseRightDown.connect([this](int, int) {
-        showChangeNameModal(_font);    //
+        // showChangeNameModal(_font);    //
+        onLabelRightDown.emit();
     });
+
+    onMouseRightDown.connect([this](int, int) { onOtherRightDown.emit(); });
+    topButton.onMouseRightDown.connect([this](int, int) { onOtherRightDown.emit(); });
 
     for (auto& relation : relationList) {
         addConnectionButtonList.emplace_back(std::make_unique<TextButton>(x + margin,
@@ -70,6 +74,9 @@ Node::Node(int                                           x,
     for (auto& connectionButton : addConnectionButtonList) {
         connectionButton->onMouseLeftUp.connect([this](int, int) {
             globalMouseLeftUp();    //
+        });
+        connectionButton->onMouseRightDown.connect([this](int, int) {
+            onOtherRightDown.emit();    //
         });
         connectionButton->onMouseLeftDown.connect(
             [this, i, relation = std::weak_ptr<Relation>(relationList[i])](int, int) {
@@ -190,28 +197,17 @@ void Node::globalMouseLeftUp() {
     onGlobalMouseLeftUp.emit();
 }
 
+void Node::globalMouseRightDown() {
+    onGlobalMouseRightDown.emit();
+}
+
 void Node::connectMouseLeftDown(std::weak_ptr<Relation> relation) {
     onConnectMouseLeftDown.emit(relation);
 }
+std::string Node::getName() const noexcept {
+    return labelName.getText();
+}
 
-void Node::showChangeNameModal(non_owning_ptr<TTF_Font> font) {
-
-    // let's say this is a GUI element, so always render at mouse position, do not move and do not
-    // zoom
-    int mx, my;
-    SDL_GetMouseState(&mx, &my);
-
-    auto modal = std::make_shared<ModalValueChanger<std::string>>(
-        mx + 20, my + 20, 250, 0, "Change Node Name", labelName.getText(), font);
-
-    nameChangeModal = modal;
-
-    modal->onClosed.connect([this](std::optional<std::string> newName) {
-        if (newName.has_value()) {
-            changeName(newName.value());
-        }
-        nameChangeModal.reset();
-        onCreateModal.emit(nullptr);    // Signal to clear the modal in the canvas
-    });
-    onCreateModal.emit(modal);
+KnowledgeState Node::getState() const noexcept {
+    return state;
 }

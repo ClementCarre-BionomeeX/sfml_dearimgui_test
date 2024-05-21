@@ -44,8 +44,13 @@ class IWidget {
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             if (event.button.button == SDL_BUTTON_LEFT && isHover) {
                 onMouseLeftDown.emit(mouseX, mouseY);
+                onSelected.emit();
                 handled = true;
             }
+            if (event.button.button == SDL_BUTTON_LEFT && !isHover) {
+                onUnselected.emit();
+            }
+
         } else if (event.type == SDL_MOUSEBUTTONUP) {
             if (event.button.button == SDL_BUTTON_LEFT && isHover) {
                 onMouseLeftUp.emit(mouseX, mouseY);

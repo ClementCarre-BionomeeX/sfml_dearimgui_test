@@ -29,8 +29,13 @@ class Link : public IWidget {
     bool isTarget(std::weak_ptr<IWidget> w) const noexcept;
     bool isRelation(std::weak_ptr<Relation> r) const noexcept;
 
+    std::weak_ptr<Relation> getRelation() const noexcept;
+
     // debug
     Signal<std::string> debug;
+
+    void select() { isSelected = true; }
+    void unselect() { isSelected = false; }
 
   private:
     std::weak_ptr<IWidget> _source;
