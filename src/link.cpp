@@ -161,3 +161,8 @@ bool Link::isRelation(std::weak_ptr<Relation> r) const noexcept {
 std::weak_ptr<Relation> Link::getRelation() const noexcept {
     return _relation;
 }
+
+json Link::save() const {
+    // problem: how to synchronize ?
+    // return {{"source", _source.lock()->? ? } };
+}

@@ -1,6 +1,8 @@
 #pragma once
+#include "../incl/json.h"
 #include <SDL2/SDL.h>
 #include <string>
+using json = nlohmann::json;
 
 class Relation {
 
@@ -21,6 +23,8 @@ class Relation {
     bool transitive() const noexcept;
 
     bool operator==(Relation const& other) const noexcept;
+
+    json save() const;
 
   private:
     std::string _name{""};

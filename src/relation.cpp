@@ -19,3 +19,11 @@ bool Relation::transitive() const noexcept {
 bool Relation::operator==(Relation const& other) const noexcept {
     return _name == other._name;
 }
+
+json Relation::save() const {
+    return {{"name", _name},
+            {"basecolor", {_baseColor.r, _baseColor.g, _baseColor.b, _baseColor.a}},
+            {"hovercolor", {_hoverColor.r, _hoverColor.g, _hoverColor.b, _hoverColor.a}},
+            {"directed", _directed},
+            {"transitive", _transitive}};
+}

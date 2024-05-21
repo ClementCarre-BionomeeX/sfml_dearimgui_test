@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../incl/iwidget.h"
+#include "../incl/json.h"
+using json = nlohmann::json;
+
 #include "../incl/link.h"
 #include "../incl/modalmenu.h"
 #include "../incl/mouse_position.h"
@@ -16,8 +19,8 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
 
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
-        : IWidget(), WidgetManager(renderer), _font(font), vec(),
-          zoomFactor(1.0f), mp{std::make_shared<MousePosition>()},
+        : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f),
+          mp{std::make_shared<MousePosition>()},
           mouse_pos_relation{std::make_shared<Relation>("",
                                                         SDL_Color{0, 0, 0, 255},
                                                         SDL_Color{0, 0, 0, 255},
@@ -73,6 +76,8 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     findAllOutboundConnections(std::weak_ptr<Node> source) const noexcept;
 
     ~Canvas();
+
+    json Canvas::save() const;
 
   private:
     non_owning_ptr<TTF_Font>               _font;

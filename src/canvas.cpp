@@ -1,4 +1,5 @@
 #include "../incl/canvas.h"
+#include "../incl/json.h"
 #include "../incl/link.h"
 
 #include <iostream>
@@ -564,4 +565,12 @@ Canvas::~Canvas() {
     vec.clear();        // Explicitly clear the vector of shared pointers
     mp_link.reset();    // Ensure unique_ptr resources are released if applicable
     removeAnyMousePosition();
+}
+
+json Canvas::save() const {
+    json result;
+
+    result["zoomFactor"] = zoomFactor;
+
+    result["vec"] =
 }
