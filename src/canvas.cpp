@@ -18,17 +18,23 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
 
         node->onSelected.connect([ptr, this]() {
             for (auto link : selectedLinks) {
-                link.lock()->unselect();
+                if (auto locked = link.lock()) {
+                    locked->unselect();
+                }
             }
             selectedLinks = findAllOutboundConnections(ptr);
             for (auto link : selectedLinks) {
-                link.lock()->select();
+                if (auto locked = link.lock()) {
+                    locked->select();
+                }
             }
         });
 
         node->onUnselected.connect([ptr, this]() {
             for (auto link : selectedLinks) {
-                link.lock()->unselect();
+                if (auto locked = link.lock()) {
+                    locked->unselect();
+                }
             }
         });
 
