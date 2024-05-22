@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../incl/iwidget.h"
+#include "../incl/json.h"
 #include "../incl/link.h"
 #include "../incl/modalmenu.h"
 #include "../incl/mouse_position.h"
@@ -11,6 +12,7 @@
 #include <SDL2/SDL.h>
 #include <optional>
 #include <string>
+using json = nlohmann::json;
 
 class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public WidgetManager {
 
@@ -74,6 +76,9 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
 
     ~Canvas();
 
+    json save() const;
+    void load(std::string path);
+
   private:
     non_owning_ptr<TTF_Font>               _font;
     std::vector<std::shared_ptr<Relation>> vec;
@@ -95,7 +100,9 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     void clearModal();
     void removeAnyMousePosition();
 
-    bool killModal = false;
+    bool                       killModal = false;
+    std::optional<std::string> loadFromFile{};
+    void                       from_json(json j);
 
     std::vector<std::weak_ptr<Link>> selectedLinks;
 };

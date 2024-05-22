@@ -1,6 +1,9 @@
 #pragma once
+#include "../incl/json.h"
 #include <SDL2/SDL.h>
 #include <string>
+#include <tuple>
+using json = nlohmann::json;
 
 class Relation {
 
@@ -22,6 +25,8 @@ class Relation {
 
     bool operator==(Relation const& other) const noexcept;
 
+    json save() const;
+
   private:
     std::string _name{""};
     SDL_Color   _baseColor{0, 0, 0, 0};
@@ -31,3 +36,5 @@ class Relation {
     bool _directed   = true;
     bool _transitive = false;
 };
+
+std::tuple<std::string, SDL_Color, SDL_Color, bool, bool> relationFromJson(json j);

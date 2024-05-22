@@ -211,3 +211,18 @@ std::string Node::getName() const noexcept {
 KnowledgeState Node::getState() const noexcept {
     return state;
 }
+
+json Node::save() const {
+    return {
+        {"name", labelName.getText()}, {"position", {rect.x, rect.y}}, {"state", to_json(state)}};
+}
+
+std::tuple<std::string, int, int, KnowledgeState> nodeFromJson(json j) {
+    std::string name = j["name"];
+    int         x    = j["position"][0];
+    int         y    = j["position"][1];
+
+    KnowledgeState state = from_json(j["state"]);
+
+    return {name, x, y, state};
+}

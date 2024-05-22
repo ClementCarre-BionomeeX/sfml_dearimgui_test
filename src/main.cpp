@@ -2,6 +2,7 @@
 #include "../incl/canvas.h"
 #include "../incl/filedialog.h"
 #include "../incl/gui.h"
+#include "../incl/json.h"
 #include "../incl/link.h"
 #include "../incl/node.h"
 #include "../incl/relation.h"
@@ -10,12 +11,14 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cctype>
+#include <fstream>
 #include <gtk/gtk.h>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <string>
 #include <vector>
+using json = nlohmann::json;
 
 // MARK: main
 int main(int argc, char* argv[]) {
@@ -47,7 +50,7 @@ int main(int argc, char* argv[]) {
     gui.onQuitClick.connect([&running]() { running = false; });
     gui.onAddNodeClick.connect([&canvas]() { canvas.addNode(200, 50); });
 
-    gui.onLoadClick.connect([]() {
+    gui.onLoadClick.connect([&canvas]() {
         std::string result;
         LoadFileDialog(result);
         if (result != "") {
@@ -55,8 +58,9 @@ int main(int argc, char* argv[]) {
         } else {
             std::cout << "no path provided" << std::endl;
         }
+        canvas.load(result);
     });
-    gui.onSaveClick.connect([]() {
+    gui.onSaveClick.connect([&canvas]() {
         std::string result;
         SaveFileDialog(result);
         if (result != "") {
@@ -64,40 +68,42 @@ int main(int argc, char* argv[]) {
         } else {
             std::cout << "no path provided" << std::endl;
         }
+        std::ofstream file(result);
+        file << canvas.save().dump();
     });
 
     gui.onBackgroundLeftUp.connect([&canvas]() { canvas.backgroundLeftUp(0, 0); });
 
-    //! TESTS NODES for color choosing
-    auto certiMiss = canvas.addNode(200, 150);
-    if (auto lockedptr = certiMiss.lock()) {
-        lockedptr->changeState(KnowledgeState::Certified_Missing);
-        lockedptr->changeName("Missing");
-    }
+    // //! TESTS NODES for color choosing
+    // auto certiMiss = canvas.addNode(200, 150);
+    // if (auto lockedptr = certiMiss.lock()) {
+    //     lockedptr->changeState(KnowledgeState::Certified_Missing);
+    //     lockedptr->changeName("Missing");
+    // }
 
-    auto unknMiss = canvas.addNode(350, 150);
-    if (auto lockedptr = unknMiss.lock()) {
-        lockedptr->changeState(KnowledgeState::Uncertified_Missing);
-        lockedptr->changeName("Missing ?");
-    }
+    // auto unknMiss = canvas.addNode(350, 150);
+    // if (auto lockedptr = unknMiss.lock()) {
+    //     lockedptr->changeState(KnowledgeState::Uncertified_Missing);
+    //     lockedptr->changeName("Missing ?");
+    // }
 
-    auto ukn = canvas.addNode(500, 150);
-    if (auto lockedptr = ukn.lock()) {
-        lockedptr->changeState(KnowledgeState::Unknown);
-        lockedptr->changeName("UNKNOWN");
-    }
+    // auto ukn = canvas.addNode(500, 150);
+    // if (auto lockedptr = ukn.lock()) {
+    //     lockedptr->changeState(KnowledgeState::Unknown);
+    //     lockedptr->changeName("UNKNOWN");
+    // }
 
-    auto unknAcqui = canvas.addNode(650, 150);
-    if (auto lockedptr = unknAcqui.lock()) {
-        lockedptr->changeState(KnowledgeState::Uncertified_Acquired);
-        lockedptr->changeName("Acquired ?");
-    }
+    // auto unknAcqui = canvas.addNode(650, 150);
+    // if (auto lockedptr = unknAcqui.lock()) {
+    //     lockedptr->changeState(KnowledgeState::Uncertified_Acquired);
+    //     lockedptr->changeName("Acquired ?");
+    // }
 
-    auto certiAcqui = canvas.addNode(800, 150);
-    if (auto lockedptr = certiAcqui.lock()) {
-        lockedptr->changeState(KnowledgeState::Certified_Acquired);
-        lockedptr->changeName("Acquired");
-    }
+    // auto certiAcqui = canvas.addNode(800, 150);
+    // if (auto lockedptr = certiAcqui.lock()) {
+    //     lockedptr->changeState(KnowledgeState::Certified_Acquired);
+    //     lockedptr->changeName("Acquired");
+    // }
 
     while (running) {
 

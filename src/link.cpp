@@ -1,5 +1,6 @@
 #include "../incl/link.h"
 #include "../incl/draw_utils.h"
+#include "../incl/findindexof.h"
 #include "../incl/utils.h"
 #include <cmath>
 #include <iostream>
@@ -160,4 +161,11 @@ bool Link::isRelation(std::weak_ptr<Relation> r) const noexcept {
 
 std::weak_ptr<Relation> Link::getRelation() const noexcept {
     return _relation;
+}
+
+json Link::save(std::vector<std::weak_ptr<IWidget>> const&  widgets,
+                std::vector<std::weak_ptr<Relation>> const& relations) const {
+    return {{"source", findIndexOfWeakPtr(widgets, _source)},
+            {"target", findIndexOfWeakPtr(widgets, _target)},
+            {"relation", findIndexOfWeakPtr(relations, _relation)}};
 }

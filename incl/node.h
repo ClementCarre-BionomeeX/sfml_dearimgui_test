@@ -2,6 +2,7 @@
 
 #include "../incl/button.h"
 #include "../incl/idraggable.h"
+#include "../incl/json.h"
 #include "../incl/knowledge.h"
 #include "../incl/label.h"
 #include "../incl/modalmenu.h"
@@ -16,6 +17,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+using json = nlohmann::json;
 
 class Node : public IDraggable {
   public:
@@ -55,6 +57,8 @@ class Node : public IDraggable {
     void           changeState(KnowledgeState newstate);
     KnowledgeState getState() const noexcept;
 
+    json save() const;
+
   private:
     int radius;
     int margin        = 5;
@@ -69,3 +73,5 @@ class Node : public IDraggable {
 
     non_owning_ptr<TTF_Font> _font;
 };
+
+std::tuple<std::string, int, int, KnowledgeState> nodeFromJson(json j);

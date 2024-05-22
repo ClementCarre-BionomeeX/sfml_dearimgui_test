@@ -28,12 +28,10 @@ class WidgetManager {
 
   protected:
     // drag managment
-    std::weak_ptr<IWidget>       selection;
-    int                          startx = 0;
-    int                          starty = 0;
-    non_owning_ptr<SDL_Renderer> _renderer;
-
-  private:
+    std::weak_ptr<IWidget>                selection;
+    int                                   startx = 0;
+    int                                   starty = 0;
+    non_owning_ptr<SDL_Renderer>          _renderer;
     std::vector<std::shared_ptr<IWidget>> widgets;
 };
 
