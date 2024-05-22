@@ -2,8 +2,6 @@
 
 #include "../incl/iwidget.h"
 #include "../incl/json.h"
-using json = nlohmann::json;
-
 #include "../incl/link.h"
 #include "../incl/modalmenu.h"
 #include "../incl/mouse_position.h"
@@ -14,13 +12,14 @@ using json = nlohmann::json;
 #include <SDL2/SDL.h>
 #include <optional>
 #include <string>
+using json = nlohmann::json;
 
 class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public WidgetManager {
 
   public:
     Canvas(non_owning_ptr<SDL_Renderer> renderer, non_owning_ptr<TTF_Font> font)
-        : IWidget(), WidgetManager(renderer), _font(font), vec(), zoomFactor(1.0f),
-          mp{std::make_shared<MousePosition>()},
+        : IWidget(), WidgetManager(renderer), _font(font), vec(),
+          zoomFactor(1.0f), mp{std::make_shared<MousePosition>()},
           mouse_pos_relation{std::make_shared<Relation>("",
                                                         SDL_Color{0, 0, 0, 255},
                                                         SDL_Color{0, 0, 0, 255},
@@ -77,7 +76,8 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
 
     ~Canvas();
 
-    json Canvas::save() const;
+    json save() const;
+    void load(std::string path);
 
   private:
     non_owning_ptr<TTF_Font>               _font;
@@ -100,7 +100,9 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     void clearModal();
     void removeAnyMousePosition();
 
-    bool killModal = false;
+    bool                       killModal = false;
+    std::optional<std::string> loadFromFile{};
+    void                       from_json(json j);
 
     std::vector<std::weak_ptr<Link>> selectedLinks;
 };

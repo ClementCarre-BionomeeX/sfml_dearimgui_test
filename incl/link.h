@@ -9,6 +9,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
+#include <vector>
 using json = nlohmann::json;
 
 class Link : public IWidget {
@@ -39,7 +40,8 @@ class Link : public IWidget {
     void select() { isSelected = true; }
     void unselect() { isSelected = false; }
 
-    json save() const;
+    json save(std::vector<std::weak_ptr<IWidget>> const&  widgets,
+              std::vector<std::weak_ptr<Relation>> const& relations) const;
 
   private:
     std::weak_ptr<IWidget> _source;

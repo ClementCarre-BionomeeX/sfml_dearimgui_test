@@ -1,7 +1,9 @@
 #include "../incl/canvas.h"
 #include "../incl/json.h"
 #include "../incl/link.h"
-
+#include "../incl/relation.h"
+#include "../incl/vecvectransform.h"
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -384,7 +386,22 @@ void Canvas::moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFact
 }
 
 void Canvas::update() {
-    // first, remove all nodes that need to be removed
+    // first heck if we need to load anything
+    if (loadFromFile.has_value()) {
+        // load json
+        json j;
+        try {
+            std::ifstream file(loadFromFile.value());
+            file >> j;
+        } catch (const json::parse_error& e) {
+            std::cerr << "JSON parse error: " << e.what() << std::endl;
+            return;
+        }
+        // then apply
+        from_json(j);
+        loadFromFile.reset();
+    }
+    // then, remove all nodes that need to be removed
     // be sur not to emit any signals before this !
     for (auto const& widget : widgetToRemove) {
         removeWidget(widget);
@@ -568,9 +585,111 @@ Canvas::~Canvas() {
 }
 
 json Canvas::save() const {
+
     json result;
 
     result["zoomFactor"] = zoomFactor;
 
     result["vec"] =
+        transformVector<std::shared_ptr<Relation>, json>(vec, [](auto rel) { return rel->save(); });
+
+    auto nodes = find_all_by_type<Node>();
+
+    result["nodes"] =
+        transformVector<std::weak_ptr<Node>, json>(nodes, [](std::weak_ptr<Node> node) {
+            if (auto lockednode = node.lock()) {
+                return lockednode->save();
+            } else {
+                return json{};
+            }
+        });
+
+    auto links         = find_all_by_type<Link>();
+    auto weakrelations = transformVector<std::shared_ptr<Relation>, std::weak_ptr<Relation>>(
+        vec, [](auto rel) { return std::weak_ptr<Relation>(rel); });
+
+    auto genericnodes =
+        transformVector<std::weak_ptr<Node>, std::weak_ptr<IWidget>>(nodes, [](auto node) {
+            if (auto lockednode = node.lock()) {
+                return std::weak_ptr<IWidget>(std::static_pointer_cast<IWidget>(lockednode));
+            } else {
+                return std::weak_ptr<IWidget>{};
+            }
+        });
+
+    result["links"] =
+        transformVector<std::weak_ptr<Link>, json>(links, [genericnodes, weakrelations](auto link) {
+            return link.lock()->save(genericnodes, weakrelations);
+        });
+
+    return result;
+}
+
+void Canvas::from_json(json j) {
+    // first, should remove all preceding values
+    removeAnyMousePosition();
+    vec.clear();
+    selectedLinks.clear();
+    selection.reset();
+    widgetToRemove.clear();
+    killModal = false;
+
+    widgets.clear();
+    // auto nodes = find_all_by_type<Node>();
+    // for (auto node : nodes) {
+    //     removeNode(node);
+    // }
+
+    // auto nodes = find_all_by_type<Node>();
+    // for (auto node : nodes) {
+    //     removeNode(node);
+    // }
+
+    // do not touch mp or mp_pos_relation
+
+    // first add the relations
+
+    for (auto reljson : j["vec"]) {
+        auto [name, basecolor, hovercolor, directed, transitive] = relationFromJson(reljson);
+        vec.push_back(
+            std::make_shared<Relation>(name, basecolor, hovercolor, directed, transitive));
+    }
+
+    // then read the zoomfactor
+    zoomFactor = j["zoomFactor"];
+
+    // then the nodes
+    for (auto nodejson : j["nodes"]) {
+        auto [name, x, y, state] = nodeFromJson(nodejson);
+        auto node                = addNode(x, y);
+        if (auto lockednode = node.lock()) {
+            lockednode->changeName(name);
+            lockednode->changeState(state);
+        }
+    }
+
+    // finally the links
+    for (auto linkjson : j["links"]) {
+        std::shared_ptr<IWidget> shared_iwidget_source =
+            widgets[linkjson["source"].get<std::size_t>()];
+        std::shared_ptr<Node> shared_node_source =
+            std::dynamic_pointer_cast<Node>(shared_iwidget_source);
+        std::shared_ptr<IWidget> shared_iwidget_target =
+            widgets[linkjson["target"].get<std::size_t>()];
+        std::shared_ptr<Node> shared_node_target =
+            std::dynamic_pointer_cast<Node>(shared_iwidget_target);
+        if (shared_node_source && shared_node_target) {
+            std::weak_ptr<Node> weak_node_source = shared_node_source;
+            std::weak_ptr<Node> weak_node_target = shared_node_target;
+            connectNodes(weak_node_source,
+                         weak_node_target,
+                         std::weak_ptr<Relation>(vec[linkjson["relation"].get<std::size_t>()])    //
+            );
+        }
+    }
+}
+
+void Canvas::load(std::string path) {
+    loadFromFile.reset();
+    loadFromFile = path;
 }

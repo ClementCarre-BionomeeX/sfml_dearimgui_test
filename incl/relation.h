@@ -2,6 +2,7 @@
 #include "../incl/json.h"
 #include <SDL2/SDL.h>
 #include <string>
+#include <tuple>
 using json = nlohmann::json;
 
 class Relation {
@@ -35,3 +36,5 @@ class Relation {
     bool _directed   = true;
     bool _transitive = false;
 };
+
+std::tuple<std::string, SDL_Color, SDL_Color, bool, bool> relationFromJson(json j);
