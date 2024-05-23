@@ -112,7 +112,7 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     std::optional<std::string> loadFromFile{};
     void                       from_json(json j);
 
-    std::vector<std::weak_ptr<Link>> selectedLinks;
+    std::vector<std::weak_ptr<Link>> outboundsLinks;
 
     bool isDragging = false;
 

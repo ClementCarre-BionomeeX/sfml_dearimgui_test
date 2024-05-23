@@ -21,13 +21,13 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
     if (auto node = ptr.lock()) {
 
         node->onSelected.connect([ptr, this]() {
-            for (auto link : selectedLinks) {
+            for (auto link : outboundsLinks) {
                 if (auto locked = link.lock()) {
                     locked->unselect();
                 }
             }
-            selectedLinks = findAllOutboundConnections(ptr);
-            for (auto link : selectedLinks) {
+            outboundsLinks = findAllOutboundConnections(ptr);
+            for (auto link : outboundsLinks) {
                 if (auto locked = link.lock()) {
                     locked->select();
                 }
@@ -41,7 +41,7 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
         });
 
         node->onUnselected.connect([ptr, this]() {
-            for (auto link : selectedLinks) {
+            for (auto link : outboundsLinks) {
                 if (auto locked = link.lock()) {
                     locked->unselect();
                 }
@@ -366,8 +366,8 @@ void Canvas::startDragging(int x, int y) noexcept {
     for (auto node : nodes) {
         if (auto lockednode = node.lock()) {
             auto pos = lockednode->position();
-            xstarts.push_back((int)((float)(x) / zoomFactor) - pos.x);
-            ystarts.push_back((int)((float)(y) / zoomFactor) - pos.y);
+            xstarts.push_back(static_cast<int>(static_cast<float>(x) / zoomFactor) - pos.x);
+            ystarts.push_back(static_cast<int>(static_cast<float>(y) / zoomFactor) - pos.y);
         }
     }
 
@@ -383,9 +383,9 @@ void Canvas::computeDragging(int x, int y) noexcept {
     std::size_t i     = 0;
     for (auto node : nodes) {
         if (auto lockednode = node.lock()) {
-            lockednode->moveTo(                                 //
-                (int)((float)(x) / zoomFactor) - xstarts[i],    //
-                (int)((float)(y) / zoomFactor) - ystarts[i]     //
+            lockednode->moveTo(                                                       //
+                static_cast<int>(static_cast<float>(x) / zoomFactor) - xstarts[i],    //
+                static_cast<int>(static_cast<float>(y) / zoomFactor) - ystarts[i]     //
             );
         }
         ++i;
@@ -669,7 +669,7 @@ void Canvas::from_json(json j) {
     // first, should remove all preceding values
     removeAnyMousePosition();
     vec.clear();
-    selectedLinks.clear();
+    outboundsLinks.clear();
     selection.reset();
     widgetToRemove.clear();
     killModal = false;
