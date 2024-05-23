@@ -261,8 +261,8 @@ bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
 }
 
 bool Canvas::handleEvent(SDL_Event& event, float) {
-    int mouseX = event.motion.x;
-    int mouseY = event.motion.y;
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
 
     if (activeModal) {
         return activeModal->handleEvent(event, zoomFactor);
