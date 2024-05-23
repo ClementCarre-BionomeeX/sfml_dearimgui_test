@@ -107,6 +107,8 @@ class IWidget {
     void select() { isSelected = true; }
     void unselect() { isSelected = false; }
 
+    bool is_selected() const { return isSelected; }
+
     Signal<> onSelected;
     Signal<> onUnselected;
 
