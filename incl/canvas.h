@@ -55,12 +55,18 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     Signal<std::weak_ptr<Node>> onNodeLeftDown;
     Signal<int, int>            onBackgroundLeftUp;
     Signal<int, int>            onBackgroundLeftDown;
+    Signal<int, int>            onBackgroundRightUp;
+    Signal<int, int>            onBackgroundRightDown;
     Signal<std::weak_ptr<Node>> onNodeConnectDown;
 
     void upLeftNode(std::weak_ptr<Node> node);
     void downLeftNode(std::weak_ptr<Node> node);
     void backgroundLeftUp(int x, int y);
     void backgroundLeftDown(int x, int y);
+
+    void backgroundRightUp(int x, int y);
+    void backgroundRightDown(int x, int y);
+
     void downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation);
 
     std::optional<std::weak_ptr<Link>>
@@ -79,7 +85,7 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     json save() const;
     void load(std::string path);
 
-    void applyFruchtermanReingoldAlgorithm();
+    void applyFruchtermanReingoldAlgorithm(non_owning_ptr<SDL_Renderer> renderer);
 
   private:
     non_owning_ptr<TTF_Font>               _font;
@@ -107,4 +113,13 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     void                       from_json(json j);
 
     std::vector<std::weak_ptr<Link>> selectedLinks;
+
+    bool isDragging = false;
+
+    std::vector<int> xstarts{};
+    std::vector<int> ystarts{};
+
+    void startDragging(int x, int y) noexcept;
+    void endDragging(int x, int y) noexcept;
+    void computeDragging(int x, int y) noexcept;
 };

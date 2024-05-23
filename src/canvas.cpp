@@ -255,6 +255,9 @@ bool Canvas::disconnectNodes(std::weak_ptr<Node>     source,
 }
 
 bool Canvas::handleEvent(SDL_Event& event, float) {
+    int mouseX = event.motion.x;
+    int mouseY = event.motion.y;
+
     if (activeModal) {
         return activeModal->handleEvent(event, zoomFactor);
     }
@@ -265,18 +268,25 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
     bool handled = WidgetManager::handleEvents(event, zoomFactor);
 
     if (!handled) {
-
-        int mouseX = event.motion.x;
-        int mouseY = event.motion.y;
-
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 backgroundLeftDown(mouseX, mouseY);
                 handled = true;
             }
+            if (event.button.button == SDL_BUTTON_RIGHT) {
+                backgroundRightDown(mouseX, mouseY);
+                startDragging(mouseX, mouseY);
+                handled = true;
+            }
+
         } else if (event.type == SDL_MOUSEBUTTONUP) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 backgroundLeftUp(mouseX, mouseY);
+                handled = true;
+            }
+            if (event.button.button == SDL_BUTTON_RIGHT) {
+                backgroundRightUp(mouseX, mouseY);
+                endDragging(mouseX, mouseY);
                 handled = true;
             }
         }
@@ -316,27 +326,15 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
             zoomFactor = std::max(0.1f, std::min(zoomFactor, 2.0f));
         }
 
-        // Get mouse position in window coordinates
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
-
         moveWidgetsAround({mouseX, mouseY}, oldZoomFactor);
         handled = true;
 
         break;
     }
     case SDL_MOUSEMOTION: {
-        if (event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {    // Pan with middle mouse
+        if (event.motion.state && isDragging) {    // Pan with middle mouse
 
-            int worldMouseX = static_cast<int>(static_cast<float>(event.motion.xrel) / zoomFactor);
-            int worldMouseY = static_cast<int>(static_cast<float>(event.motion.yrel) / zoomFactor);
-
-            auto allwidgets = find_all_by_type<IWidget>();
-            for (auto widget : allwidgets) {
-                if (auto lockedwidget = widget.lock()) {
-                    lockedwidget->push(worldMouseX, worldMouseY);
-                }
-            }
+            computeDragging(mouseX, mouseY);
             handled = true;
         }
         break;
@@ -347,9 +345,6 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
             // Reset the zoom factor to 1
             zoomFactor = 1.0f;
 
-            int mouseX, mouseY;
-            SDL_GetMouseState(&mouseX, &mouseY);
-
             moveWidgetsAround({mouseX, mouseY}, oldZoomFactor);
             handled = true;
         }
@@ -358,6 +353,37 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
     }
 
     return handled;
+}
+
+void Canvas::startDragging(int x, int y) noexcept {
+    auto nodes = find_all_by_type<Node>();
+    for (auto node : nodes) {
+        if (auto lockednode = node.lock()) {
+            auto pos = lockednode->position();
+            xstarts.push_back((int)((float)(x) / zoomFactor) - pos.x);
+            ystarts.push_back((int)((float)(y) / zoomFactor) - pos.y);
+        }
+    }
+
+    isDragging = true;
+}
+void Canvas::endDragging(int, int) noexcept {
+    xstarts.clear();
+    ystarts.clear();
+    isDragging = false;
+}
+void Canvas::computeDragging(int x, int y) noexcept {
+    auto        nodes = find_all_by_type<Node>();
+    std::size_t i     = 0;
+    for (auto node : nodes) {
+        if (auto lockednode = node.lock()) {
+            lockednode->moveTo(                                 //
+                (int)((float)(x) / zoomFactor) - xstarts[i],    //
+                (int)((float)(y) / zoomFactor) - ystarts[i]     //
+            );
+        }
+        ++i;
+    }
 }
 
 void Canvas::moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFactor) {
@@ -547,6 +573,13 @@ void Canvas::backgroundLeftDown(int x, int y) {
     onBackgroundLeftDown.emit(x, y);
 }
 
+void Canvas::backgroundRightUp(int x, int y) {
+    onBackgroundRightUp.emit(x, y);
+}
+void Canvas::backgroundRightDown(int x, int y) {
+    onBackgroundRightDown.emit(x, y);
+}
+
 void Canvas::downConnectNode(std::weak_ptr<Node> node, std::weak_ptr<Relation> relation) {
     // create a mouse_position widget
     mp_start = node;
@@ -686,7 +719,7 @@ void Canvas::load(std::string path) {
     loadFromFile = path;
 }
 
-void Canvas::applyFruchtermanReingoldAlgorithm() {
+void Canvas::applyFruchtermanReingoldAlgorithm(non_owning_ptr<SDL_Renderer> renderer) {
     auto nodes = find_all_by_type<Node>();
     if (nodes.empty()) {
         return;
@@ -723,6 +756,36 @@ void Canvas::applyFruchtermanReingoldAlgorithm() {
             lockednode->moveTo(
                 static_cast<int>(result[i][0] * fixedvalue_maybechangethis + 120.0 / zoomFactor),
                 static_cast<int>(result[i][1] * fixedvalue_maybechangethis + 20.0 / zoomFactor));
+        }
+    }
+
+    // compute center of gravity
+    SDL_Point centerofgravity{0, 0};
+    for (std::size_t i = 0; i < nodes.size(); ++i) {
+        if (auto lockednode = nodes[i].lock()) {
+            auto lockednoderect = lockednode->getRect();
+            centerofgravity.x += lockednoderect.x;
+            centerofgravity.y += lockednoderect.y;
+        }
+    }
+
+    centerofgravity.x =
+        static_cast<int>(static_cast<float>(centerofgravity.x) / static_cast<float>(nodes.size()));
+    centerofgravity.y =
+        static_cast<int>(static_cast<float>(centerofgravity.y) / static_cast<float>(nodes.size()));
+
+    // get middle of screen
+    int w;
+    int h;
+    SDL_GetRendererOutputSize(renderer.get(), &w, &h);
+
+    double middlex = static_cast<double>(w) / 2.0 / zoomFactor;
+    double middley = static_cast<double>(h) / 2.0 / zoomFactor;
+
+    for (std::size_t i = 0; i < nodes.size(); ++i) {
+        if (auto lockednode = nodes[i].lock()) {
+            lockednode->push(static_cast<int>(middlex) - centerofgravity.x,
+                             static_cast<int>(middley) - centerofgravity.y);
         }
     }
 }
