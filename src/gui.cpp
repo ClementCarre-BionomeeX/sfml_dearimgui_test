@@ -5,12 +5,22 @@ GUI::GUI(non_owning_ptr<SDL_Window> window, int w, non_owning_ptr<TTF_Font> font
       quitButton{10, 10, w - 20, 30, {200, 0, 0, 255}, {250, 50, 50, 255}, 2, "Quit", font},
       addNodeButon{10, 50, w - 20, 30, {200, 200, 200, 255}, {220, 220, 220, 255}, 2, "Add", font},
       saveButton{10, 90, w - 20, 30, {180, 180, 180, 255}, {220, 220, 220, 255}, 2, "Save", font},
-      loadButton{10, 130, w - 20, 30, {180, 180, 180, 255}, {220, 220, 220, 255}, 2, "Load", font} {
+      loadButton{10, 130, w - 20, 30, {180, 180, 180, 255}, {220, 220, 220, 255}, 2, "Load", font},
+      fruchtermanButton{10,
+                        170,
+                        w - 20,
+                        30,
+                        {180, 180, 180, 255},
+                        {220, 220, 220, 255},
+                        2,
+                        "F-R algorithm",
+                        font} {
     update();
     quitButton.onClick.connect([this]() { clickQuit(); });
     addNodeButon.onClick.connect([this]() { clickAddNode(); });
     saveButton.onClick.connect([this]() { clickSave(); });
     loadButton.onClick.connect([this]() { clickLoad(); });
+    fruchtermanButton.onClick.connect([this]() { clickFruchterman(); });
 }
 void GUI::render(non_owning_ptr<SDL_Renderer> renderer) {
     // render the background box from top to bottom
@@ -22,13 +32,15 @@ void GUI::render(non_owning_ptr<SDL_Renderer> renderer) {
     addNodeButon.render(renderer, 1.f);
     saveButton.render(renderer, 1.f);
     loadButton.render(renderer, 1.f);
+    fruchtermanButton.render(renderer, 1.f);
 }
 
 bool GUI::handleEvent(SDL_Event& event, float zoomfactor) {
     // first, check if any button is handled
     bool handled =
         quitButton.handleEvent(event, zoomfactor) || addNodeButon.handleEvent(event, zoomfactor) ||
-        saveButton.handleEvent(event, zoomfactor) || loadButton.handleEvent(event, zoomfactor);
+        saveButton.handleEvent(event, zoomfactor) || loadButton.handleEvent(event, zoomfactor) ||
+        fruchtermanButton.handleEvent(event, zoomfactor);
 
     // check if the event happend in the background
     if (!handled) {
@@ -74,6 +86,9 @@ void GUI::interactBackground() {
 }
 void GUI::leftUpBackground() {
     onBackgroundLeftUp.emit();
+}
+void GUI::clickFruchterman() {
+    onFruchtermanClick.emit();
 }
 
 GUI::~GUI() {

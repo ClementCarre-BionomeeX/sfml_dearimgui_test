@@ -32,6 +32,8 @@ class Link : public IWidget {
     bool isTarget(std::weak_ptr<IWidget> w) const noexcept;
     bool isRelation(std::weak_ptr<Relation> r) const noexcept;
 
+    bool isRelationDirected() const noexcept;
+
     std::weak_ptr<Relation> getRelation() const noexcept;
 
     // debug
@@ -42,6 +44,9 @@ class Link : public IWidget {
 
     json save(std::vector<std::weak_ptr<IWidget>> const&  widgets,
               std::vector<std::weak_ptr<Relation>> const& relations) const;
+
+    std::weak_ptr<IWidget> getSource() const;
+    std::weak_ptr<IWidget> getTarget() const;
 
   private:
     std::weak_ptr<IWidget> _source;

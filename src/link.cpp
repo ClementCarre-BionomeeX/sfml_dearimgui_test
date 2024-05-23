@@ -22,12 +22,13 @@ void Link::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     SDL_SetRenderDrawColor((SDL_Renderer*)renderer, color.r, color.g, color.b, color.a);
 
     // Scale positions and thickness by zoomFactor
-    int zoomedAX = static_cast<int>(static_cast<float>(a.x) * zoomFactor);
-    int zoomedAY = static_cast<int>(static_cast<float>(a.y) * zoomFactor);
-    int zoomedBX = static_cast<int>(static_cast<float>(b.x) * zoomFactor);
-    int zoomedBY = static_cast<int>(static_cast<float>(b.y) * zoomFactor);
-    int zoomedThickness =
-        std::max(static_cast<int>(static_cast<float>(_thickness) * zoomFactor), 1);
+    int zoomedAX        = static_cast<int>(static_cast<float>(a.x) * zoomFactor);
+    int zoomedAY        = static_cast<int>(static_cast<float>(a.y) * zoomFactor);
+    int zoomedBX        = static_cast<int>(static_cast<float>(b.x) * zoomFactor);
+    int zoomedBY        = static_cast<int>(static_cast<float>(b.y) * zoomFactor);
+    int zoomedThickness = std::max(
+        static_cast<int>(static_cast<float>(_thickness * (isSelected ? 1.5 : 1.0)) * zoomFactor),
+        1);
 
     drawThickLine(renderer, zoomedAX, zoomedAY, zoomedBX, zoomedBY, zoomedThickness, color);
     fillCircle(renderer, zoomedAX, zoomedAY, zoomedThickness / 2);
@@ -168,4 +169,18 @@ json Link::save(std::vector<std::weak_ptr<IWidget>> const&  widgets,
     return {{"source", findIndexOfWeakPtr(widgets, _source)},
             {"target", findIndexOfWeakPtr(widgets, _target)},
             {"relation", findIndexOfWeakPtr(relations, _relation)}};
+}
+
+std::weak_ptr<IWidget> Link::getSource() const {
+    return _source;
+}
+std::weak_ptr<IWidget> Link::getTarget() const {
+    return _target;
+}
+
+bool Link::isRelationDirected() const noexcept {
+    if (auto loeckedrelation = _relation.lock()) {
+        return loeckedrelation->directed();
+    }
+    return false;
 }
