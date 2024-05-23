@@ -32,6 +32,8 @@ class Link : public IWidget {
     bool isTarget(std::weak_ptr<IWidget> w) const noexcept;
     bool isRelation(std::weak_ptr<Relation> r) const noexcept;
 
+    bool isRelationDirected() const noexcept;
+
     std::weak_ptr<Relation> getRelation() const noexcept;
 
     // debug

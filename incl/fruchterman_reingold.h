@@ -120,12 +120,28 @@ Matrix fruchterman_reingold(Matrix const&       A,
         }
     }
 
+    std::vector<double> mins(dim, 1);
+    std::vector<double> maxs(dim, 0);
+
     // rescale from {-1, 1} to {0, 1}
     for (size_t i = 0; i < nnodes; ++i) {
         if (fixed.empty() || !fixed[i]) {
             for (size_t d = 0; d < dim; ++d) {
-                pos[i][d] += 1.0;
-                pos[i][d] /= 2.0;
+                if (pos[i][d] < mins[d]) {
+                    mins[d] = pos[i][d];
+                }
+                if (pos[i][d] > maxs[d]) {
+                    maxs[d] = pos[i][d];
+                }
+            }
+        }
+    }
+
+    for (size_t i = 0; i < nnodes; ++i) {
+        if (fixed.empty() || !fixed[i]) {
+            for (size_t d = 0; d < dim; ++d) {
+                pos[i][d] -= mins[d];
+                pos[i][d] /= (maxs[d] - mins[d]);
             }
         }
     }

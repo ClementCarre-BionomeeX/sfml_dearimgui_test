@@ -687,13 +687,13 @@ void Canvas::load(std::string path) {
 }
 
 void Canvas::applyFruchtermanReingoldAlgorithm() {
+    auto nodes = find_all_by_type<Node>();
+    if (nodes.empty()) {
+        return;
+    }
 
     // generate a matrix object that is nnode x nnode
-
     Matrix mat;
-
-    auto nodes = find_all_by_type<Node>();
-
     for (auto& node : nodes) {
         Vector v(nodes.size(), 0);
         // find all outbound connections
@@ -702,8 +702,9 @@ void Canvas::applyFruchtermanReingoldAlgorithm() {
         for (auto& othernode : nodes) {
             for (auto& link : links) {
                 if (auto lockedlink = link.lock()) {
-                    // TODO : non directed ok ?
-                    if (lockedlink->isTarget(othernode)) {
+                    if ((lockedlink->isTarget(othernode)) ||    //
+                        (lockedlink->isSource(othernode) && !lockedlink->isRelationDirected() &&
+                         lockedlink->isTarget(node))) {
                         v[i] = 1.0;
                     }
                 }
@@ -715,12 +716,13 @@ void Canvas::applyFruchtermanReingoldAlgorithm() {
 
     auto result = fruchterman_reingold(mat);
 
-    // fix everyone from 0 to 1000
+    double fixedvalue_maybechangethis = 1000.0;
 
     for (std::size_t i = 0; i < nodes.size(); ++i) {
         if (auto lockednode = nodes[i].lock()) {
-            lockednode->moveTo(static_cast<int>(result[i][0] * 1000.0),
-                               static_cast<int>(result[i][1] * 1000.0));
+            lockednode->moveTo(
+                static_cast<int>(result[i][0] * fixedvalue_maybechangethis + 120.0 / zoomFactor),
+                static_cast<int>(result[i][1] * fixedvalue_maybechangethis + 20.0 / zoomFactor));
         }
     }
 }
