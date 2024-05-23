@@ -35,6 +35,7 @@ class IWidget {
         if (currentlyHovering && !isHover) {
             onHover.emit();
             isHover = true;
+            handled = true;
         } else if (!currentlyHovering && isHover) {
             onHoverLost.emit();
             isHover = false;

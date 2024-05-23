@@ -32,6 +32,12 @@ std::weak_ptr<Node> Canvas::addNode(int x, int y) {
                     locked->select();
                 }
             }
+
+            // put the node at the top of the list
+            if (auto lockedptr = ptr.lock()) {
+                std::iter_swap(std::find(widgets.begin(), widgets.end(), lockedptr),
+                               widgets.begin());
+            }
         });
 
         node->onUnselected.connect([ptr, this]() {
@@ -459,10 +465,10 @@ void Canvas::render(non_owning_ptr<SDL_Renderer> renderer, float) {
             lockedlink->render(renderer, zoomFactor);
         }
     }
-    // then all nodes
+    // then all nodes (in reverse order)
     auto nodes = find_all_by_type<Node>();
-    for (auto node : nodes) {
-        if (auto lockednode = node.lock()) {
+    for (auto it = std::rbegin(nodes); it != std::rend(nodes); ++it) {
+        if (auto lockednode = it->lock()) {
             lockednode->render(renderer, zoomFactor);
         }
     }
