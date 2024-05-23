@@ -169,3 +169,10 @@ json Link::save(std::vector<std::weak_ptr<IWidget>> const&  widgets,
             {"target", findIndexOfWeakPtr(widgets, _target)},
             {"relation", findIndexOfWeakPtr(relations, _relation)}};
 }
+
+std::weak_ptr<IWidget> Link::getSource() const {
+    return _source;
+}
+std::weak_ptr<IWidget> Link::getTarget() const {
+    return _target;
+}

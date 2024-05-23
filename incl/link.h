@@ -43,6 +43,9 @@ class Link : public IWidget {
     json save(std::vector<std::weak_ptr<IWidget>> const&  widgets,
               std::vector<std::weak_ptr<Relation>> const& relations) const;
 
+    std::weak_ptr<IWidget> getSource() const;
+    std::weak_ptr<IWidget> getTarget() const;
+
   private:
     std::weak_ptr<IWidget> _source;
     std::weak_ptr<IWidget> _target;

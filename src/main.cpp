@@ -72,6 +72,8 @@ int main(int argc, char* argv[]) {
         file << canvas.save().dump();
     });
 
+    gui.onFruchtermanClick.connect([&canvas]() { canvas.applyFruchtermanReingoldAlgorithm(); });
+
     gui.onBackgroundLeftUp.connect([&canvas]() { canvas.backgroundLeftUp(0, 0); });
 
     while (running) {

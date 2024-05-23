@@ -20,6 +20,7 @@ class GUI {
     Signal<> onAddNodeClick;
     Signal<> onSaveClick;
     Signal<> onLoadClick;
+    Signal<> onFruchtermanClick;
     Signal<> onBackgroundInteraction;
     Signal<> onBackgroundLeftUp;
 
@@ -27,6 +28,7 @@ class GUI {
     void clickAddNode();
     void clickSave();
     void clickLoad();
+    void clickFruchterman();
     void interactBackground();
     void leftUpBackground();
 
@@ -37,4 +39,5 @@ class GUI {
     TextButton                 addNodeButon;
     TextButton                 saveButton;
     TextButton                 loadButton;
+    TextButton                 fruchtermanButton;
 };

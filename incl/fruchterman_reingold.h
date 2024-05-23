@@ -13,7 +13,7 @@ typedef vector<vector<double>> Matrix;
 typedef vector<double>         Vector;
 
 // Function to compute the Euclidean distance between two points
-double euclidean_distance(const Vector& a, const Vector& b) {
+double euclidean_distance(Vector const& a, Vector const& b) {
     double sum = 0.0;
     for (size_t i = 0; i < a.size(); ++i) {
         sum += (a[i] - b[i]) * (a[i] - b[i]);
@@ -35,10 +35,10 @@ Matrix generate_random_positions(size_t nnodes, size_t dim, unsigned int seed) {
     return pos;
 }
 
-Matrix fruchterman_reingold(const Matrix&       A,
+Matrix fruchterman_reingold(Matrix const&       A,
                             double              k          = -1,
                             Matrix              pos        = Matrix(),
-                            const vector<bool>& fixed      = vector<bool>(),
+                            vector<bool> const& fixed      = vector<bool>(),
                             size_t              iterations = 50,
                             double              threshold  = 1e-4,
                             size_t              dim        = 2,
@@ -50,7 +50,7 @@ Matrix fruchterman_reingold(const Matrix&       A,
     }
 
     if (k == -1) {
-        k = sqrt(1.0 / nnodes);
+        k = sqrt(1.0 / static_cast<double>(nnodes));
     }
 
     double t =
@@ -68,7 +68,7 @@ Matrix fruchterman_reingold(const Matrix&       A,
                     return a[1] < b[1];
                 }))[1]);
 
-    double dt = t / (iterations + 1);
+    double dt = t / static_cast<double>(iterations + 1);
     Matrix delta(nnodes, Vector(nnodes, 0.0));
     Matrix displacement(nnodes, Vector(dim, 0.0));
 
@@ -114,7 +114,8 @@ Matrix fruchterman_reingold(const Matrix&       A,
         }
 
         t -= dt;
-        if (euclidean_distance(displacement[0], Vector(dim, 0.0)) / nnodes < threshold) {
+        if (euclidean_distance(displacement[0], Vector(dim, 0.0)) / static_cast<double>(nnodes) <
+            threshold) {
             break;
         }
     }

@@ -1,4 +1,5 @@
 #include "../incl/canvas.h"
+#include "../incl/fruchterman_reingold.h"
 #include "../incl/json.h"
 #include "../incl/link.h"
 #include "../incl/relation.h"
@@ -635,15 +636,6 @@ void Canvas::from_json(json j) {
     killModal = false;
 
     widgets.clear();
-    // auto nodes = find_all_by_type<Node>();
-    // for (auto node : nodes) {
-    //     removeNode(node);
-    // }
-
-    // auto nodes = find_all_by_type<Node>();
-    // for (auto node : nodes) {
-    //     removeNode(node);
-    // }
 
     // do not touch mp or mp_pos_relation
 
@@ -692,4 +684,43 @@ void Canvas::from_json(json j) {
 void Canvas::load(std::string path) {
     loadFromFile.reset();
     loadFromFile = path;
+}
+
+void Canvas::applyFruchtermanReingoldAlgorithm() {
+
+    // generate a matrix object that is nnode x nnode
+
+    Matrix mat;
+
+    auto nodes = find_all_by_type<Node>();
+
+    for (auto& node : nodes) {
+        Vector v(nodes.size(), 0);
+        // find all outbound connections
+        auto        links = findAllOutboundConnections(node);
+        std::size_t i     = 0;
+        for (auto& othernode : nodes) {
+            for (auto& link : links) {
+                if (auto lockedlink = link.lock()) {
+                    // TODO : non directed ok ?
+                    if (lockedlink->isTarget(othernode)) {
+                        v[i] = 1.0;
+                    }
+                }
+            }
+            ++i;
+        }
+        mat.push_back(v);
+    }
+
+    auto result = fruchterman_reingold(mat);
+
+    // fix everyone from 0 to 1000
+
+    for (std::size_t i = 0; i < nodes.size(); ++i) {
+        if (auto lockednode = nodes[i].lock()) {
+            lockednode->moveTo(static_cast<int>(result[i][0] * 1000.0),
+                               static_cast<int>(result[i][1] * 1000.0));
+        }
+    }
 }

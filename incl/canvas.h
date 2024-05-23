@@ -79,6 +79,8 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     json save() const;
     void load(std::string path);
 
+    void applyFruchtermanReingoldAlgorithm();
+
   private:
     non_owning_ptr<TTF_Font>               _font;
     std::vector<std::shared_ptr<Relation>> vec;
