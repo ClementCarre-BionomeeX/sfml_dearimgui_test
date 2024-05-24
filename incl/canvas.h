@@ -121,5 +121,5 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
 
     void startDragging(int x, int y) noexcept;
     void endDragging(int x, int y) noexcept;
-    void computeDragging(int x, int y) noexcept;
+    void processDragging(int x, int y) noexcept;
 };

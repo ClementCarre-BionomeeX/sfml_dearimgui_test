@@ -31,10 +31,10 @@ void Button::render(non_owning_ptr<SDL_Renderer> renderer, float zoomFactor) {
     // Scale the button's position and size by the zoomFactor
     SDL_Rect zoomedRect = {
         //
-        static_cast<int>((float)rect.x * zoomFactor),    //
-        static_cast<int>((float)rect.y * zoomFactor),    //
-        static_cast<int>((float)rect.w * zoomFactor),    //
-        static_cast<int>((float)rect.h * zoomFactor)     //
+        static_cast<int>(static_cast<float>(rect.x) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.y) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.w) * zoomFactor),    //
+        static_cast<int>(static_cast<float>(rect.h) * zoomFactor)     //
     };
     int zoomedRadius = static_cast<int>(static_cast<float>(radius) * zoomFactor);
 

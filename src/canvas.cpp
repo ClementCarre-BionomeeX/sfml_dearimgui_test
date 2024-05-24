@@ -338,9 +338,8 @@ bool Canvas::handleEvent(SDL_Event& event, float) {
         break;
     }
     case SDL_MOUSEMOTION: {
-        if (event.motion.state && isDragging) {    // Pan with middle mouse
-
-            computeDragging(mouseX, mouseY);
+        if (event.motion.state && isDragging) {    // Pan
+            processDragging(mouseX, mouseY);
             handled = true;
         }
         break;
@@ -371,14 +370,21 @@ void Canvas::startDragging(int x, int y) noexcept {
         }
     }
 
+    wrx = static_cast<int>(static_cast<float>(x) / zoomFactor) - worldReference.x;
+    wry = static_cast<int>(static_cast<float>(y) / zoomFactor) - worldReference.y;
+
     isDragging = true;
 }
+
 void Canvas::endDragging(int, int) noexcept {
     xstarts.clear();
     ystarts.clear();
+    wrx        = 0;
+    wry        = 0;
     isDragging = false;
 }
-void Canvas::computeDragging(int x, int y) noexcept {
+
+void Canvas::processDragging(int x, int y) noexcept {
     auto        nodes = find_all_by_type<Node>();
     std::size_t i     = 0;
     for (auto node : nodes) {
@@ -390,36 +396,26 @@ void Canvas::computeDragging(int x, int y) noexcept {
         }
         ++i;
     }
+
+    worldReference.x = static_cast<int>(static_cast<float>(x) / zoomFactor) - wrx;
+    worldReference.y = static_cast<int>(static_cast<float>(y) / zoomFactor) - wry;
 }
 
 void Canvas::moveWidgetsAround(SDL_Point screenPositionTarget, float oldZoomFactor) {
-    auto allwidgets = find_all_by_type<IWidget>();
-    for (auto widget : allwidgets) {
-        if (auto lockedwidget = widget.lock()) {
+    int xdep = static_cast<int>(static_cast<float>(screenPositionTarget.x) / zoomFactor) -
+               static_cast<int>(static_cast<float>(screenPositionTarget.x) / oldZoomFactor);
+    int ydep = static_cast<int>(static_cast<float>(screenPositionTarget.y) / zoomFactor) -
+               static_cast<int>(static_cast<float>(screenPositionTarget.y) / oldZoomFactor);
 
-            auto worldPos = lockedwidget->position();
-
-            int oldWorldTargetX =
-                static_cast<int>(static_cast<float>(screenPositionTarget.x) / oldZoomFactor);
-            int oldWorldTargetY =
-                static_cast<int>(static_cast<float>(screenPositionTarget.y) / oldZoomFactor);
-            int relWorldPosX = worldPos.x - oldWorldTargetX;
-            int relWorldPosY = worldPos.y - oldWorldTargetY;
-
-            int newWorldPosX =
-                relWorldPosX +
-                static_cast<int>(static_cast<float>(screenPositionTarget.x) / zoomFactor);
-            int newWorldPosY =
-                relWorldPosY +
-                static_cast<int>(static_cast<float>(screenPositionTarget.y) / zoomFactor);
-
-            lockedwidget->moveTo(newWorldPosX, newWorldPosY);
-        }
+    for (auto widget : widgets) {
+        widget->push(xdep, ydep);
     }
+
+    worldReference = {worldReference.x + xdep, worldReference.y + ydep};
 }
 
 void Canvas::update() {
-    // first heck if we need to load anything
+    // first check if we need to load anything
     if (loadFromFile.has_value()) {
         // load json
         json j;
@@ -628,6 +624,8 @@ json Canvas::save() const {
 
     json result;
 
+    result["worldRef"] = {worldReference.x, worldReference.y};
+
     result["zoomFactor"] = zoomFactor;
 
     result["vec"] =
@@ -679,11 +677,16 @@ void Canvas::from_json(json j) {
     // do not touch mp or mp_pos_relation
 
     // first add the relations
-
     for (auto reljson : j["vec"]) {
         auto [name, basecolor, hovercolor, directed, transitive] = relationFromJson(reljson);
         vec.push_back(
             std::make_shared<Relation>(name, basecolor, hovercolor, directed, transitive));
+    }
+
+    if (j.contains("worldRef")) {
+        worldReference = {j["worldRef"][0].get<int>(), j["worldRef"][1].get<int>()};
+    } else {
+        worldReference = {0, 0};
     }
 
     // then read the zoomfactor

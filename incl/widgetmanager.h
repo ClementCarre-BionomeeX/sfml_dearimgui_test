@@ -33,6 +33,10 @@ class WidgetManager {
     int                                   starty = 0;
     non_owning_ptr<SDL_Renderer>          _renderer;
     std::vector<std::shared_ptr<IWidget>> widgets;
+
+    SDL_Point worldReference{0, 0};
+    int       wrx{0};
+    int       wry{0};
 };
 
 template <typename T, typename... Args>
@@ -83,8 +87,10 @@ inline std::weak_ptr<T> WidgetManager::addDraggableWidget(Args&&... args) {
 
         draggable->onDragging.connect([this](int x, int y, int snapping) {
             if (auto lockedSelection = selection.lock()) {
-                int xpos = snapping * (x / snapping) - snapping * (startx / snapping);
-                int ypos = snapping * (y / snapping) - snapping * (starty / snapping);
+                int xpos =
+                    snapping * ((x - startx - worldReference.x) / snapping) + worldReference.x;
+                int ypos =
+                    snapping * ((y - starty - worldReference.y) / snapping) + worldReference.y;
 
                 lockedSelection->moveTo(xpos, ypos);
             }
