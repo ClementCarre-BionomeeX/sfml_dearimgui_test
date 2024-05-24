@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
                                           SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    TTF_Font* font = TTF_OpenFont("data/FiraCode-Medium.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("data/FiraCode-Medium.ttf", 64);
     if (!font) {
         SDL_Log("[ERROR] Failed to load font: %s", TTF_GetError());
         return -1;
@@ -48,7 +48,10 @@ int main(int argc, char* argv[]) {
 
     GUI gui{non_owning_ptr<SDL_Window>(window), 100, non_owning_ptr<TTF_Font>(font)};
     gui.onQuitClick.connect([&running]() { running = false; });
-    gui.onAddNodeClick.connect([&canvas]() { canvas.addNode(200, 50); });
+    gui.onAddNodeClick.connect([&canvas]() {
+        canvas.addNode(static_cast<int>(200.0 / canvas.getZoomFactor()),
+                       static_cast<int>(50.0 / canvas.getZoomFactor()));
+    });
 
     gui.onLoadClick.connect([&canvas]() {
         std::string result;

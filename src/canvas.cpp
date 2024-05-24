@@ -3,6 +3,7 @@
 #include "../incl/json.h"
 #include "../incl/link.h"
 #include "../incl/relation.h"
+#include "../incl/utils.h"
 #include "../incl/vecvectransform.h"
 #include <fstream>
 #include <iostream>
@@ -13,8 +14,8 @@
 std::weak_ptr<Node> Canvas::addNode(int x, int y) {
 
     // change value to world position
-    x = static_cast<int>(static_cast<float>(x) / zoomFactor);
-    y = static_cast<int>(static_cast<float>(y) / zoomFactor);
+    // x = static_cast<int>(static_cast<float>(x) / zoomFactor);
+    // y = static_cast<int>(static_cast<float>(y) / zoomFactor);
 
     auto ptr = addDraggableWidget<Node>(x, y, 100, 200, _font, vec);
 
@@ -657,7 +658,10 @@ json Canvas::save() const {
 
     result["links"] =
         transformVector<std::weak_ptr<Link>, json>(links, [genericnodes, weakrelations](auto link) {
-            return link.lock()->save(genericnodes, weakrelations);
+            if (auto lockedlink = link.lock()) {
+                return lockedlink->save(genericnodes, weakrelations);
+            }
+            return json{};
         });
 
     return result;
@@ -666,15 +670,90 @@ json Canvas::save() const {
 void Canvas::from_json(json j) {
     // first, should remove all preceding values
     removeAnyMousePosition();
-    vec.clear();
+
     outboundsLinks.clear();
-    selection.reset();
     widgetToRemove.clear();
+
+    selection.reset();
     killModal = false;
 
+    vec.clear();
     widgets.clear();
 
     // do not touch mp or mp_pos_relation
+
+    if (j.contains("version")) {
+        // old fashioned json, let see what we can do ...
+        std::cout << "Old Version JSON" << std::endl;
+        // cst
+        zoomFactor     = 1.0;
+        worldReference = {0, 0};
+
+        // relations
+        int len = static_cast<int>(j["relations"].size());
+        std::cout << len << " relations found" << std::endl;
+
+        int i = 0;
+        for (auto reljson : j["relations"]) {
+            std::string name       = reljson["id"];
+            bool        directed   = true;
+            bool        transitive = true;
+            SDL_Color   basecolor  = HSVtoRGB(360 * i / (len + 1), 100, 50);
+            SDL_Color   hovercolor = HSVtoRGB(360 * i / (len + 1), 100, 75);
+            vec.push_back(
+                std::make_shared<Relation>(name, basecolor, hovercolor, directed, transitive));
+            ++i;
+        }
+
+        // nodes
+        len = static_cast<int>(j["terms"].size());
+        std::cout << len << " nodes found" << std::endl;
+
+        int svalue = 1 + static_cast<int>(sqrt(len - 1));
+
+        int nsx = 0;
+        int nsy = 0;
+
+        // build a fake node
+        auto node = addNode(0, 0);
+        if (auto lockednode = node.lock()) {
+            lockednode->update();
+            auto noderect = lockednode->getRect();
+            nsx           = noderect.w;
+            nsy           = noderect.h;
+        }
+        // destroy it
+        removeNode(node);
+
+        int bs = 50;
+
+        i          = 0;
+        auto state = KnowledgeState::Unknown;
+        for (auto nodejson : j["terms"]) {
+            std::string name = nodejson["name"];
+            auto newnode = addNode(bs + (nsx + bs) * (i % svalue), bs + (nsy + bs) * (i / svalue));
+            if (auto lockednode = newnode.lock()) {
+                lockednode->changeName(name);
+                lockednode->changeState(state);
+            }
+            ++i;
+        }
+
+        // links
+        for (auto nodejson : j["terms"]) {
+            // first find node by name
+            auto source = findByName(nodejson["name"]);
+
+            for (auto reljson : nodejson["relationships"]) {
+                auto target   = findByName(reljson["term"]);
+                auto relation = findRelByName(reljson["relation"]);
+                connectNodes(source, target, relation);
+            }
+        }
+        return;
+    }
+
+    std::cout << "New Format JSON" << std::endl;
 
     // first add the relations
     for (auto reljson : j["vec"]) {
@@ -692,6 +771,7 @@ void Canvas::from_json(json j) {
     // then read the zoomfactor
     zoomFactor = j["zoomFactor"];
 
+    std::cout << j["nodes"].size() << " nodes found" << std::endl;
     // then the nodes
     for (auto nodejson : j["nodes"]) {
         auto [name, x, y, state] = nodeFromJson(nodejson);
@@ -758,7 +838,7 @@ void Canvas::applyFruchtermanReingoldAlgorithm(non_owning_ptr<SDL_Renderer> rend
 
     auto result = fruchterman_reingold(mat);
 
-    double fixedvalue_maybechangethis = 1000.0;
+    double fixedvalue_maybechangethis = 10000.0;
 
     for (std::size_t i = 0; i < nodes.size(); ++i) {
         if (auto lockednode = nodes[i].lock()) {
@@ -797,4 +877,25 @@ void Canvas::applyFruchtermanReingoldAlgorithm(non_owning_ptr<SDL_Renderer> rend
                              static_cast<int>(middley) - centerofgravity.y);
         }
     }
+}
+
+std::weak_ptr<Node> Canvas::findByName(std::string name) {
+    auto nodes = find_all_by_type<Node>();
+    auto it    = std::find_if(nodes.begin(), nodes.end(), [name](auto other) {
+        if (auto lockedother = other.lock()) {
+            return lockedother->getName() == name;
+        }
+        return false;
+    });
+    return *it;
+}
+
+std::weak_ptr<Relation> Canvas::findRelByName(std::string name) {
+    auto it =
+        std::find_if(vec.begin(), vec.end(), [name](auto other) { return other->name() == name; });
+    return std::weak_ptr<Relation>(*it);
+}
+
+float Canvas::getZoomFactor() const noexcept {
+    return zoomFactor;
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <mutex>
 
 template <typename T>
 class non_owning_ptr {
@@ -16,31 +17,50 @@ class non_owning_ptr {
 
     // Template Copy Constructor for converting from derived to base
     template <typename U>
-    non_owning_ptr(const non_owning_ptr<U>& other) : ptr(static_cast<T*>(other.get())) {}
+    non_owning_ptr(const non_owning_ptr<U>& other) {
+        std::lock_guard<std::mutex> lock(other.mtx);
+        ptr = static_cast<T*>(other.get());
+    }
 
     // Template Copy Assignment for converting from derived to base
     template <typename U>
     non_owning_ptr& operator=(const non_owning_ptr<U>& other) {
-        ptr = static_cast<T*>(other.get());
+        if (this != &other) {
+            std::lock_guard<std::mutex> lock(other.mtx);
+            std::lock_guard<std::mutex> lock_this(mtx);
+            ptr = static_cast<T*>(other.get());
+        }
         return *this;
     }
+
     // Copy Constructor
-    non_owning_ptr(const non_owning_ptr& other) : ptr(other.ptr) {}
+    non_owning_ptr(const non_owning_ptr& other) {
+        std::lock_guard<std::mutex> lock(other.mtx);
+        ptr = other.ptr;
+    }
 
     // Copy Assignment Operator
     non_owning_ptr& operator=(const non_owning_ptr& other) {
         if (this != &other) {
+            std::lock_guard<std::mutex> lock(other.mtx);
+            std::lock_guard<std::mutex> lock_this(mtx);
             ptr = other.ptr;
         }
         return *this;
     }
 
     // Move Constructor
-    non_owning_ptr(non_owning_ptr&& other) noexcept : ptr(other.ptr) { other.ptr = nullptr; }
+    non_owning_ptr(non_owning_ptr&& other) noexcept {
+        std::lock_guard<std::mutex> lock(other.mtx);
+        ptr       = other.ptr;
+        other.ptr = nullptr;
+    }
 
     // Move Assignment Operator
     non_owning_ptr& operator=(non_owning_ptr&& other) noexcept {
         if (this != &other) {
+            std::lock_guard<std::mutex> lock(other.mtx);
+            std::lock_guard<std::mutex> lock_this(mtx);
             ptr       = other.ptr;
             other.ptr = nullptr;
         }
@@ -48,37 +68,60 @@ class non_owning_ptr {
     }
 
     // Access operators
-    T* operator->() const { return ptr; }
-    T& operator*() const { return *ptr; }
+    T* operator->() const {
+        std::lock_guard<std::mutex> lock(mtx);
+        return ptr;
+    }
+    T& operator*() const {
+        std::lock_guard<std::mutex> lock(mtx);
+        return *ptr;
+    }
 
     // Equality Operators
-    bool operator==(const non_owning_ptr& other) const { return ptr == other.ptr; }
-    bool operator!=(const non_owning_ptr& other) const { return ptr != other.ptr; }
-
-    // TODO : temporary while not everyone is non_owning.
-    // bool operator==(T* other) const { return ptr == other; }
-    // bool operator!=(T* other) const { return ptr != other; }
+    bool operator==(const non_owning_ptr& other) const {
+        std::lock_guard<std::mutex> lock_this(mtx);
+        std::lock_guard<std::mutex> lock_other(other.mtx);
+        return ptr == other.ptr;
+    }
+    bool operator!=(const non_owning_ptr& other) const {
+        std::lock_guard<std::mutex> lock_this(mtx);
+        std::lock_guard<std::mutex> lock_other(other.mtx);
+        return ptr != other.ptr;
+    }
 
     // Bool Conversion Operator
-    explicit operator bool() const { return ptr != nullptr; }
+    explicit operator bool() const {
+        std::lock_guard<std::mutex> lock(mtx);
+        return ptr != nullptr;
+    }
 
     // Explicit conversion to T*
-    explicit operator T*() const { return ptr; }
+    explicit operator T*() const {
+        std::lock_guard<std::mutex> lock(mtx);
+        return ptr;
+    }
 
-    void clear() noexcept { ptr = nullptr; }
+    void clear() noexcept {
+        std::lock_guard<std::mutex> lock(mtx);
+        ptr = nullptr;
+    }
 
     // Getter for the pointer (useful in template conversions)
-    T* get() const { return ptr; }
+    T* get() const {
+        std::lock_guard<std::mutex> lock(mtx);
+        return ptr;
+    }
 
     // Safe dynamic casting to another non_owning_ptr type
     template <typename U>
     static non_owning_ptr<U> dynamic_cast_to(non_owning_ptr<T> const& source) {
+        std::lock_guard<std::mutex> lock(source.mtx);
         if (U* casted = dynamic_cast<U*>(source.get())) {
             return non_owning_ptr<U>(casted);
         }
         return non_owning_ptr<U>(nullptr);
     }
-    // Safe dynamic casting to another non_owning_ptr type
+
     template <typename U>
     static non_owning_ptr<U> dynamic_cast_to(std::unique_ptr<T> const& source) {
         if (U* casted = dynamic_cast<U*>(source.get())) {
@@ -86,7 +129,7 @@ class non_owning_ptr {
         }
         return non_owning_ptr<U>(nullptr);
     }
-    // Safe dynamic casting to another non_owning_ptr type
+
     template <typename U>
     static non_owning_ptr<U> dynamic_cast_to(std::shared_ptr<T> const& source) {
         if (U* casted = dynamic_cast<U*>(source.get())) {
@@ -96,5 +139,6 @@ class non_owning_ptr {
     }
 
   private:
-    T* ptr;
+    mutable std::mutex mtx;
+    T*                 ptr;
 };

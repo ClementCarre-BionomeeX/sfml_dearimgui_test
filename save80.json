@@ -1,0 +1,1623 @@
+{
+    "terms": [
+        {
+            "name": "prévision",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "refine"
+                },
+                {
+                    "term": "appareils surveillances volcans",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "prévention",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "division",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "gravité",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "masse",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "séisme",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "onde mécanique",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "risque",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "risque",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "rigidité",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "contraintes en profondeur",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "rayon",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "cercle",
+                    "relation": "refine"
+                },
+                {
+                    "term": "sphère",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "son",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "onde mécanique",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "vibration",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "pli",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "déformation des roches",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "point",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "étoile",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "énergie lumineuse",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "densité",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "masse",
+                    "relation": "refine"
+                },
+                {
+                    "term": "volume",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "périmètre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "cercle",
+                    "relation": "refine"
+                },
+                {
+                    "term": "sphère",
+                    "relation": "refine"
+                },
+                {
+                    "term": "rayon",
+                    "relation": "refine"
+                },
+                {
+                    "term": "multiplication",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "probabilité",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "volcan",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "puissance",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "multiplication",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "subduction",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "différence de densité plaque continentale / océanique",
+                    "relation": "refine"
+                },
+                {
+                    "term": "plan Wadati Benioff",
+                    "relation": "refine"
+                },
+                {
+                    "term": "séisme impossible dans asthénosphère",
+                    "relation": "refine"
+                },
+                {
+                    "term": "fermeture d'un océan",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "Pi",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "cercle",
+                    "relation": "refine"
+                },
+                {
+                    "term": "sphère",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "temps",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "roche",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "solide",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "Soleil",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "étoile",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "masse",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "solide",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "état de la matière",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "liquide",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "état de la matière",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "vitesse",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "distance",
+                    "relation": "refine"
+                },
+                {
+                    "term": "temps",
+                    "relation": "refine"
+                },
+                {
+                    "term": "division",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "homogénéité formule",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "ligne",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "point",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "énergie",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "séisme",
+                    "relation": "refine"
+                },
+                {
+                    "term": "propagation onde mécanique",
+                    "relation": "Generalize"
+                }
+            ]
+        },
+        {
+            "name": "lumière",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "onde électromagnétique",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "volume",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "dorsale",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "observation lien géographique séisme relief",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "volcan",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "failles",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "rupture d'une roche",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "distance",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "satellite",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "gravité",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "spécificité",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "prévision",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "gaz",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "état de la matière",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "GPS",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "plaques tectoniques en mouvement",
+                    "relation": "refine"
+                },
+                {
+                    "term": "appareils surveillances volcans",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "contraintes en profondeur",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "Lune",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "satellite",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "onde",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "gravité",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "sphère",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "foyer",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "rupture d'une roche",
+                    "relation": "Generalize"
+                }
+            ]
+        },
+        {
+            "name": "enjeu",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "angle",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "droites séquentes",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "cercle",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "tempête",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "épicentre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "foyer",
+                    "relation": "refine"
+                },
+                {
+                    "term": "propagation onde mécanique",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "diamètre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "rayon",
+                    "relation": "refine"
+                },
+                {
+                    "term": "cercle",
+                    "relation": "refine"
+                },
+                {
+                    "term": "sphère",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "montagne",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "observation lien géographique séisme relief",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "sensibilité",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "prévision",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "sismomètre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vibration",
+                    "relation": "refine"
+                },
+                {
+                    "term": "appareils surveillances volcans",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "durée du jour",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "multiplication",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "masse Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "masse",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "rayon Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "rayon",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "périmètre Terre",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "racine carré",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "puissance",
+                    "relation": "refine"
+                },
+                {
+                    "term": "multiplication",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "extensomètre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "appareils surveillances volcans",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "rupture d'une roche",
+                    "relation": "refine"
+                },
+                {
+                    "term": "failles",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "rotation Terre",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "formule vitesse",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vitesse",
+                    "relation": "refine"
+                },
+                {
+                    "term": "homogénéité formule",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "mesurer temps",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "temps",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "onde mécanique",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "onde",
+                    "relation": "refine"
+                },
+                {
+                    "term": "vibration",
+                    "relation": "Generalize"
+                }
+            ]
+        },
+        {
+            "name": "vitesse séisme",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vitesse",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "séisme",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "lacune sismique",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "mesurer distance",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "distance",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "échelle carte",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "carte de la Terre",
+                    "relation": "refine"
+                },
+                {
+                    "term": "mesurer distance",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "périmètre Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "périmètre",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "distance Syène Alexandrie",
+                    "relation": "refine"
+                },
+                {
+                    "term": "angle Alexandrie centre Terre Syène",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "intensité séisme",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "séisme",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "longueur d'onde",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "onde",
+                    "relation": "refine"
+                },
+                {
+                    "term": "énergie",
+                    "relation": "refine"
+                },
+                {
+                    "term": "intensité séisme",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "conversion énergie",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "origine des saisons",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "inégale répartition température hémisphère Terre",
+                    "relation": "Generalize"
+                }
+            ]
+        },
+        {
+            "name": "fosse océanique",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "observation lien géographique séisme relief",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "montée de magma",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "contraintes en profondeur",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "droites séquentes",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "mesurer un angle",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "projection Mercator",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "échelle carte",
+                    "relation": "refine"
+                },
+                {
+                    "term": "sphère",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "énergie lumineuse",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "énergie",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "plan Wadati Benioff",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "temps rotation Terre",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "carte de la Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "Terre",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "Egypte Ptolémée II",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "rupture d'une roche",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "séisme",
+                    "relation": "refine"
+                },
+                {
+                    "term": "roche",
+                    "relation": "refine"
+                },
+                {
+                    "term": "déformation des roches",
+                    "relation": "refine"
+                },
+                {
+                    "term": "déformation des roches",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "homogénéité formule",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "vitesse satellisation",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "satellite",
+                    "relation": "refine"
+                },
+                {
+                    "term": "vitesse",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "homogénéité formule",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "racine carré",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "chute de météorites",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "état de la matière",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "frottement de l'air",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vitesse",
+                    "relation": "refine"
+                },
+                {
+                    "term": "vitesse satellisation",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "photo spatiale Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "sphère",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "Terre",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "écriture scientifique",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "chiffres significatifs",
+                    "relation": "Generalize"
+                },
+                {
+                    "term": "puissance",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "fermeture d'un océan",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "plaques tectoniques en mouvement",
+                    "relation": "refine"
+                },
+                {
+                    "term": "mouvement convergent de plaques",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "ouverture d'un océan",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "plaques tectoniques en mouvement",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "révolution de la Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "durée du jour",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "7 plaques principales",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "46 plaques tectoniques",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "variabilité de mesure",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "chiffres significatifs",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "déformation des roches",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "contraintes en profondeur",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "46 plaques tectoniques",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "limite de plaques tectoniques",
+                    "relation": "Generalize"
+                }
+            ]
+        },
+        {
+            "name": "chiffres significatifs",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "précision échelle équateur",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "projection Mercator",
+                    "relation": "refine"
+                },
+                {
+                    "term": "mesurer distance",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "onde électromagnétique",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "onde",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "accumulation d'énergie",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "contraintes en profondeur",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "glissement de terrain",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "risque",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "risque",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "asthénosphère non rigide",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "contraintes en profondeur",
+                    "relation": "refine"
+                },
+                {
+                    "term": "rupture d'une roche",
+                    "relation": "refine"
+                },
+                {
+                    "term": "rigidité",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "formation de lithosphère",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "dorsale",
+                    "relation": "refine"
+                },
+                {
+                    "term": "ouverture d'un océan",
+                    "relation": "refine"
+                },
+                {
+                    "term": "volcan",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "satellite géostationnaire",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "satellite",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "angles alternes internes",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "propagation onde mécanique",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "foyer",
+                    "relation": "refine"
+                },
+                {
+                    "term": "séisme",
+                    "relation": "refine"
+                },
+                {
+                    "term": "onde mécanique",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "contraintes en profondeur",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "rupture d'une roche",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "séismes forment des lignes",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "observation lien géographique séisme relief",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "carte de la Terre",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "ligne",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "limite de plaques tectoniques",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "axe rotation Terre incliné",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "rotation Terre",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "lignes de cote emboitable",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "les séismes sont imprévisibles",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "prévision",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "séisme",
+                    "relation": "refine"
+                },
+                {
+                    "term": "lacune sismique",
+                    "relation": "refine"
+                },
+                {
+                    "term": "accumulation d'énergie",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "les éruptions sont prévisibles",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "prévision",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "ouverture dorsale océanique",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "ouverture d'un océan",
+                    "relation": "refine"
+                },
+                {
+                    "term": "dorsale",
+                    "relation": "refine"
+                },
+                {
+                    "term": "plaques tectoniques en mouvement",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "rayons solaires parallèles",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "distance Syène Alexandrie",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "Egypte Ptolémée II",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "angle Alexandrie centre Terre Syène",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "formation chaine de montagnes",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "mouvement convergent de plaques",
+                    "relation": "refine"
+                },
+                {
+                    "term": "différence de densité plaque continentale / océanique",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "déformation des roches",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "appareils surveillances volcans",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "volcan",
+                    "relation": "refine"
+                },
+                {
+                    "term": "risque",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "protocole mesure vitesse séisme",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vitesse séisme",
+                    "relation": "refine"
+                },
+                {
+                    "term": "mesurer temps",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "mesurer distance",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "formule vitesse",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "chiffres significatifs",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "limite de plaques tectoniques",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "contraintes en profondeur",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "lien rayon solaire température",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "conversion énergie",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "énergie lumineuse",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "plaques tectoniques en mouvement",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "46 plaques tectoniques",
+                    "relation": "refine"
+                },
+                {
+                    "term": "répartition Mesosaurus Brasiliensis",
+                    "relation": "refine"
+                },
+                {
+                    "term": "lignes de cote emboitable",
+                    "relation": "refine"
+                },
+                {
+                    "term": "age des fonds océaniques symétriques par rapport à la dorsale",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "limite asthénosphère lithosphère",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "Gap de vitesse des ondes sismiques à 70 - 150km de profondeur",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "mouvement convergent de plaques",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "plaques tectoniques en mouvement",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "vitesse satellite géostationnaire",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vitesse",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "gravité",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "chiffres significatifs",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "répartition Mesosaurus Brasiliensis",
+            "description": "",
+            "relationships": []
+        },
+        {
+            "name": "séisme du 17 aout 1999 NO Turquie",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "séisme",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "séisme impossible dans asthénosphère",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "asthénosphère non rigide",
+                    "relation": "refine"
+                },
+                {
+                    "term": "limite asthénosphère lithosphère",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "angle Alexandrie centre Terre Syène",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "mesurer un angle",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "angle",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "mesurer un angle",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "rayons solaires parallèles",
+                    "relation": "refine"
+                },
+                {
+                    "term": "angles alternes internes",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "temps révolution satellite géostationnaire",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "distance orbite satellite géostationnaire",
+                    "relation": "refine"
+                },
+                {
+                    "term": "temps rotation Terre",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "volcans et séismes aux memes endroits",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "observation lien géographique séisme relief",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "distance orbite satellite géostationnaire",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "cercle",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "périmètre",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "vitesse satellite géostationnaire",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "observation carte age des fonds océaniques",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "carte de la Terre",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "observation lien géographique séisme relief",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "carte de la Terre",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "séisme",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "vitesse onde mécanique dépend de la rigidité",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vitesse séisme",
+                    "relation": "refine"
+                },
+                {
+                    "term": "rigidité",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "inégale répartition température hémisphère Terre",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "Terre",
+                    "relation": "refine"
+                },
+                {
+                    "term": "conversion énergie",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "lien rayon solaire température",
+                    "relation": "example-of"
+                },
+                {
+                    "term": "axe rotation Terre incliné",
+                    "relation": "refine"
+                },
+                {
+                    "term": "révolution de la Terre",
+                    "relation": "refine"
+                }
+            ]
+        },
+        {
+            "name": "différence de densité plaque continentale / océanique",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "mouvement convergent de plaques",
+                    "relation": "refine"
+                },
+                {
+                    "term": "densité",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "Gap de vitesse des ondes sismiques à 70 - 150km de profondeur",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "vitesse onde mécanique dépend de la rigidité",
+                    "relation": "example-of"
+                }
+            ]
+        },
+        {
+            "name": "age des fonds océaniques symétriques par rapport à la dorsale",
+            "description": "",
+            "relationships": [
+                {
+                    "term": "observation carte age des fonds océaniques",
+                    "relation": "refine"
+                },
+                {
+                    "term": "dorsale",
+                    "relation": "refine"
+                }
+            ]
+        }
+    ],
+    "relations": [
+        {
+            "name": "Example of",
+            "id": "example-of"
+        },
+        {
+            "name": "Refine",
+            "id": "refine"
+        },
+        {
+            "name": "Generalize",
+            "id": "Generalize"
+        }
+    ],
+    "version": "0.0.1"
+}

@@ -87,6 +87,8 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
 
     void applyFruchtermanReingoldAlgorithm(non_owning_ptr<SDL_Renderer> renderer);
 
+    float getZoomFactor() const noexcept;
+
   private:
     non_owning_ptr<TTF_Font>               _font;
     std::vector<std::shared_ptr<Relation>> vec;
@@ -122,4 +124,7 @@ class Canvas : std::enable_shared_from_this<Canvas>, public IWidget, public Widg
     void startDragging(int x, int y) noexcept;
     void endDragging(int x, int y) noexcept;
     void processDragging(int x, int y) noexcept;
+
+    std::weak_ptr<Node>     findByName(std::string);
+    std::weak_ptr<Relation> findRelByName(std::string name);
 };

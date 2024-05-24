@@ -35,7 +35,7 @@ class IWidget {
         if (currentlyHovering && !isHover) {
             onHover.emit();
             isHover = true;
-            handled = true;
+            // handled = true;
         } else if (!currentlyHovering && isHover) {
             onHoverLost.emit();
             isHover = false;
@@ -104,8 +104,14 @@ class IWidget {
         return result;
     }
 
-    void select() { isSelected = true; }
-    void unselect() { isSelected = false; }
+    void select() {
+        isSelected = true;
+        onSelected.emit();
+    }
+    void unselect() {
+        isSelected = false;
+        onUnselected.emit();
+    }
 
     bool is_selected() const { return isSelected; }
 
