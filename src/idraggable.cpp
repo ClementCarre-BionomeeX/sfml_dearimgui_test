@@ -28,20 +28,26 @@ void IDraggable::changeToHoverColor() noexcept {
     _color = std::make_unique<SDL_Color>(_hoverColor);
 }
 
-void IDraggable::drag(int x, int y) {
-    onDragging.emit(x, y);
+void IDraggable::drag(int x, int y, int _snapping) {
+    onDragging.emit(x, y, _snapping);
 }
 
 bool IDraggable::handleEvent(SDL_Event& event, float zoomfactor) {
+    bool ctrlkey = SDL_GetModState() & KMOD_CTRL;
+    int  mouseX  = static_cast<int>(static_cast<float>(event.motion.x) / zoomfactor);
+    int  mouseY  = static_cast<int>(static_cast<float>(event.motion.y) / zoomfactor);
+
     bool handled = IWidget::handleEvent(event, zoomfactor);
 
     // Additional handling for dragging if selected
     if (event.type == SDL_MOUSEMOTION && isDragging) {
 
-        int mouseX = static_cast<int>(static_cast<float>(event.motion.x) / zoomfactor);
-        int mouseY = static_cast<int>(static_cast<float>(event.motion.y) / zoomfactor);
+        if (ctrlkey) {
+            drag(mouseX, mouseY, static_cast<int>(20.0 / zoomfactor));    // Emit dragging signal
+        } else {
+            drag(mouseX, mouseY, 1);
+        }
 
-        drag(mouseX, mouseY);    // Emit dragging signal
         handled = true;
     }
 

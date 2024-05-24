@@ -119,6 +119,11 @@ class IWidget {
     Signal<int, int> onMouseRightDown;
     Signal<int, int> onMouseRightUp;
 
+    void mouseLeftDown(int x, int y) { onMouseLeftDown.emit(x, y); }
+    void mouseLeftUp(int x, int y) { onMouseLeftUp.emit(x, y); }
+    void mouseRightDown(int x, int y) { onMouseRightDown.emit(x, y); }
+    void mouseRightUp(int x, int y) { onMouseRightUp.emit(x, y); }
+
   protected:
     SDL_Rect rect{0, 0, 0, 0};
     bool     isHover    = false;

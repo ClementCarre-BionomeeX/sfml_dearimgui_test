@@ -44,17 +44,18 @@ class Node : public IDraggable {
     Signal<std::weak_ptr<Relation>> onConnectMouseLeftDown;
     Signal<>                        onLabelRightDown;
     Signal<>                        onOtherRightDown;
+    Signal<KnowledgeState>          onStateChange;
 
     // SLOTS
     void topButtonClick();
     void globalMouseLeftUp();
     void connectMouseLeftDown(std::weak_ptr<Relation> relation);
-
     void globalMouseRightDown();
+    void changeName(std::string name);
+    void changeState(KnowledgeState newstate);
 
-    void           changeName(std::string name);
+    // getter
     std::string    getName() const noexcept;
-    void           changeState(KnowledgeState newstate);
     KnowledgeState getState() const noexcept;
 
     json save() const;

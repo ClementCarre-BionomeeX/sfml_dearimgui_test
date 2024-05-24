@@ -81,9 +81,12 @@ inline std::weak_ptr<T> WidgetManager::addDraggableWidget(Args&&... args) {
             }
         });
 
-        draggable->onDragging.connect([this](int x, int y) {
+        draggable->onDragging.connect([this](int x, int y, int snapping) {
             if (auto lockedSelection = selection.lock()) {
-                lockedSelection->moveTo(x - startx, y - starty);
+                int xpos = snapping * (x / snapping) - snapping * (startx / snapping);
+                int ypos = snapping * (y / snapping) - snapping * (starty / snapping);
+
+                lockedSelection->moveTo(xpos, ypos);
             }
         });
     }

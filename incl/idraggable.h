@@ -11,8 +11,8 @@ class IDraggable : public IWidget {
     virtual ~IDraggable();
 
     // dragging signals
-    Signal<int, int> onDragging;
-    void             drag(int x, int y);
+    Signal<int, int, int> onDragging;
+    void                  drag(int x, int y, int snapfactor);
 
     void changeToBaseColor() noexcept;
     void changeToHoverColor() noexcept;
@@ -34,4 +34,5 @@ class IDraggable : public IWidget {
     SDL_Color                  _hoverColor;
 
     bool isDragging = false;
+    int  snapping   = 1;
 };

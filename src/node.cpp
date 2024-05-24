@@ -50,6 +50,14 @@ Node::Node(int                                           x,
         globalMouseLeftUp();    //
     });
 
+    labelName.onMouseLeftDown.connect([&](int _x, int _y) {
+        mouseLeftDown(_x, _y);    //
+    });
+
+    labelName.onMouseLeftUp.connect([&](int _x, int _y) {
+        mouseLeftUp(_x, _y);    //
+    });
+
     labelName.onMouseRightDown.connect([this](int, int) {
         // showChangeNameModal(_font);    //
         onLabelRightDown.emit();
@@ -72,8 +80,9 @@ Node::Node(int                                           x,
 
     std::size_t i = 0;
     for (auto& connectionButton : addConnectionButtonList) {
-        connectionButton->onMouseLeftUp.connect([this](int, int) {
+        connectionButton->onMouseLeftUp.connect([this](int _x, int _y) {
             globalMouseLeftUp();    //
+            mouseLeftUp(_x, _y);
         });
         connectionButton->onMouseRightDown.connect([this](int, int) {
             onOtherRightDown.emit();    //
@@ -93,6 +102,9 @@ void Node::changeState(KnowledgeState newstate) {
     _baseColor  = colors.first;
     _hoverColor = colors.second;
     _color      = std::make_unique<SDL_Color>(_baseColor);
+
+    // emit state change for propagation
+    onStateChange.emit(newstate);
 }
 
 Node::~Node() {
